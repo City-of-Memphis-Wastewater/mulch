@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "wsmx"
-version = "0.1.1"
+version = "0.1.2"
 description = "Workspace Manager CLI for initializing standard workspace folders"
-authors = ["George Clayton Bennett <georgeclaytonbennett@gmail.com>"]
+authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "wsmx", from = "src" }]
 include = ["src/wsmx/scaffold.json"]  # This must be a list # This tells poetry to package scaffold.json
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11"
