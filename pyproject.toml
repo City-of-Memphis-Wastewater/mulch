@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "wsmx"
+version = "0.1.0"
+description = "Workspace Manager CLI for initializing standard workspace folders"
+authors = ["George Clayton Bennett <georgeclaytonbennett@gmail.com>"]
+packages = [{ include = "wsmx", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+typer = "^0.12.3"
+toml = "^0.10.2"
+
+[tool.poetry.scripts]
+wsmx = "wsmx.cli:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
