@@ -35,17 +35,19 @@ pipx install dist/wsmx-0.1.0-py3-none-any.whl
 
 # Usage
 
-## Initialize a workspace named 'default' in the current directory
-wsmx init
+```bash
+# Initialize workspace named 'default' in the current directory
+wsmx
 
-## Initialize a workspace named 'workspace1' in ./myproject
-wsmx init ./myproject --name workspace1
+# Initialize workspace named 'workspace1' in ./myproject
+wsmx ./myproject --name workspace1
 
-## Initialize a workspace named 'workspace1' in the current directory (same as 'wsmx init --name workspace1')
-wsmx init --name workspace1
+# Initialize workspace named 'workspace1' in the current directory
+wsmx --name workspace1
 
-## Skip creating default-workspace.toml
-wsmx init ./myproject --name workspace1 --no-set-default
+# Skip creating default-workspace.toml
+wsmx ./myproject --name workspace1 --no-set-default
+```
 
 # Setup
 
