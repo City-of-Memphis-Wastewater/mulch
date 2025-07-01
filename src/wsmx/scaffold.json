@@ -1,0 +1,7 @@
+{
+    "": ["config", "data", "imports", "exports", "scripts", "secrets", "queries"],
+    "exports": ["aggregate"],
+    "config": ["default-workspace.toml"],
+    "secrets": ["secrets.yaml", "secrets-example.yaml"],
+    "queries": ["default-queries.toml"]
+}

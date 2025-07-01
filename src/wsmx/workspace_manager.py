@@ -23,10 +23,38 @@ class WorkspaceManager:
 
     def load_scaffold(self) -> dict:
         scaffold_path = Path(__file__).parent / self.DEFAULT_SCAFFOLD_FILENAME
+        
+        #fallback_scaffold = {
+        #    "folders": ["workspaces", "logs", "configs"],
+        #    "files": ["README.md", "default-workspace.toml"]
+        #}
+        
+        fallback_scaffold = {
+            "": ["config", "data", "imports", "exports", "scripts", "secrets", "queries"],
+            "exports": ["aggregate"],
+            "config": ["default-workspace.toml"],
+            "secrets": ["secrets.yaml", "secrets-example.yaml"],
+            "queries": ["default-queries.toml"]
+        }
+        
         if not scaffold_path.exists():
-            raise FileNotFoundError(f"Missing scaffold file: {scaffold_path}")
-        with open(scaffold_path, "r") as f:
-            return json.load(f)
+            # File missing, log warning and return fallback
+            print(f"Warning: Missing scaffold file: {scaffold_path}, using fallback scaffold.")
+            return fallback_scaffold
+            
+        #with open(scaffold_path, "r") as f:
+        #    return json.load(f)
+            
+        try:
+            with open(scaffold_path, "r") as f:
+                content = f.read().strip()
+                if not content:
+                    print(f"Warning: Scaffold file {scaffold_path} is empty, using fallback scaffold.")
+                    return fallback_scaffold
+                return json.loads(content)
+        except json.JSONDecodeError as e:
+            print(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
+            return fallback_scaffold
 
     def get_path(self, key: str) -> Path:
         """
