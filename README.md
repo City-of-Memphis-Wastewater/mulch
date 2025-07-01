@@ -15,7 +15,7 @@ files inside your project directory.
 
 ---
 
-## Installation
+# Installation
 
 ## pipx
 ```bash
