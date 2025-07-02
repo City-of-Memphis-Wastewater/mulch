@@ -8,7 +8,7 @@ app = typer.Typer(help=HELP_TEXT, no_args_is_help=True)
 
 @app.callback()
 def main():
-    """
+    f"""
     {HELP_TEXT}
     """
     pass

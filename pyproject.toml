@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wsmx"
-version = "0.1.5"
+version = "0.1.6"
 description = "Workspace Manager CLI for initializing standard workspace folders"
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "wsmx", from = "src" }]
