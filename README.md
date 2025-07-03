@@ -29,7 +29,7 @@ git clone https://github.com/yourusername/mulch.git
 cd mulch
 poetry install
 poetry build
-pipx install dist/mulch-0.1.0-py3-none-any.whl
+pipx install dist/mulch-*-py3-none-any.whl
 ```
 
 
@@ -55,7 +55,7 @@ mulch init ./myproject --name workspace1 --no-set-default
 poetry build
 
 ## Install it with pipx
-pipx install dist/mulch-0.1.0-py3-none-any.whl
+pipx install dist/mulch-*-py3-none-any.whl
 
 ## Now you can run:
 mulch --help
