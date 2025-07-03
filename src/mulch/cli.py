@@ -1,6 +1,6 @@
 import typer
 from pathlib import Path
-from wsmx.workspace_manager import WorkspaceManager
+from wsmx.workspace_factory import WorkspaceFactory
 
 HELP_TEXT = "Workspace Manager CLI for scaffolding project workspaces."
 
@@ -25,7 +25,7 @@ def init(
     Initialize a new workspace inside the given target directory.
     """
     target_dir = target_dir.resolve()
-    wm = WorkspaceManager(base_path=target_dir, workspace_name=name)
+    wm = WorkspaceFactory(base_path=target_dir, workspace_name=name)
     wm.check_and_create_dirs_from_scaffold()
 
     if set_default:

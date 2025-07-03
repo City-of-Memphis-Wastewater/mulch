@@ -1,6 +1,6 @@
-# wsmx — Workspace Manager CLI
+# mulch — Workspace Factory CLI
 
-`wsmx` is a lightweight, project-agnostic CLI tool to scaffold and manage workspace directories
+`mulch` is a lightweight, project-agnostic CLI tool to scaffold and generate workspace directories
 for any Python project. It bootstraps a standardized workspace folder structure and configuration
 files inside your project directory.
 
@@ -19,17 +19,17 @@ files inside your project directory.
 
 ## pipx
 ```bash
-pipx install wsmx
+pipx install mulch
 ```
 
 ## git clone
 
 ```bash
-git clone https://github.com/yourusername/wsmx.git
-cd wsmx
+git clone https://github.com/yourusername/mulch.git
+cd mulch
 poetry install
 poetry build
-pipx install dist/wsmx-0.1.0-py3-none-any.whl
+pipx install dist/mulch-0.1.0-py3-none-any.whl
 ```
 
 
@@ -37,27 +37,27 @@ pipx install dist/wsmx-0.1.0-py3-none-any.whl
 
 ```bash
 # Initialize workspace named 'default' in the current directory
-wsmx init
+mulch init
 
 # Initialize workspace named 'workspace1' in ./myproject
-wsmx init ./myproject --name workspace1
+mulch init ./myproject --name workspace1
 
 # Initialize workspace named 'workspace1' in the current directory
-wsmx init --name workspace1
+mulch init --name workspace1
 
 # Skip creating default-workspace.toml
-wsmx init ./myproject --name workspace1 --no-set-default
+mulch init ./myproject --name workspace1 --no-set-default
 ```
 
 # Setup
 
-## From the root of your wsmx repo
+## From the root of your mulch repo
 poetry build
 
 ## Install it with pipx
-pipx install dist/wsmx-0.1.0-py3-none-any.whl
+pipx install dist/mulch-0.1.0-py3-none-any.whl
 
 ## Now you can run:
-wsmx --help
-wsmx init ./target-software
+mulch --help
+mulch init ./target-software
 

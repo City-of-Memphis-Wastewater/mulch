@@ -1,4 +1,4 @@
-# src/wsmx/workspace_manager.py (project-agnostic, reusable)
+# src/wsmx/workspace_factory.py (project-agnostic, reusable)
 
 import json
 import logging
@@ -6,7 +6,7 @@ from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-class WorkspaceManager:
+class WorkspaceFactory:
     """
     Project-agnostic workspace manager for use with the wsmx CLI.
     Manages directory creation and standardized file placement based on scaffold.json.

@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "wsmx"
-version = "0.1.7"
-description = "Workspace Manager CLI for initializing standard workspace folders"
+name = "mulch"
+version = "0.1.9"
+description = "Workspace Factory CLI for initializing standard workspace folders"
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
-packages = [{ include = "wsmx", from = "src" }]
-include = ["src/wsmx/scaffold.json"]  # This must be a list # This tells poetry to package scaffold.json
+packages = [{ include = "mulch", from = "src" }]
+include = ["src/mulch/scaffold.json"]  # This must be a list # This tells poetry to package scaffold.json
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -15,7 +15,7 @@ click = "<8.1.7"
 rich = "<13.7.0"
 
 [tool.poetry.scripts]
-wsmx = "wsmx.cli:app"
+mulch = "mulch.cli:app"
 
 [build-system]
 requires = ["poetry-core"]
