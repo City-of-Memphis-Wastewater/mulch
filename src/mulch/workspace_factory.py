@@ -65,20 +65,21 @@ class WorkspaceFactory:
         else:
             logging.info(f"{config_path} already exists; skipping overwrite")
 
-    def render_workspace_manager(self, src_dir: Path):
+    def render_workspace_manager(self):
         """
         Render a workspace_manager.py file based on the scaffold and template.
         """
         env = Environment(loader=FileSystemLoader(self.DEFAULT_TEMPLATE_DIR))
         template = env.get_template(self.DEFAULT_TEMPLATE_FILENAME)
 
-        project_name = Path.cwd()
+        project_name = self.base_path.name
         rendered = template.render(
             project_name = project_name,
             scaffold=self.scaffold,
             workspace_dir_name=self.workspace_name
         )
 
+        src_dir = self.base_path / "src"  # <rootprojectname>/src
         output_dir = src_dir / project_name
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / "workspace_manager.py"

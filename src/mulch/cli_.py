@@ -33,23 +33,20 @@ def init(
 
     typer.echo(f"Workspace '{name}' initialized at {wm.workspace_dir}")
 
-    @app.command("render-workspace-manager")
-    def render_workspace_manager(
-        target_dir: Path = typer.Argument(
-            Path.cwd(),
-            help="Target project root (containing scaffold.json). Defaults to current directory."
-        ),
-        project_name: str = typer.Option(..., "--project-name", "-p", help="Name of the project (used in src/<project_name>/workspace_manager.py)")
+@app.command("render-workspace-manager")
+def render_workspace_manager(
+    target_dir: Path = typer.Argument(
+        Path.cwd(),
+        help="Target project root (containing scaffold.json). Defaults to current directory."
+    ),
     ):
-        """
-        Render the workspace_manager.py file from Jinja2 template using scaffold.json.
-        """
-        wf = WorkspaceFactory(base_path=target_dir, workspace_name="placeholder")  # workspace_name not used for rendering
-        wf.render_workspace_manager(project_name=project_name)
-        typer.echo(f"workspace_manager.py created in src/{project_name}/")
-
-    if __name__ == "__main__":
-        app()
+    """
+    Render the workspace_manager.py file from Jinja2 template using scaffold.json.
+    """
+    wf = WorkspaceFactory(base_path=target_dir, workspace_name="placeholder")  # workspace_name not used for rendering
+    wf.render_workspace_manager()
+    ##project_name = Path.cwd()
+    #typer.echo(f"workspace_manager.py created in src/{project_name}/")
 
 if __name__ == "__main__":
     app()

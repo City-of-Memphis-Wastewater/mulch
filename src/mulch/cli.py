@@ -60,8 +60,6 @@ def render(
     """
     Render workspace_manager.py using scaffold.json and a Jinja2 template.
     """
-    if target_dir:
-        target_dir = Path.cwd()
     _render_workspace_manager(target_dir)
 
 
