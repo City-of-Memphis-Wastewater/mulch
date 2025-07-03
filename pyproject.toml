@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mulch"
-version = "0.1.17"
+version = "0.1.18"
 description = "Workspace Factory CLI for initializing standard workspace folders"
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
