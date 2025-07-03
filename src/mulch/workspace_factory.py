@@ -1,4 +1,4 @@
-# src/wsmx/workspace_factory.py (project-agnostic, reusable)
+# src/mulch/workspace_factory.py (project-agnostic, reusable)
 
 import json
 import logging
@@ -8,8 +8,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 class WorkspaceFactory:
     """
-    Project-agnostic workspace manager for use with the wsmx CLI.
+    Project-agnostic workspace factory for use with the mulch CLI.
     Manages directory creation and standardized file placement based on scaffold.json.
+    Coming soon: generate a workspace_manager.py file in the src.
     """
 
     DEFAULT_SCAFFOLD_FILENAME = "scaffold.json"

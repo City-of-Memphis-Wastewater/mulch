@@ -17,7 +17,7 @@ files inside your project directory.
 
 # Installation
 
-## pipx
+## pipx (recommended)
 ```bash
 pipx install mulch
 ```
@@ -25,7 +25,7 @@ pipx install mulch
 ## git clone
 
 ```bash
-git clone https://github.com/yourusername/mulch.git
+git clone https://github.com/city-of-memphis/mulch.git
 cd mulch
 poetry install
 poetry build
@@ -48,16 +48,4 @@ mulch init --name workspace1
 # Skip creating default-workspace.toml
 mulch init ./myproject --name workspace1 --no-set-default
 ```
-
-# Setup
-
-## From the root of your mulch repo
-poetry build
-
-## Install it with pipx
-pipx install dist/mulch-*-py3-none-any.whl
-
-## Now you can run:
-mulch --help
-mulch init ./target-software
 

@@ -1,6 +1,6 @@
 import typer
 from pathlib import Path
-from wsmx.workspace_factory import WorkspaceFactory
+from mulch.workspace_factory import WorkspaceFactory
 
 HELP_TEXT = "Workspace Manager CLI for scaffolding project workspaces."
 
