@@ -1,10 +1,13 @@
 [tool.poetry]
 name = "mulch"
-version = "0.1.18"
+version = "0.1.21"
 description = "Workspace Factory CLI for initializing standard workspace folders"
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
-include = ["src/mulch/scaffold.json"]  # This must be a list # This tells poetry to package scaffold.json
+include = [
+	"src/mulch/scaffold.json",
+	"src/mulch/templates/*.j2"
+	]  # This must be a list # This tells poetry to package scaffold.json
 readme = "README.md"
 
 [tool.poetry.dependencies]
