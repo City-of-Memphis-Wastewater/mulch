@@ -138,8 +138,8 @@ def init(
     scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml")
 ):
-    f"""
-    Initialize a new workspace folder tree using {DEFAULT_SCAFFOLD_FILENAME} or fallback.
+    """
+    Initialize a new workspace folder tree using DEFAULT_SCAFFOLD_FILENAME or fallback.
     """
 
     if scaffold_filepath:
@@ -183,20 +183,21 @@ def prep(
         False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded structure FALLBACK_SCAFFOLD."
     ),
     ):
-    f'''
-    Prep is meant to drop a {DEFAULT_SCAFFOLD_FILENAME} (or otherwise explicity named using -o) file in the target dir.
+    """
+    Prep is meant to drop a scaffold file to disk.
+    It will default to dropping a copy of the fallback embedded scaffold structure.
+    You are able to edit this file manually.  
 
-    Alternatively, you can write a file manually or using shell commands:
-
-        ```PowerShell
+    Alternatively, you can use the 'show' command. 
+    Example PowerShell snippet:
         mulch show -c
-        #$scaffold_str = {"":["config","data","imports","exports","scripts","secrets","queries"],"exports":["aggregate"],"config":["default-workspace.toml","logging.json"],"secrets":["secrets.yaml","secrets-example.yaml"],"queries":["default-queries.toml"]} 
-        $scaffold_str | Out-File -Encoding utf8 -FilePath {DEFAULT_SCAFFOLD_FILENAME}
-        ```
-    '''
+        $scaffold_str = '{"": ["config", "data", ...]}'
+        $scaffold_str | Out-File -Encoding utf8 -FilePath scaffold-temp.json
+    """
+    scaffold_dict = FALLBACK_SCAFFOLD
     full_path = target_dir / filename_out
     if use_embedded:
-        scaffold_dict = FALLBACK_SCAFFOLD
+        pass
     elif filepath_in:
         with open(filepath_in, "r", encoding="utf-8") as f:
             scaffold_dict = json.load(f)
