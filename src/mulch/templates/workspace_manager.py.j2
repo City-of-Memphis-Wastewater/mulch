@@ -40,11 +40,11 @@ class WorkspaceManager:
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-                logging.info(f"Created file: {{ child }}")
+                logging.DEBUG(f"Created file: {{ child }}")
         else:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
-                logging.info(f"Created folder: {{ child }}")
+                logging.DEBUG(f"Created folder: {{ child }}")
 {% endfor %}
 {% endfor %}
 
