@@ -24,8 +24,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 
 DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
+#DEFAULT_SCAFFOLD_PATH = target_dir / DEFAULT_SCAFFOLD_FILENAME  # or Path.cwd() / ...
 LOCK_FILE_NAME = 'mulch.lock'
-SCAFFOLD_FILE_PREPPED = DEFAULT_SCAFFOLD_FILENAME
 
 app = typer.Typer(help=HELP_TEXT, no_args_is_help=True, add_completion=False)
 
@@ -154,6 +154,23 @@ def init(
     else:
         scaffold_dict = FALLBACK_SCAFFOLD
 
+    if scaffold_filepath:
+        with open(scaffold_filepath, "r", encoding="utf-8") as f:
+            scaffold_dict = json.load(f)
+        logger.info(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
+    elif Path(SCAFFOLD_FILE_PREPPED).is_file():
+        with open(SCAFFOLD_FILE_PREPPED, "r", encoding="utf-8") as f:
+            scaffold_dict = json.load(f)
+        logger.info(f"Scaffold loaded from file in current directory: {SCAFFOLD_FILE_PREPPED}")
+    elif (Path.cwd() / SCAFFOLD_FILE_PREPPED).is_file():
+        with open(Path.cwd() / SCAFFOLD_FILE_PREPPED, "r", encoding="utf-8") as f:
+            scaffold_dict = json.load(f)
+        logger.info(f"Scaffold loaded from file in current working directory: {Path.cwd() / SCAFFOLD_FILE_PREPPED}")
+    else:
+        scaffold_dict = FALLBACK_SCAFFOLD
+        logger.info("Scaffold loaded from embedded fallback structure (FALLBACK_SCAFFOLD)")
+
+
     lock_data = {
         "scaffold": scaffold_dict,
         "generated_by": f"mulch {mulch_version}",
@@ -177,7 +194,6 @@ def init(
 @app.command()
 def prep(
     target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
-    filename_out: str = typer.Option(DEFAULT_SCAFFOLD_FILENAME,"--filename-out","-o",help = f"Scaffold filename (defaults to '{DEFAULT_SCAFFOLD_FILENAME}')"),
     filepath_in: str = typer.Option(None,"--filepath-in","-i",help = "Exsting scaffold filename that you want copied. You must use -o/--filepath-out in conjunction with -i/--filepath-in"),
     use_embedded: bool = typer.Option(
         False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded structure FALLBACK_SCAFFOLD."
@@ -192,22 +208,28 @@ def prep(
     Example PowerShell snippet:
         mulch show -c
         $scaffold_str = '{"": ["config", "data", ...]}'
-        $scaffold_str | Out-File -Encoding utf8 -FilePath scaffold-temp.json
+        $scaffold_str | Out-File -Encoding utf8 -FilePath mulch-scaffold.json
     """
+    
+    scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
     scaffold_dict = FALLBACK_SCAFFOLD
-    full_path = target_dir / filename_out
     if use_embedded:
-        pass
+        pass # scaffold_dict = FALLBACK_SCAFFOLD
     elif filepath_in:
         with open(filepath_in, "r", encoding="utf-8") as f:
             scaffold_dict = json.load(f)
-    SCAFFOLD_FILE_PREPPED = full_path
-    full_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
-    
-    with open(full_path, "w", encoding="utf-8") as f:
+
+    if scaffold_path.exists():
+        if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
+            typer.echo("Aborted: Did not overwrite existing scaffold file.")
+            raise typer.Abort()
+    with open(scaffold_path, "w", encoding="utf-8") as f:
         json.dump(scaffold_dict, f, indent=2)
     
-    typer.echo(f"✅ Wrote scaffold to: {full_path}")
+    typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
+    typer.echo("✏️  You can now manually edit this file to customize your workspace layout.")
+    typer.echo("⚙️  Changes to this scaffold will directly affect the generated workspace_manager.py when you run 'mulch init'.")
+
 
 @app.command()
 def show(
