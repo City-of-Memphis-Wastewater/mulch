@@ -4,6 +4,7 @@ import json
 import logging
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
+import typer
 
 from mulch.logging_setup import setup_logging
 
@@ -12,7 +13,8 @@ setup_logging()
 logger = logging.getLogger(__name__)
 #logger.info("workspace_factory imported")
 
-DEFAULT_SCAFFOLD_FILENAME = "scaffold.json"
+DEFAULT_SCAFFOLD_FILENAME = "mulch-scaffold.json"
+LOCK_FILE_NAME = 'mulch.lock'
 FALLBACK_SCAFFOLD = {
         "": ["config", "data", "imports", "exports", "scripts", "secrets", "queries"],
         "exports": ["aggregate"],
@@ -22,9 +24,9 @@ FALLBACK_SCAFFOLD = {
     }
 
 class WorkspaceFactory:
-    """
+    f"""
     Project-agnostic workspace factory for use with the mulch CLI.
-    Manages directory creation and standardized file placement based on scaffold.json.
+    Manages directory creation and standardized file placement based on {DEFAULT_SCAFFOLD_FILENAME}.
     Coming soon: generate a workspace_manager.py file in the src.
     """
     
@@ -34,12 +36,12 @@ class WorkspaceFactory:
     FALLBACK_SCAFFOLD = FALLBACK_SCAFFOLD # to make accessible, for pip and interally
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
 
-    def __init__(self, base_path: Path, workspace_name: str, scaffold_structure: dict):
+    def __init__(self, base_path: Path, workspace_name: str, lock_data: dict):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
         self.workspace_dir = self.base_path / "workspaces" / workspace_name
-        #self.scaffold = load_scaffold()
-        self.scaffold = scaffold_structure
+        self.lock_data = lock_data
+        #self.scaffold = lock_data["scaffold"]
 
     def get_path(self, key: str) -> Path:
         """
@@ -50,11 +52,11 @@ class WorkspaceFactory:
             path /= part
         return path
 
-    def check_and_create_dirs_from_scaffold(self):
+    def check_and_create_workspace_dirs_from_scaffold(self):
         """
         Create folders and files under the workspace directory as defined by the scaffold.
         """
-        for parent, children in self.scaffold.items():
+        for parent, children in self.lock_data["scaffold"].items():
             base = self.workspace_dir / parent
             for child in children:
                 path = base / child
@@ -90,7 +92,7 @@ class WorkspaceFactory:
         project_name = self.base_path.name
         rendered = template.render(
             project_name = project_name,
-            scaffold=self.scaffold,
+            scaffold=self.lock_data["scaffold"],
             workspace_dir_name=self.workspace_name
         )
 
@@ -98,7 +100,33 @@ class WorkspaceFactory:
         output_dir = src_dir / project_name
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / "workspace_manager.py"
+        lock_path = output_dir / LOCK_FILE_NAME
+        
+        if lock_path.exists():
+            try:
+                with open(lock_path, "r", encoding="utf-8") as f:
+                    
+                    existing = json.load(f)
+                existing_scaffold = existing.get("scaffold", {})
+                if existing_scaffold == self.lock_data["scaffold"]: #self.scaffold:
+                    logging.info(f"Scaffold unchanged. Skipping re-render of workspace_manager.py at {output_path}")
+                    return  # 🛑 Skip rendering
+                else:
+                    typer.confirm(f"⚠️ Existing {LOCK_FILE_NAME} does not match this scaffold structure. Continue?", abort=True)
+            except Exception as e:
+                logging.warning(f"Could not read {LOCK_FILE_NAME} for comparison: {e}")
+
+        # ✅ Check for overwrite *here*, not in CLI
+        if output_path.exists():
+            typer.confirm(
+                f"⚠️ A workspace_manager.py file already exists at {output_path}. "
+                f"Overwriting it may break existing tooling. Continue?",
+                abort=True
+            )
+            
         output_path.write_text(rendered)
+        with open(lock_path, "w", encoding="utf-8") as f:
+            json.dump(self.lock_data, f, indent=2)
         logging.info(f"Generated workspace_manager.py at {output_path}")
 
 def load_scaffold(scaffold_path: Path | None = None) -> dict:

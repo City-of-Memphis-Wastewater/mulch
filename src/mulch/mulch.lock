@@ -1,0 +1,29 @@
+{
+  "scaffold": {
+    "": [
+      "config",
+      "data",
+      "imports",
+      "exports",
+      "scripts",
+      "secrets",
+      "queries"
+    ],
+    "exports": [
+      "aggregate"
+    ],
+    "config": [
+      "default-workspace.toml",
+      "logging.json"
+    ],
+    "secrets": [
+      "secrets.yaml",
+      "secrets-example.yaml"
+    ],
+    "queries": [
+      "default-queries.toml"
+    ]
+  },
+  "generated_by": "mulch 0.1.9",
+  "generated_at": "2025-07-05T20:44:27.824472Z"
+}

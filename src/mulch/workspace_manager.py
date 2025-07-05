@@ -13,17 +13,15 @@ class WorkspaceManager:
 
     WORKSPACES_DIR_NAME = "workspaces"
 
-    ROOT_CONTENTS = ["config", "data", "imports", "exports", "scripts", "secrets", "queries", "michael"]
+    ROOT_CONTENTS = ["config", "data", "imports", "exports", "scripts", "secrets", "queries"]
 
     EXPORTS_DIR_NAME = ["aggregate"]
 
-    CONFIG_DIR_NAME = ["default-workspace.toml"]
+    CONFIG_DIR_NAME = ["default-workspace.toml", "logging.json"]
 
     SECRETS_DIR_NAME = ["secrets.yaml", "secrets-example.yaml"]
 
     QUERIES_DIR_NAME = ["default-queries.toml"]
-
-    MICHAEL_DIR_NAME = ["wow.txt", "you.txt", "are.txt", "such.txt", "a.txt", "special.txt", "friend.txt", "thankyou.txt"]
 
 
     DEFAULT_WORKSPACE_TOML = "default-workspace.toml"
@@ -122,17 +120,6 @@ class WorkspaceManager:
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: queries")
 
-        path = base / "michael"
-        if "." in "michael":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: michael")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: michael")
-
 
         base = self.workspace_dir / "exports"
 
@@ -160,6 +147,17 @@ class WorkspaceManager:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: default-workspace.toml")
+
+        path = base / "logging.json"
+        if "." in "logging.json":
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+                logging.DEBUG(f"Created file: logging.json")
+        else:
+            if not path.exists():
+                path.mkdir(parents=True, exist_ok=True)
+                logging.DEBUG(f"Created folder: logging.json")
 
 
         base = self.workspace_dir / "secrets"
@@ -199,97 +197,6 @@ class WorkspaceManager:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: default-queries.toml")
-
-
-        base = self.workspace_dir / "michael"
-
-        path = base / "wow.txt"
-        if "." in "wow.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: wow.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: wow.txt")
-
-        path = base / "you.txt"
-        if "." in "you.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: you.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: you.txt")
-
-        path = base / "are.txt"
-        if "." in "are.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: are.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: are.txt")
-
-        path = base / "such.txt"
-        if "." in "such.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: such.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: such.txt")
-
-        path = base / "a.txt"
-        if "." in "a.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: a.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: a.txt")
-
-        path = base / "special.txt"
-        if "." in "special.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: special.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: special.txt")
-
-        path = base / "friend.txt"
-        if "." in "friend.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: friend.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: friend.txt")
-
-        path = base / "thankyou.txt"
-        if "." in "thankyou.txt":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: thankyou.txt")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: thankyou.txt")
 
 
 
