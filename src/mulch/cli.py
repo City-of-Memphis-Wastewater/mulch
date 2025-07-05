@@ -55,6 +55,10 @@ def _render_workspace_manager(target_dir: Path, scaffold_structure: dict):
     wf.render_workspace_manager()
     return
 
+def _establish_software_elements(target_dir: Path):
+    print("auto generate logs dir in root please")
+    print("auto generate config dir in root please")
+
 @app.command()
 def init(
     target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
@@ -81,6 +85,7 @@ def init(
         scaffold_dict = FALLBACK_SCAFFOLD
     wf = _init_workspace(target_dir, name, scaffold_dict, set_default)
     _render_workspace_manager(target_dir, scaffold_dict)
+    _establish_software_elements(target_dir)
     typer.echo(f"Workspace '{name}' initialized at {wf.workspace_dir}")
 """
 @app.command("render")
