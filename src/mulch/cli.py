@@ -142,34 +142,22 @@ def init(
     Initialize a new workspace folder tree using DEFAULT_SCAFFOLD_FILENAME or fallback.
     """
 
-    if scaffold_filepath:
-        with open(scaffold_filepath, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
-    elif Path(SCAFFOLD_FILE_PREPPED).is_file(): # check current directory for the prepped filename
-        with open(SCAFFOLD_FILE_PREPPED, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
-    elif (Path.cwd() / SCAFFOLD_FILE_PREPPED).is_file(): # check current directory for the prepped filename
-        with open(Path.cwd() / SCAFFOLD_FILE_PREPPED, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
-    else:
-        scaffold_dict = FALLBACK_SCAFFOLD
+    scaffold_dict = None
 
     if scaffold_filepath:
         with open(scaffold_filepath, "r", encoding="utf-8") as f:
             scaffold_dict = json.load(f)
         logger.info(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
-    elif Path(SCAFFOLD_FILE_PREPPED).is_file():
-        with open(SCAFFOLD_FILE_PREPPED, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
-        logger.info(f"Scaffold loaded from file in current directory: {SCAFFOLD_FILE_PREPPED}")
-    elif (Path.cwd() / SCAFFOLD_FILE_PREPPED).is_file():
-        with open(Path.cwd() / SCAFFOLD_FILE_PREPPED, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
-        logger.info(f"Scaffold loaded from file in current working directory: {Path.cwd() / SCAFFOLD_FILE_PREPPED}")
-    else:
-        scaffold_dict = FALLBACK_SCAFFOLD
-        logger.info("Scaffold loaded from embedded fallback structure (FALLBACK_SCAFFOLD)")
 
+    else:
+        default_scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
+        if default_scaffold_path.is_file():
+            with open(default_scaffold_path, "r", encoding="utf-8") as f:
+                scaffold_dict = json.load(f)
+            logger.info(f"Scaffold loaded from {default_scaffold_path}")
+        else:
+            scaffold_dict = FALLBACK_SCAFFOLD
+            logger.info("Scaffold loaded from embedded fallback structure (FALLBACK_SCAFFOLD)")
 
     lock_data = {
         "scaffold": scaffold_dict,
