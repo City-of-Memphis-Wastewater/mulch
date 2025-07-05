@@ -34,3 +34,26 @@
 2025-07-05 01:36:16 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace6\michael\thankyou.txt
 2025-07-05 01:36:16 [INFO] root: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\default-workspace.toml already exists; skipping overwrite
 2025-07-05 01:36:16 [INFO] root: Generated workspace_manager.py at C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\src\mulch\workspace_manager.py
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\config
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\data
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\imports
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\exports
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\scripts
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\secrets
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\queries
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\exports\aggregate
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\config\default-workspace.toml
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\secrets\secrets.yaml
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\secrets\secrets-example.yaml
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\queries\default-queries.toml
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\wow.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\you.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\are.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\such.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\a.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\special.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\friend.txt
+2025-07-05 01:38:10 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\michaels_workspace7\michael\thankyou.txt
+2025-07-05 01:38:10 [INFO] root: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\default-workspace.toml already exists; skipping overwrite
+2025-07-05 01:38:10 [INFO] root: Generated workspace_manager.py at C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\src\mulch\workspace_manager.py
