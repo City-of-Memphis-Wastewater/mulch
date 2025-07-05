@@ -5,9 +5,21 @@ import logging
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+from mulch.logging_setup import setup_logging
+
+
+setup_logging()
+logger = logging.getLogger(__name__)
+#logger.info("workspace_factory imported")
 
 DEFAULT_SCAFFOLD_FILENAME = "scaffold.json"
+FALLBACK_SCAFFOLD = {
+        "": ["config", "data", "imports", "exports", "scripts", "secrets", "queries"],
+        "exports": ["aggregate"],
+        "config": ["default-workspace.toml", "logging.json"],
+        "secrets": ["secrets.yaml", "secrets-example.yaml"],
+        "queries": ["default-queries.toml"]
+    }
 
 class WorkspaceFactory:
     """
@@ -19,12 +31,15 @@ class WorkspaceFactory:
     DEFAULT_WORKSPACE_CONFIG_FILENAME = "default-workspace.toml"
     DEFAULT_TEMPLATE_DIR = Path(__file__).parent / "templates"
     DEFAULT_TEMPLATE_FILENAME = "workspace_manager.py.j2"
+    FALLBACK_SCAFFOLD = FALLBACK_SCAFFOLD # to make accessible, for pip and interally
+    DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
 
-    def __init__(self, base_path: Path, workspace_name: str):
+    def __init__(self, base_path: Path, workspace_name: str, scaffold_structure: dict):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
         self.workspace_dir = self.base_path / "workspaces" / workspace_name
-        self.scaffold = load_scaffold()
+        #self.scaffold = load_scaffold()
+        self.scaffold = scaffold_structure
 
     def get_path(self, key: str) -> Path:
         """
@@ -47,11 +62,11 @@ class WorkspaceFactory:
                     if not path.exists():
                         path.parent.mkdir(parents=True, exist_ok=True)
                         path.touch()
-                        logging.info(f"Created file: {path}")
+                        logger.debug(f"Created file: {path}")
                 else:
                     if not path.exists():
                         path.mkdir(parents=True, exist_ok=True)
-                        logging.info(f"Created folder: {path}")
+                        logger.debug(f"Created folder: {path}")
 
     @classmethod
     def create_default_workspace_toml(cls, workspaces_root: Path, workspace_name: str):
@@ -61,7 +76,7 @@ class WorkspaceFactory:
         config_path = workspaces_root / cls.DEFAULT_WORKSPACE_CONFIG_FILENAME
         if not config_path.exists():
             config_path.write_text(f"[default-workspace]\nworkspace = \"{workspace_name}\"\n")
-            logging.info(f"Created {config_path}")
+            logger.debug(f"Created {config_path}")
         else:
             logging.info(f"{config_path} already exists; skipping overwrite")
 
@@ -90,18 +105,10 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
     if not scaffold_path:
         scaffold_path = Path(__file__).parent / DEFAULT_SCAFFOLD_FILENAME
     
-    fallback_scaffold = {
-        "": ["config", "data", "imports", "exports", "scripts", "secrets", "queries"],
-        "exports": ["aggregate"],
-        "config": ["default-workspace.toml"],
-        "secrets": ["secrets.yaml", "secrets-example.yaml"],
-        "queries": ["default-queries.toml"]
-    }
-    
     if not scaffold_path.exists():
         # File missing, log warning and return fallback
         print(f"Warning: Missing scaffold file: {scaffold_path}, using fallback scaffold.")
-        return fallback_scaffold
+        return FALLBACK_SCAFFOLD
         
     #with open(scaffold_path, "r") as f:
     #    return json.load(f)
@@ -111,8 +118,8 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
             content = f.read().strip()
             if not content:
                 print(f"Warning: Scaffold file {scaffold_path} is empty, using fallback scaffold.")
-                return fallback_scaffold
+                return FALLBACK_SCAFFOLD
             return json.loads(content)
     except json.JSONDecodeError as e:
         print(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
-        return fallback_scaffold
+        return FALLBACK_SCAFFOLD
