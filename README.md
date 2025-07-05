@@ -8,7 +8,7 @@ files inside your project directory.
 
 ## Features
 
-- Initialize workspaces with a consistent scaffold defined by `scaffold.json`
+- Initialize workspaces with a consistent scaffold defined by `mulch-scaffold.json`
 - Create a `default-workspace.toml` to track the active workspace
 - Works standalone and project-agnostic; no assumptions about your repo layout
 - Easily installable and runnable via `pipx`
