@@ -4,6 +4,7 @@
 for any Python project. It bootstraps a standardized workspace folder structure and configuration
 files inside your project directory.
 
+Set up new projects easily with workspace scaffolding and source-code templating. Key feature: Benefit from introspective directory geters and file getters in the workspace_manager.py file in src, dictated by mulch-scaffold.json and protected by mulch.lock.
 ---
 
 ## Features
@@ -36,6 +37,9 @@ pipx install dist/mulch-*-py3-none-any.whl
 # Usage
 
 ```bash
+# Generated a fresh mulch-scaffold.json file, to edit before running 'mulch init'.
+mulch file
+
 # Initialize workspace named 'default' in the current directory
 mulch init
 
