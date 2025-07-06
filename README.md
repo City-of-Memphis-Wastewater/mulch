@@ -4,15 +4,19 @@
 for any Python project. It bootstraps a standardized workspace folder structure and configuration
 files inside your project directory.
 
-Set up new projects easily with workspace scaffolding and source-code templating. Key feature: Benefit from introspective directory geters and file getters in the workspace_manager.py file in src, dictated by mulch-scaffold.json and protected by mulch.lock.
+Set up new projects easily with workspace scaffolding and source-code templating. 
+
+Key feature: Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `mulch.lock`.
+
 ---
 
 ## Features
 
 - Initialize workspaces with a consistent scaffold defined by `mulch-scaffold.json`
 - Create a `default-workspace.toml` to track the active workspace
-- Works standalone and project-agnostic; no assumptions about your repo layout
 - Easily installable and runnable via `pipx`
+- Uses a Pythonic `/package-root/src/pacakge-name/` paradigm
+- Enforces a separation of source code and workspace files, with workspace files organzied into  `/package-root/workspaces/your-special-workspace/` structure.
 
 ---
 
