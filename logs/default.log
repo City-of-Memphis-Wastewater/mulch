@@ -60,3 +60,21 @@
 2025-07-06 01:16:12 [INFO] mulch.workspace_factory: Seeded workspace file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\versiontest0\secrets\secrets-example.yaml
 2025-07-06 01:16:12 [WARNING] mulch.workspace_factory: Failed to seed queries\default-queries.toml: [Errno 2] No such file or directory: 'C:\\Users\\george.bennett\\pipx\\venvs\\mulch\\Lib\\site-packages\\mulch\\default-queries.toml'
 2025-07-06 01:16:12 [INFO] root: Seeded C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\mulch\workspaces\versiontest0\about_this_workspace.md
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\config
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\data
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\imports
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\exports
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\scripts
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\secrets
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\queries
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created folder: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\exports\aggregate
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\config\default-workspace.toml
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\secrets\secrets.yaml
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\secrets\secrets-example.yaml
+2025-07-06 02:06:34 [DEBUG] mulch.workspace_factory: Created file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\queries\default-queries.toml
+2025-07-06 02:06:34 [INFO] mulch.workspace_factory: Seeded workspace file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\secrets\secrets-example.yaml
+2025-07-06 02:06:34 [WARNING] mulch.workspace_factory: Failed to seed queries\default-queries.toml: [Errno 2] No such file or directory: 'C:\\Users\\george.bennett\\OneDrive - City of Memphis\\Documents\\dev\\mulch\\src\\mulch\\default-queries.toml'
+2025-07-06 02:06:34 [INFO] root: Seeded C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\about_this_workspace.md
+2025-07-06 02:10:21 [INFO] mulch.workspace_factory: Seeded workspace file: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\secrets\secrets-example.yaml
+2025-07-06 02:10:21 [WARNING] mulch.workspace_factory: Failed to seed queries\default-queries.toml: [Errno 2] No such file or directory: 'C:\\Users\\george.bennett\\OneDrive - City of Memphis\\Documents\\dev\\mulch\\src\\mulch\\default-queries.toml'
+2025-07-06 02:10:21 [INFO] root: C:\Users\george.bennett\OneDrive - City of Memphis\Documents\dev\experiment0\workspaces\default\about_this_workspace.md already exists; skipping
