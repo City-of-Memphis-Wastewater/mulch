@@ -20,7 +20,7 @@
       "class": "logging.handlers.RotatingFileHandler",
       "level": "DEBUG",
       "formatter": "default",
-      "filename": "logs/pipeline.log",
+      "filename": "logs/default.log",
       "maxBytes": 10485760,
       "backupCount": 3,
       "encoding": "utf8"
