@@ -6,52 +6,40 @@ from pathlib import Path
 import logging
 import datetime
 from importlib.metadata import version, PackageNotFoundError
-#import importlib.metadata
-#from pprint import pprint
 
+from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory
-from mulch.logging_setup import setup_logging
-
-
-#import logging.config
-setup_logging()
-logger = logging.getLogger(__name__)
-
-
+from mulch.logging_setup import setup_logging, setup_logging_portable
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
-
 DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
-#DEFAULT_SCAFFOLD_PATH = target_dir / DEFAULT_SCAFFOLD_FILENAME  # or Path.cwd() / ...
 LOCK_FILE_NAME = 'mulch.lock'
-
-app = typer.Typer(help=HELP_TEXT, no_args_is_help=True, add_completion=False)
-
+try:
+    MULCH_VERSION = version("mulch")
+except PackageNotFoundError:
+    MULCH_VERSION = "unknown"
 # load the fallback_scaffold to this file
 wf = WorkspaceFactory(Path.cwd(),'placeholder_workspace_name',{})
 FALLBACK_SCAFFOLD = wf.FALLBACK_SCAFFOLD
 
-try:
-    mulch_version = version("mulch")
-except PackageNotFoundError:
-    mulch_version = "unknown"
+# Create the Typer CLI app
+app = typer.Typer(help=HELP_TEXT, no_args_is_help=True, add_completion=False)
 
 @app.callback()
 def main(
     version: bool = typer.Option(None, "--version", callback=lambda v: print_version(v), is_eager=True, help="Show the version and exit.")
 ):
-    f"""
-    { HELP_TEXT }
     """
-    pass
-
+    Mulch CLI for scaffolding Python project workspaces
+    """
 
 def print_version(value: bool):
     if value:
         try:
-            typer.echo(f"mulch {mulch_version}")
+            typer.echo(f"mulch {MULCH_VERSION}")
         except PackageNotFoundError:
             typer.echo("Version info not found")
         raise typer.Exit()
@@ -116,8 +104,6 @@ def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
         json.dump(lock_data, f, indent=2)
     logger.info(f"Wrote {LOCK_FILE_NAME} to {lock_path}")
 
-
-
 def _render_workspace_manager(target_dir: Path, lock_data: dict):
     """
     Shared internal logic to render workspace_manager.py.
@@ -132,6 +118,7 @@ def _establish_software_elements(target_dir: Path):
     print("auto generate config dir in root please")
 
 @app.command()
+@with_logging
 def init(
     target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
     name: str = typer.Option("default", "--name", "-n", help="Name of the workspace to create."),
@@ -161,12 +148,10 @@ def init(
 
     lock_data = {
         "scaffold": scaffold_dict,
-        "generated_by": f"mulch {mulch_version}",
+        "generated_by": f"mulch {MULCH_VERSION}",
         "generated_at": datetime.datetime.utcnow().isoformat() + "Z"
     }
     
-    #json.dump(lock_data, f, indent=2)
-
     workspace_dir = target_dir / "workspaces" / name
     
     if _should_generate_workspace(workspace_dir, lock_data):
@@ -174,13 +159,14 @@ def init(
         _generate_workspace_lockfile(workspace_dir, lock_data)
         _render_workspace_manager(target_dir, lock_data)
         _establish_software_elements(target_dir)
+        wf.seed_scaffolded_workspace_files()
     else:
         typer.echo(f"Workspace '{name}' already exists and is up-to-date with the scaffold.")
 
 
-
 @app.command()
-def prep(
+#@with_logging(use_portable=True)
+def file(
     target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
     filepath_in: str = typer.Option(None,"--filepath-in","-i",help = "Exsting scaffold filename that you want copied. You must use -o/--filepath-out in conjunction with -i/--filepath-in"),
     use_embedded: bool = typer.Option(
@@ -188,7 +174,7 @@ def prep(
     ),
     ):
     """
-    Prep is meant to drop a scaffold file to disk.
+    Meant to drop a scaffold file to disk.
     It will default to dropping a copy of the fallback embedded scaffold structure.
     You are able to edit this file manually.  
 

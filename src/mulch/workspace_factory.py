@@ -3,23 +3,25 @@
 import json
 import logging
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader, select_autoescape #,FileSystemLoader
+
 import typer
+from importlib.resources import files
 
-from mulch.logging_setup import setup_logging
+from mulch.logging_setup import setup_logging_portable
 
 
-setup_logging()
+setup_logging_portable()
 logger = logging.getLogger(__name__)
 #logger.info("workspace_factory imported")
 
 DEFAULT_SCAFFOLD_FILENAME = "mulch-scaffold.json"
 LOCK_FILE_NAME = 'mulch.lock'
 FALLBACK_SCAFFOLD = {
-        "": ["config", "data", "imports", "exports", "scripts", "secrets", "queries"],
+        "": ["config", "docs", "imports", "exports", "scripts", "secrets", "queries","about_this_workspace.md"],
         "exports": ["aggregate"],
         "config": ["default-workspace.toml", "logging.json"],
-        "secrets": ["secrets.yaml", "secrets-example.yaml"],
+        "secrets": ["secrets-example.yaml"],
         "queries": ["default-queries.toml"]
     }
 
@@ -82,11 +84,82 @@ class WorkspaceFactory:
         else:
             logging.info(f"{config_path} already exists; skipping overwrite")
 
+    def seed_scaffolded_workspace_files(self):
+        """
+        Seed both static and templated workspace files.
+        Call this after workspace creation.
+        Seed only placeholder files that are already declared in scaffold and still empty.
+        This ensures the scaffold drives structure, not the seeder.
+        """
+        self.seed_static_workspace_files()
+        self.seed_templated_workspace_file()
+        
+    def seed_static_workspace_files(self):
+        """
+        Populate essential workspace files *only if* their placeholder files already exist.
+        Avoids introducing files/folders not declared in the scaffold.
+        """
+        seed_map = {
+            Path("secrets") / "secrets-example.yaml": "secrets-example.yaml",
+            Path("queries") / "default-queries.toml": "default-queries.toml",
+        }
+
+        for rel_path, src_filename in seed_map.items():
+            dest = self.workspace_dir / rel_path
+            # Clarify that seeders depend on placeholders
+            if dest.exists() and dest.stat().st_size == 0:
+                try:
+                    src = files("mulch") / src_filename
+                    with src.open("r", encoding="utf-8") as f_in:
+                        contents = f_in.read()
+                    dest.write_text(contents, encoding="utf-8")
+                    logger.info(f"Seeded workspace file: {dest}")
+                except Exception as e:
+                    logger.warning(f"Failed to seed {rel_path}: {e}")
+            else:
+                logger.debug(f"Skipped seeding {dest}; file doesn't exist or is not empty.")
+
+    def seed_templated_workspace_file(self):
+        """
+        Generate helpful default files in the new workspace, such as about_this_workspace.md.
+        """
+        workspace_dir = self.workspace_dir
+
+        env = Environment(
+            loader=PackageLoader("mulch", "templates"),
+            autoescape=select_autoescape()
+        )
+
+        about_path = workspace_dir / "about_this_workspace.md"
+
+        if not about_path.exists():
+            try:
+                template = env.get_template("about_this_workspace.md.j2")
+                content = template.render(
+                    workspace_name=self.workspace_name,
+                    generated_at=self.lock_data.get("generated_at", ""),
+                    scaffold_source=self.lock_data.get("generated_by", "")
+                )
+                about_path.write_text(content, encoding="utf-8")
+            except Exception as e:
+                logger.warning(f"Failed to render about_this_workspace.md from template: {e}")
+                content = f"# About {self.workspace_name}\n\nGenerated on {self.lock_data.get('generated_at', '')}"
+            logging.info(f"Seeded {about_path}")
+        else:
+            logging.info(f"{about_path} already exists; skipping")
+
     def render_workspace_manager(self):
         """
         Render a workspace_manager.py file based on the scaffold and template.
         """
-        env = Environment(loader=FileSystemLoader(self.DEFAULT_TEMPLATE_DIR))
+        #env = Environment(loader=FileSystemLoader(self.DEFAULT_TEMPLATE_DIR))
+        
+        env = Environment(
+            loader=PackageLoader("mulch", "templates"),
+            autoescape=select_autoescape()
+        )
+
+
         template = env.get_template(self.DEFAULT_TEMPLATE_FILENAME)
 
         project_name = self.base_path.name
