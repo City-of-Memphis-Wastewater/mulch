@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [0.1.37] – 2025-07-08
+
+### Fixed
+- `Path.cwd()/'placeholder_workspace_dir'` used as a placehold for the `workspace_dir` argument in `WorkspaceFactory`.
+
+### Discourse (not completed)
+- Consider adding default args for `WorkspaceFactory` if workspace_dir is not included - to allow for easy placeholders or to not require placeholders. Why? To be able to access class functions without initializing a truly useful `WorkspaceFactory` - or consider moving these functions elsewhere.
+
 ## [0.1.37] – 2025-07-08
 
 ### Breaking Changes
