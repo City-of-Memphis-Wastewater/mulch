@@ -40,10 +40,8 @@ class WorkspaceFactory:
     def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
-        #self.workspace_dir = self.base_path / "workspaces" / workspace_name # if not bare, then yes. And if bare, then not necessary at all, no alternative to define.
         self.workspace_dir = workspace_dir 
         self.lock_data = lock_data
-        #self.scaffold = lock_data["scaffold"]
 
     def get_path(self, key: str) -> Path:
         """
