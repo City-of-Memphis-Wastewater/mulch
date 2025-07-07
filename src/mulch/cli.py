@@ -11,6 +11,8 @@ from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory
 from mulch.logging_setup import setup_logging, setup_logging_portable
 
+
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,7 @@ DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
 LOCK_FILE_NAME = 'mulch.lock'
 try:
     MULCH_VERSION = version("mulch")
+    __version__ = version("mulch")
 except PackageNotFoundError:
     MULCH_VERSION = "unknown"
 # load the fallback_scaffold to this file
@@ -119,7 +122,7 @@ def _render_workspace_manager(target_dir: Path, lock_data: dict):
     Shared internal logic to render workspace_manager.py.
     """
         
-    wf = WorkspaceFactory(base_path=target_dir, workspace_name="placeholder_workspace_name", lock_data = lock_data)
+    wf = WorkspaceFactory(base_path=target_dir, workspace_dir= Path.cwd()/'placeholder_workspace_dir',workspace_name="placeholder_workspace_name", lock_data = lock_data)
     wf.render_workspace_manager()
     return
 
