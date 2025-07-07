@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.1.37] – 2025-07-08
+
+### Breaking Changes
+- `--codeless/-c` flag changed to - `--bare/-b` flag in the init command,	 to keep with expected standards.
+- Alter `target_dir` positional argument for init. Implement expicit `--target-root-dir/-r` flag. Command change: typer.Argument() --> typer.Option(). Tested successfully with `poetry run python -m mulch.cli init --name tflag -r root`, which generates a new root target dir, with its own folders for `src`, `workspaces`, and `logs`.
+- Add `workspace_dir` value logic to rely on `--here` flag prior to calling `_init_workspace()`; `workspace_dir` and `here` and `bare` are now required inputs for `_init_workspace()`. Also, `workspace dir` is now a required positional input for `WorkspaceFactory()`, because `self.workspace_dir` is assigned directly from the input in `WorkspaceFactory.__init__()`, rather than being calculated duplicately by some Path assignement that includes `/workspaces/`; this relationship only is determined in `workspace_dir = cli._determine_workspace_dir(target_dir, name, here, bare)`. 
+	
+### Added
+- `docs` directory in root. This is meant to be organized and official.
+- `research\chatlogs` added in root, for markdown transcripts of brainstorming notes and fact finding with a chat bot.
+- `mulch 0.1.36 notes.md`added to `research\chatlogs`
+- Create the `--here` flag for the `init` command, to mean that the new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. Enforce that the `--here` flag can only be used with the `--bare` flag.
+- `_determine_workspace_dir()` in `cli.py` to determine `workspace_dir` based on `here` flag.
 
 ## [0.1.35] – 2025-07-07
 
