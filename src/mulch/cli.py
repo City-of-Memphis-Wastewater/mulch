@@ -255,10 +255,11 @@ def show(
             scaffold = FALLBACK_SCAFFOLD
             logger.info(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
     
+    print("\n")
     if collapsed:
-        typer.echo("\n",json.dumps(scaffold, separators=(",", ":")))
+        typer.echo(json.dumps(scaffold, separators=(",", ":")))
     else:
-        typer.echo("\n",json.dumps(scaffold, indent=2))
+        typer.echo(json.dumps(scaffold, indent=2))
     
 if __name__ == "__main__":
     app()
