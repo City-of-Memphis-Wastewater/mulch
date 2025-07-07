@@ -208,7 +208,7 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
     
     if not scaffold_path.exists():
         # File missing, log warning and return fallback
-        print(f"Warning: Missing scaffold file: {scaffold_path}, using fallback scaffold.")
+        logger.info(f"Warning: Missing scaffold file: {scaffold_path}, using fallback scaffold.")
         return FALLBACK_SCAFFOLD
         
     #with open(scaffold_path, "r") as f:
@@ -218,9 +218,9 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
         with open(scaffold_path, "r") as f:
             content = f.read().strip()
             if not content:
-                print(f"Warning: Scaffold file {scaffold_path} is empty, using fallback scaffold.")
+                logger.info(f"Warning: Scaffold file {scaffold_path} is empty, using fallback scaffold.")
                 return FALLBACK_SCAFFOLD
             return json.loads(content)
     except json.JSONDecodeError as e:
-        print(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
+        logger.info(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
         return FALLBACK_SCAFFOLD
