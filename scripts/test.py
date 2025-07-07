@@ -18,6 +18,7 @@ print(f"scaffold = {scaffold}")
 # Demonstrate another way to get the fallback scaffold
 wf0 = WorkspaceFactory(
     base_path=rootdir_dir,
+    workspace_dir=Path.cwd()/'placeholder_workspace_dir'
     workspace_name="placeholder",
     lock_data = {}
 )
