@@ -1,6 +1,7 @@
 workspaces/
 dist/
 build/
+tests/
 logs/*.log
 
 __pycache__
