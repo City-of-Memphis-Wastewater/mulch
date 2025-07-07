@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create the `--here` flag for the `init` command, to mean that the new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. Enforce that the `--here` flag can only be used with the `--bare` flag.
 - `_determine_workspace_dir()` in `cli.py` to determine `workspace_dir` based on `here` flag.
 - To minimize user typing and confusion, `bare` value forced to True when `here` is True.
+- `.mulch` folder - To configure local rules and templates for any given diretory. `.mulch/HERE` can be `false` or `true` - the default is `false` but the most pertinent use-case is `true`, for non-python users quickly standup new projects without a Pythonic template.
 
 ## [0.1.35] – 2025-07-07
 
