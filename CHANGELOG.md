@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 
-## [0.1.35] – 2025-07-07
+## [0.1.34] – 2025-07-07
 ### Added
 - Notes and logging setup to `WorkspaceManager`.
 
