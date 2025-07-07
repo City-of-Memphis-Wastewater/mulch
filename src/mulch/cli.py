@@ -85,14 +85,14 @@ def _init_workspace(target_dir: Path, name: str, lock_data: dict, set_default: b
 
 def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
     lock_path = workspace_dir / LOCK_FILE_NAME
-    typer.echo(f"lock_path = {lock_path}")
+    logger.debug(f"lock_path = {lock_path}")
     if lock_path.exists():
         with open(lock_path, "r", encoding="utf-8") as f:
             existing = json.load(f)
         existing_scaffold = existing.get("scaffold", {})
         if existing_scaffold != lock_data["scaffold"]:
-            typer.echo(f"existing_scaffold = {existing_scaffold}")
-            typer.echo(f"lock_data = {lock_data}")
+            #typer.echo(f"existing_scaffold = {existing_scaffold}")
+            #typer.echo(f"lock_data = {lock_data}")
             typer.confirm(
                 f"⚠️ {LOCK_FILE_NAME} already exists at {lock_path}, but the scaffold structure has changed.\n"
                 f"Overwriting may cause incompatibility with this workspace.\n"
@@ -114,8 +114,7 @@ def _render_workspace_manager(target_dir: Path, lock_data: dict):
     return
 
 def _establish_software_elements(target_dir: Path):
-    print("auto generate logs dir in root please")
-    print("auto generate config dir in root please")
+    pass
 
 @app.command()
 @with_logging
@@ -126,7 +125,9 @@ def init(
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml")
 ):
     """
-    Initialize a new workspace folder tree using DEFAULT_SCAFFOLD_FILENAME or fallback.
+    Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
+    Build the workspace_manager.py file in the source code.
+    Establish a logs folder at root, with the logging.json file.
     """
 
     scaffold_dict = None
@@ -174,8 +175,8 @@ def file(
     ),
     ):
     """
-    Meant to drop a scaffold file to disk.
-    It will default to dropping a copy of the fallback embedded scaffold structure.
+    Drop a scaffold file to disk, at the target directory.
+    The default is the fallback embedded scaffold structure.
     You are able to edit this file manually.  
 
     Alternatively, you can use the 'show' command. 
@@ -202,7 +203,7 @@ def file(
     
     typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
     typer.echo("✏️  You can now manually edit this file to customize your workspace layout.")
-    typer.echo("⚙️  Changes to this scaffold will directly affect the generated workspace_manager.py when you run 'mulch init'.")
+    typer.echo("⚙️  Changes to this scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
 
 @app.command()
@@ -253,12 +254,10 @@ def show(
             scaffold = FALLBACK_SCAFFOLD
             logger.info(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
     
-    print("\n")
     if collapsed:
-        typer.echo(json.dumps(scaffold, separators=(",", ":")))
+        typer.echo("\n",json.dumps(scaffold, separators=(",", ":")))
     else:
-        typer.echo(json.dumps(scaffold, indent=2))
+        typer.echo("\n",json.dumps(scaffold, indent=2))
     
-    #pprint(scaffold)
 if __name__ == "__main__":
     app()

@@ -46,21 +46,21 @@ def ensure_logs_folder_with_config(project_root: Path):
     logs_dir = project_root / "logs"
     if not logs_dir.exists():
         logs_dir.mkdir(parents=True)
-        print(f"Created logs directory: {logs_dir}")
+        logging.info(f"Created logs directory: {logs_dir}")
 
     logging_config_path = logs_dir / "logging.json"
     if not logging_config_path.exists():
         try:
             package_files = files("mulch")  
-            print(f"Package files root: {package_files}")
+            logging.debug(f"Package files root: {package_files}")
             with as_file(package_files / "logging.json") as src_file:
                 shutil.copy(src_file, logging_config_path)
-            print(f"Copied default logging.json to {logging_config_path}")
+            logging.debug(f"Copied default logging.json to {logging_config_path}")
         except Exception as e:
-            print(f"Failed to copy logging.json: {e}")
+            logging.debug(f"Failed to copy logging.json: {e}")
             logging_config_path.write_text(DEFAULT_LOGGING_JSON)
     else:
-        print(f"logging_config_path = {logging_config_path}")
+        logging.debug(f"logging_config_path = {logging_config_path}")
 
 
 def setup_logging_portable():
@@ -76,7 +76,10 @@ def setup_logging_portable():
 def setup_logging(project_root: Path | None = None, portable: bool = False):
     if portable:
         return setup_logging_portable()
-    
+    else:
+        setup_logging_portable() # prepare for initial logging statements and continue
+        pass
+
     if project_root is None:
         project_root = Path.cwd()  
     
@@ -88,8 +91,8 @@ def setup_logging(project_root: Path | None = None, portable: bool = False):
             config = json.load(f)
         logging.config.dictConfig(config)
     except Exception as e:
-        print(f"⚠️ Failed to load logging config from {config_path}: {e}")
-        print("🔁 Falling back to portable default logging setup.")
+        logging.info(f"⚠️ Failed to load logging config from {config_path}: {e}")
+        logging.info("🔁 Falling back to portable default logging setup.")
         setup_logging_portable()
 
 # Dynamically set logging level, per handler, like when using a GUI
