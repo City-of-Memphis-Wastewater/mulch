@@ -1,7 +1,3 @@
-- Support for nested folder paths in `mulch-scaffold.json`.
-- Initial test suite using `pytest` and `click.testing`.
-- Type annotations for public API.
-
 # 🌱 Mulch Roadmap
 
 **Last updated:** July 7, 2025
@@ -15,6 +11,14 @@ Welcome to the Mulch project roadmap! This document outlines where the project i
 Mulch is a fast, flexible scaffolding CLI for Python (and beyond). It helps you spin up clean, consistent project structures with one command—without needing to start from scratch every time.
 
 Our goal is to make `mulch init` the best "starter kit" CLI for real-world development.
+
+---
+
+## 🔑 Key Feature
+
+`WorkspaceManager` is the quarterback, you are the coach.
+ 
+When you rollout `workspace` directories that reflect your `mulch-scaffold` file, a matching `workspace_manager.py` file is generated. Getters from your customized `WorkspaceManager` class can be used from within your source code to easily reference your configuration files, imports, exports, secrets, and more.
 
 ---
 
