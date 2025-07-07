@@ -142,8 +142,12 @@ def init(
     Establish a logs folder at root, with the logging.json file.
     """
 
+    if here:
+        typer.secho(f"`here`: `bare` value forced to True.",fg=typer.colors.MAGENTA)
+        bare = True
     if bare:
-        typer.secho(f"bare: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
+        typer.secho(f"`bare`: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
+    
 
     scaffold_dict = None
 
