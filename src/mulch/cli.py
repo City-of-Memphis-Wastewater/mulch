@@ -39,7 +39,7 @@ def main(
 def print_version(value: bool):
     if value:
         try:
-            typer.echo(f"mulch {MULCH_VERSION}")
+            typer.secho(f"mulch {MULCH_VERSION}",fg=typer.colors.GREEN, bold=True)
         except PackageNotFoundError:
             typer.echo("Version info not found")
         raise typer.Exit()
@@ -53,7 +53,7 @@ def _should_generate_workspace(workspace_dir: Path, lock_data: dict) -> bool:
                 existing = json.load(f)
             existing_scaffold = existing.get("scaffold", {})
             if existing_scaffold == lock_data["scaffold"]:
-                typer.echo("✅ Scaffold matches existing scaffold.lock. Skipping workspace generation.")
+                typer.secho("✅ Scaffold matches existing scaffold.lock. Skipping workspace generation.", fg=typer.colors.BLUE)
                 return False
             else:
                 typer.confirm(
@@ -76,7 +76,7 @@ def _init_workspace(target_dir: Path, name: str, lock_data: dict, set_default: b
     target_dir = target_dir.resolve()
     wf = WorkspaceFactory(base_path=target_dir, workspace_name=name, lock_data = lock_data)
     wf.check_and_create_workspace_dirs_from_scaffold()
-    typer.echo(f"Workspace '{name}' initialized at {wf.workspace_dir}")
+    typer.secho(f"Workspace '{name}' initialized at {wf.workspace_dir}",fg=typer.colors.BRIGHT_MAGENTA)
 
     if set_default:
         wf.create_default_workspace_toml(target_dir / "workspaces", name)
@@ -102,7 +102,7 @@ def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
 
     with open(lock_path, "w", encoding="utf-8") as f:
         json.dump(lock_data, f, indent=2)
-    logger.info(f"Wrote {LOCK_FILE_NAME} to {lock_path}")
+    logger.debug(f"Wrote {LOCK_FILE_NAME} to {lock_path}")
 
 def _render_workspace_manager(target_dir: Path, lock_data: dict):
     """
@@ -122,6 +122,7 @@ def init(
     target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
     name: str = typer.Option("default", "--name", "-n", help="Name of the workspace to create."),
     scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
+    codeless: bool = typer.Option(False, "--codeless", "-c", help="Don't build source code or logs, just make scaffolded workspace directories!"),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml")
 ):
     """
@@ -130,22 +131,28 @@ def init(
     Establish a logs folder at root, with the logging.json file.
     """
 
+    if codeless:
+        typer.secho(f"Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
+
     scaffold_dict = None
 
     if scaffold_filepath:
         with open(scaffold_filepath, "r", encoding="utf-8") as f:
             scaffold_dict = json.load(f)
-        logger.info(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
+        typer.secho(f"Scaffold loaded from explicitly provided file",fg=typer.colors.WHITE)
+        logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
 
     else:
         default_scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
         if default_scaffold_path.is_file():
             with open(default_scaffold_path, "r", encoding="utf-8") as f:
                 scaffold_dict = json.load(f)
-            logger.info(f"Scaffold loaded from {default_scaffold_path}")
+            typer.secho(f"Scaffold loaded from default file.",fg=typer.colors.WHITE)
+            logger.debug(f"Scaffold loaded from default file. {default_scaffold_path}")
         else:
             scaffold_dict = FALLBACK_SCAFFOLD
-            logger.info("Scaffold loaded from embedded fallback structure (FALLBACK_SCAFFOLD)")
+            typer.secho("Scaffold loaded from embedded fallback structure.",fg=typer.colors.WHITE)
+            logging.debug("Scaffold loaded from embedded fallback structure.")
 
     lock_data = {
         "scaffold": scaffold_dict,
@@ -158,8 +165,9 @@ def init(
     if _should_generate_workspace(workspace_dir, lock_data):
         wf = _init_workspace(target_dir, name, lock_data, set_default)
         _generate_workspace_lockfile(workspace_dir, lock_data)
-        _render_workspace_manager(target_dir, lock_data)
-        _establish_software_elements(target_dir)
+        if not codeless:
+            _render_workspace_manager(target_dir, lock_data)
+            _establish_software_elements(target_dir)
         wf.seed_scaffolded_workspace_files()
     else:
         typer.echo(f"Workspace '{name}' already exists and is up-to-date with the scaffold.")
@@ -203,7 +211,7 @@ def file(
         json.dump(scaffold_dict, f, indent=2)
     
     typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
-    typer.echo("✏️  You can now manually edit this file to customize your workspace layout.")
+    typer.secho("✏️  You can now manually edit this file to customize your workspace layout.",fg=typer.colors.CYAN)
     typer.echo("⚙️  Changes to this scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
 
@@ -229,31 +237,35 @@ def show(
 
     if filepath:
         if not filepath.exists():
-            typer.echo(f"File not found at {filepath}.")
-            typer.echo(f"Recommendation: use the default file (show -d) or the fallback scaffold (show -e)")
+            typer.secho(f"File not found at {filepath}.", fg=typer.colors.RED, bold=True)
+            typer.secho(f"Recommendation: use the default file (show -d) or the fallback scaffold (show -e)", fg=typer.colors.YELLOW)
             raise typer.Exit(code=1)
         with open(filepath, "r", encoding="utf-8") as f:
             scaffold = json.load(f)
-        logger.info(f"Structure pulled from the provided filepath: {filepath}")
+        logger.debug(f"Structure pulled from the provided filepath: {filepath}")
+        typer.secho(f"Loaded scaffold from file: {filepath}", fg=typer.colors.GREEN)
     elif use_default:
         if not default_path.exists():
-            typer.echo(f"Default file not found at {default_path}.")
-            typer.echo(f"Recommendation: use an explicit file (show -f [FILEPATH]) or the fallback scaffold (show -e)")
+            typer.secho(f"Default file not found at {default_path}.", fg=typer.colors.RED, bold=True)
+            typer.secho(f"Recommendation: use an explicit file (show -p [FILEPATH]) or the fallback scaffold (show -e)", fg=typer.colors.YELLOW)
             raise typer.Exit(code=1)
         with open(default_path, "r", encoding="utf-8") as f:
             scaffold = json.load(f)
-        logger.info(f"Structure pulled from the default filepath: {default_path}")
+        logger.debug(f"Structure pulled from the default filepath: {default_path}")
     elif use_embedded:
         scaffold = FALLBACK_SCAFFOLD
-        logger.info(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
+        logger.debug(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
+        typer.secho("Loaded scaffold from embedded fallback structure.", fg=typer.colors.GREEN)
     else:
         if default_path.exists():
             with open(default_path, "r", encoding="utf-8") as f:
                 scaffold = json.load(f)
-                logger.info(f"Structure pulled from the default filepath: {default_path}")
+                logger.debug(f"Structure pulled from the default filepath: {default_path}")
+                typer.secho(f"Loaded scaffold from default file: {default_path}", fg=typer.colors.GREEN)
         else:
             scaffold = FALLBACK_SCAFFOLD
-            logger.info(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
+            logger.debug(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
+            typer.secho("Loaded scaffold from embedded fallback structure.", fg=typer.colors.GREEN)
     
     print("\n")
     if collapsed:

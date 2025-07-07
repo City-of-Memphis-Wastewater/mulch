@@ -47,7 +47,8 @@ def ensure_logs_folder_with_config(project_root: Path):
     if not logs_dir.exists():
         logs_dir.mkdir(parents=True)
 
-        logging.info(f"Created logs directory: {logs_dir}")
+        logging.debug(f"Created logs directory: {logs_dir}")
+        logging.info(f"Created logs directory")
 
     logging_config_path = logs_dir / "logging.json"
     if not logging_config_path.exists():
@@ -94,7 +95,7 @@ def setup_logging(project_root: Path | None = None, portable: bool = False):
         logging.config.dictConfig(config)
     except Exception as e:
 
-        logging.info(f"⚠️ Failed to load logging config from {config_path}: {e}")
+        logging.debug(f"⚠️ Failed to load logging config from {config_path}: {e}")
         logging.info("🔁 Falling back to portable default logging setup.")
         setup_logging_portable()
 

@@ -13,7 +13,6 @@ from mulch.logging_setup import setup_logging_portable
 
 setup_logging_portable()
 logger = logging.getLogger(__name__)
-#logger.info("workspace_factory imported")
 
 DEFAULT_SCAFFOLD_FILENAME = "mulch-scaffold.json"
 LOCK_FILE_NAME = 'mulch.lock'
@@ -82,7 +81,7 @@ class WorkspaceFactory:
             config_path.write_text(f"[default-workspace]\nworkspace = \"{workspace_name}\"\n")
             logger.debug(f"Created {config_path}")
         else:
-            logging.info(f"{config_path} already exists; skipping overwrite")
+            logging.debug(f"{config_path} already exists; skipping overwrite")
 
     def seed_scaffolded_workspace_files(self):
         """
@@ -113,7 +112,8 @@ class WorkspaceFactory:
                     with src.open("r", encoding="utf-8") as f_in:
                         contents = f_in.read()
                     dest.write_text(contents, encoding="utf-8")
-                    logger.info(f"Seeded workspace file: {dest}")
+                    logger.debug(f"Seeded workspace file: {dest}")
+                    typer.echo(f"Seeded workspace file: {dest.name}")
                 except Exception as e:
                     logger.warning(f"Failed to seed {rel_path}: {e}")
             else:
@@ -144,9 +144,9 @@ class WorkspaceFactory:
             except Exception as e:
                 logger.warning(f"Failed to render about_this_workspace.md from template: {e}")
                 content = f"# About {self.workspace_name}\n\nGenerated on {self.lock_data.get('generated_at', '')}"
-            logging.info(f"Seeded {about_path}")
+            logging.debug(f"Seeded {about_path}")
         else:
-            logging.info(f"{about_path} already exists; skipping")
+            logging.debug(f"{about_path} already exists; skipping")
 
     def render_workspace_manager(self):
         """
@@ -182,7 +182,8 @@ class WorkspaceFactory:
                     existing = json.load(f)
                 existing_scaffold = existing.get("scaffold", {})
                 if existing_scaffold == self.lock_data["scaffold"]: #self.scaffold:
-                    logging.info(f"Scaffold unchanged. Skipping re-render of workspace_manager.py at {output_path}")
+                    logging.debug(f"Scaffold unchanged. Skipping re-render of workspace_manager.py at {output_path}")
+                    typer.echo(f"Scaffold unchanged. Skipping re-render of workspace_manager.py.")
                     return  # 🛑 Skip rendering
                 else:
                     typer.confirm(f"⚠️ Existing {LOCK_FILE_NAME} does not match this scaffold structure. Continue?", abort=True)
@@ -200,7 +201,8 @@ class WorkspaceFactory:
         output_path.write_text(rendered)
         with open(lock_path, "w", encoding="utf-8") as f:
             json.dump(self.lock_data, f, indent=2)
-        logging.info(f"Generated workspace_manager.py at {output_path}")
+        typer.echo(f"workspace_manager.py generated!")
+        logging.debug(f"Generated workspace_manager.py at {output_path}")
 
 def load_scaffold(scaffold_path: Path | None = None) -> dict:
     if not scaffold_path:
@@ -208,7 +210,8 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
     
     if not scaffold_path.exists():
         # File missing, log warning and return fallback
-        logger.info(f"Warning: Missing scaffold file: {scaffold_path}, using fallback scaffold.")
+        typer.echo(f"Missing scaffold file, using fallback scaffold.")
+        logger.debug(f"Warning: Missing scaffold file: {scaffold_path}, using fallback scaffold.")
         return FALLBACK_SCAFFOLD
         
     #with open(scaffold_path, "r") as f:
@@ -218,9 +221,10 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
         with open(scaffold_path, "r") as f:
             content = f.read().strip()
             if not content:
-                logger.info(f"Warning: Scaffold file {scaffold_path} is empty, using fallback scaffold.")
+                logger.debug(f"Warning: Scaffold file {scaffold_path} is empty, using fallback scaffold.")
+                typer.echo(f"Scaffold file is empty, using fallback scaffold.")
                 return FALLBACK_SCAFFOLD
             return json.loads(content)
     except json.JSONDecodeError as e:
-        logger.info(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
+        logger.warning(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
         return FALLBACK_SCAFFOLD
