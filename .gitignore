@@ -1,6 +1,7 @@
 workspaces/
 dist/
 build/
+logs/*.log
 
 __pycache__
 mulch.lock
