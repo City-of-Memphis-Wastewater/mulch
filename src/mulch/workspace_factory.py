@@ -37,10 +37,11 @@ class WorkspaceFactory:
     FALLBACK_SCAFFOLD = FALLBACK_SCAFFOLD # to make accessible, for pip and interally
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
 
-    def __init__(self, base_path: Path, workspace_name: str, lock_data: dict):
+    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
-        self.workspace_dir = self.base_path / "workspaces" / workspace_name
+        #self.workspace_dir = self.base_path / "workspaces" / workspace_name # if not bare, then yes. And if bare, then not necessary at all, no alternative to define.
+        self.workspace_dir = workspace_dir 
         self.lock_data = lock_data
         #self.scaffold = lock_data["scaffold"]
 
@@ -53,12 +54,12 @@ class WorkspaceFactory:
             path /= part
         return path
 
-    def check_and_create_workspace_dirs_from_scaffold(self):
+    def check_and_create_workspace_dirs_from_scaffold(self, workspace_dir):
         """
         Create folders and files under the workspace directory as defined by the scaffold.
         """
         for parent, children in self.lock_data["scaffold"].items():
-            base = self.workspace_dir / parent
+            base = workspace_dir / parent
             for child in children:
                 path = base / child
                 if "." in child:

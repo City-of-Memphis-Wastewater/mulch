@@ -22,7 +22,7 @@ try:
 except PackageNotFoundError:
     MULCH_VERSION = "unknown"
 # load the fallback_scaffold to this file
-wf = WorkspaceFactory(Path.cwd(),'placeholder_workspace_name',{})
+wf = WorkspaceFactory(Path.cwd(),Path.cwd()/'placeholder_workspace_dir','placeholder_workspace_name',{})
 FALLBACK_SCAFFOLD = wf.FALLBACK_SCAFFOLD
 
 # Create the Typer CLI app
@@ -60,7 +60,7 @@ def _should_generate_workspace(workspace_dir: Path, lock_data: dict) -> bool:
                     f"⚠️ {LOCK_FILE_NAME} exists and differs from current scaffold submission.\n"
                     f"Overwrite workspace?",
                     abort=True
-                )
+                )   
         else:
             typer.confirm(
                 f"⚠️ Workspace directory {workspace_dir} exists but no {LOCK_FILE_NAME} was found.\n"
@@ -69,16 +69,26 @@ def _should_generate_workspace(workspace_dir: Path, lock_data: dict) -> bool:
             )
     return True
 
-def _init_workspace(target_dir: Path, name: str, lock_data: dict, set_default: bool) -> WorkspaceFactory:
+def _determine_workspace_dir(target_dir, name, here, bare):
+    if not here:
+        workspace_dir = target_dir / "workspaces" / name
+    elif here and bare:
+        workspace_dir = target_dir / name
+    elif here and not bare:
+        typer.secho(f"The `--here/-h` flag requires that the `--bare/-b` flag is also used.",fg=typer.colors.RED)
+    return workspace_dir
+
+def _init_workspace(target_dir: Path, workspace_dir: Path, name: str, lock_data: dict, set_default: bool, here: bool, bare: bool) -> WorkspaceFactory:
     """
     Shared internal logic to scaffold workspace directories.
     """
+    
     target_dir = target_dir.resolve()
-    wf = WorkspaceFactory(base_path=target_dir, workspace_name=name, lock_data = lock_data)
-    wf.check_and_create_workspace_dirs_from_scaffold()
-    typer.secho(f"Workspace '{name}' initialized at {wf.workspace_dir}",fg=typer.colors.BRIGHT_MAGENTA)
+    wf = WorkspaceFactory(base_path=target_dir, workspace_dir = workspace_dir, workspace_name=name, lock_data = lock_data)
+    wf.check_and_create_workspace_dirs_from_scaffold(workspace_dir)
+    typer.secho(f"Workspace '{name}' initialized at {workspace_dir}",fg=typer.colors.BRIGHT_MAGENTA)
 
-    if set_default:
+    if set_default and not here and not bare:
         wf.create_default_workspace_toml(target_dir / "workspaces", name)
 
     return wf
@@ -119,10 +129,11 @@ def _establish_software_elements(target_dir: Path):
 @app.command()
 @with_logging
 def init(
-    target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
+    target_dir: Path = typer.Option(Path.cwd(), "--target-root-dir", "-r", help="Target project root (defaults to current directory)."),
     name: str = typer.Option("default", "--name", "-n", help="Name of the workspace to create."),
     scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
-    codeless: bool = typer.Option(False, "--codeless", "-c", help="Don't build source code or logs, just make scaffolded workspace directories!"),
+    bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
+    here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml")
 ):
     """
@@ -131,8 +142,8 @@ def init(
     Establish a logs folder at root, with the logging.json file.
     """
 
-    if codeless:
-        typer.secho(f"Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
+    if bare:
+        typer.secho(f"bare: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
 
     scaffold_dict = None
 
@@ -160,12 +171,13 @@ def init(
         "generated_at": datetime.datetime.utcnow().isoformat() + "Z"
     }
     
-    workspace_dir = target_dir / "workspaces" / name
+
+    workspace_dir = _determine_workspace_dir(target_dir, name, here, bare)
     
     if _should_generate_workspace(workspace_dir, lock_data):
-        wf = _init_workspace(target_dir, name, lock_data, set_default)
+        wf = _init_workspace(target_dir, workspace_dir, name, lock_data, set_default, here, bare)
         _generate_workspace_lockfile(workspace_dir, lock_data)
-        if not codeless:
+        if not bare:
             _render_workspace_manager(target_dir, lock_data)
             _establish_software_elements(target_dir)
         wf.seed_scaffolded_workspace_files()
