@@ -16,17 +16,18 @@ from mulch.logging_setup import setup_logging, setup_logging_portable
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
+FALLBACK_SCAFFOLD = WorkspaceFactory.FALLBACK_SCAFFOLD
 HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
 LOCK_FILE_NAME = 'mulch.lock'
+
 try:
     MULCH_VERSION = version("mulch")
     __version__ = version("mulch")
 except PackageNotFoundError:
     MULCH_VERSION = "unknown"
+    
 # load the fallback_scaffold to this file
-wf = WorkspaceFactory(Path.cwd(),Path.cwd()/'placeholder_workspace_dir','placeholder_workspace_name',{})
-FALLBACK_SCAFFOLD = wf.FALLBACK_SCAFFOLD
 
 # Create the Typer CLI app
 app = typer.Typer(help=HELP_TEXT, no_args_is_help=True, add_completion=False)
@@ -79,7 +80,8 @@ def _determine_workspace_dir(target_dir, name, here, bare):
         workspace_dir = target_dir / name
     elif here and not bare:
         typer.secho(f"The `--here/-h` flag requires that the `--bare/-b` flag is also used.",fg=typer.colors.RED)
-    return workspace_dir
+        raise typer.Abort()
+    return workspace_dir # type: ignore
 
 def _init_workspace(target_dir: Path, workspace_dir: Path, name: str, lock_data: dict, set_default: bool, here: bool, bare: bool) -> WorkspaceFactory:
     """
@@ -104,8 +106,6 @@ def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
             existing = json.load(f)
         existing_scaffold = existing.get("scaffold", {})
         if existing_scaffold != lock_data["scaffold"]:
-            #typer.echo(f"existing_scaffold = {existing_scaffold}")
-            #typer.echo(f"lock_data = {lock_data}")
             typer.confirm(
                 f"⚠️ {LOCK_FILE_NAME} already exists at {lock_path}, but the scaffold structure has changed.\n"
                 f"Overwriting may cause incompatibility with this workspace.\n"
@@ -117,12 +117,12 @@ def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
         json.dump(lock_data, f, indent=2)
     logger.debug(f"Wrote {LOCK_FILE_NAME} to {lock_path}")
 
-def _render_workspace_manager(target_dir: Path, lock_data: dict):
+def _render_workspace_manager(target_dir: Path, workspace_dir: Path, lock_data: dict):
     """
     Shared internal logic to render workspace_manager.py.
     """
         
-    wf = WorkspaceFactory(base_path=target_dir, workspace_dir= Path.cwd()/'placeholder_workspace_dir',workspace_name="placeholder_workspace_name", lock_data = lock_data)
+    wf = WorkspaceFactory(base_path=target_dir, workspace_dir= workspace_dir,workspace_name="placeholder_workspace_name", lock_data = lock_data)
     wf.render_workspace_manager()
     return
 
@@ -132,7 +132,7 @@ def _establish_software_elements(target_dir: Path):
 @app.command()
 @with_logging
 def init(
-    target_dir: Path = typer.Option(Path.cwd(), "--target-root-dir", "-r", help="Target project root (defaults to current directory)."),
+    target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
     name: str = typer.Option("default", "--name", "-n", help="Name of the workspace to create."),
     scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
     bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
@@ -185,8 +185,9 @@ def init(
         wf = _init_workspace(target_dir, workspace_dir, name, lock_data, set_default, here, bare)
         _generate_workspace_lockfile(workspace_dir, lock_data)
         if not bare:
-            _render_workspace_manager(target_dir, lock_data)
+            _render_workspace_manager(target_dir, workspace_dir, lock_data)
             _establish_software_elements(target_dir)
+            setup_logging()
         wf.seed_scaffolded_workspace_files()
     else:
         typer.echo(f"Workspace '{name}' already exists and is up-to-date with the scaffold.")
@@ -195,10 +196,10 @@ def init(
 @app.command()
 #@with_logging(use_portable=True)
 def file(
-    target_dir: Path = typer.Argument(Path.cwd(), help="Target project root (defaults to current directory)."),
-    filepath_in: str = typer.Option(None,"--filepath-in","-i",help = "Exsting scaffold filename that you want copied. You must use -o/--filepath-out in conjunction with -i/--filepath-in"),
+    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
+    filepath: str = typer.Option(None,"--filepath","-f",help = f"Copy and existing scaffold file to the new local {DEFAULT_SCAFFOLD_FILENAME}"),
     use_embedded: bool = typer.Option(
-        False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded structure FALLBACK_SCAFFOLD."
+        False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded fallback structure."
     ),
     ):
     """
@@ -218,13 +219,13 @@ def file(
     scaffold_dict = FALLBACK_SCAFFOLD
     if use_embedded:
         pass # scaffold_dict = FALLBACK_SCAFFOLD
-    elif filepath_in:
-        with open(filepath_in, "r", encoding="utf-8") as f:
+    elif filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
             scaffold_dict = json.load(f)
 
     if scaffold_path.exists():
         if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
-            typer.echo("Aborted: Did not overwrite existing scaffold file.")
+            #typer.echo("Aborted: Did not overwrite existing scaffold file.") # this is a redundant message
             raise typer.Abort()
     with open(scaffold_path, "w", encoding="utf-8") as f:
         json.dump(scaffold_dict, f, indent=2)

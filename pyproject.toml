@@ -25,6 +25,9 @@ jinja2 = "^3.1.6"
 [tool.poetry.scripts]
 mulch = "mulch.cli:app"
 
+[tool.poetry.group.dev.dependencies]
+twine = "^6.1.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

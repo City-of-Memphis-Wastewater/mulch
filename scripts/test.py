@@ -16,14 +16,7 @@ scaffold = load_scaffold() # expect fallback scaffold when no file is found
 print(f"scaffold = {scaffold}")
 
 # Demonstrate another way to get the fallback scaffold
-wf0 = WorkspaceFactory(
-    base_path=rootdir_dir,
-    workspace_dir=Path.cwd()/'placeholder_workspace_dir'
-    workspace_name="placeholder",
-    lock_data = {}
-)
-#print(f"wf0.FALLBACK_SCAFFOLD = {wf0.FALLBACK_SCAFFOLD}")
-
+# from mulch.workspace_factory import FALLBACK_SCAFFOLD
 
 lock_data={
     "scaffold": scaffold,
@@ -31,10 +24,13 @@ lock_data={
     "generated_at": "2025-07-06T12:00:00Z"
 }
 
+name="default",
+workspace_dir = rootdir_dir / "workspaces" / name
 
 wf = WorkspaceFactory(
     base_path=rootdir_dir,
-    workspace_name="default",
+    workspace_dir=workspace_dir,
+    workspace_name=name,
     lock_data=lock_data
 )
 
