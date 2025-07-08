@@ -26,6 +26,17 @@ try:
     __version__ = version("mulch")
 except PackageNotFoundError:
     MULCH_VERSION = "unknown"
+
+try:
+    from importlib.metadata import version
+    __version__ = version("mulch")
+except PackageNotFoundError:
+    # fallback if running from source
+    try:
+        with open(Path(__file__).parent / "VERSION") as f:
+            __version__ = f.read().strip()
+    except FileNotFoundError:
+        __version__ = "dev"
     
 # load the fallback_scaffold to this file
 
