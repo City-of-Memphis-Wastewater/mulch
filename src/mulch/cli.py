@@ -10,7 +10,7 @@ from importlib.metadata import version, PackageNotFoundError
 from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory
 from mulch.logging_setup import setup_logging, setup_logging_portable
-
+from mulch.helpers import calculate_nowtime_foldername
 
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -133,7 +133,7 @@ def _establish_software_elements(target_dir: Path):
 @with_logging
 def init(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
-    name: str = typer.Option("default", "--name", "-n", help="Name of the workspace to create."),
+    name: str = typer.Option(calculate_nowtime_foldername(), "--name", "-n", help="Name of the workspace to create."),
     scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
     bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
