@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "mulch"
-version = "0.1.38"
 description = "Workspace Factory CLI for initializing standard workspace folders in /workspaces/ and generating an introspective WorkspaceManager class in /src/."
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
 include = [
+    "src/mulch/VERSION",
 	"src/mulch/mulch-scaffold.json",
 	"src/mulch/logging.json",
 	"src/mulch/secrets-example.yaml",
@@ -27,6 +27,11 @@ mulch = "mulch.cli:app"
 
 [tool.poetry.group.dev.dependencies]
 twine = "^6.1.0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+output-file = "src/mulch/VERSION"
+
 
 [build-system]
 requires = ["poetry-core"]
