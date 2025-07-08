@@ -30,8 +30,9 @@ Key feature: Benefit from introspective directory getters and file getters in th
 pipx install mulch
 ```
 Install Mulch as a right-click item in the context menu:
-[Windows Context Menu Registry](https://gist.github.com/KyleMit/978086ae267ff5be17811e99c9607986)
-[Thunar Custom Actions on Linux](https://docs.xfce.org/xfce/thunar/custom-actions)
+
+- [Windows Context Menu Registry](https://gist.github.com/KyleMit/978086ae267ff5be17811e99c9607986)
+- [Thunar Custom Actions on Linux](https://docs.xfce.org/xfce/thunar/custom-actions)
 
 ## git clone
 
