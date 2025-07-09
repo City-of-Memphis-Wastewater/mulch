@@ -24,7 +24,13 @@ DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
 LOCK_FILE_NAME = 'mulch.lock'
 
 # look for: '.\mulch-scaffold.toml','.\mulch-scaffold.json': in each of these directories 
-order_of_respect = ['.\.mulch','.\\','C:\Users\george.bennett\.mulch','C:\Users\george.bennett\AppData\.mulch','C:\Users\george.bennett\pipx\venvs\mulch\.mulch','FALLBACK_SCAFFOLD']
+order_of_respect = [Path('.\\.mulch\\'),
+                    Path('.\\'),
+                    Path('C:\\Users\\george.bennett\\.mulch\\'),
+                    Path('C:\\Users\\george.bennett\\AppData\\.mulch\\'),
+                    Path('C:\\Users\\george.bennett\\pipx\\venvs\\mulch\\.mulch\\'),
+                    'FALLBACK_SCAFFOLD']
+FILENAMES_OF_RESPECT = ['.\mulch-template.toml.j2','.\mulch-scaffold.toml','.\mulch-scaffold.json']
 TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [order_of_respect / 'mulch-scaffold-template-dictionary.toml']
 
 try:
@@ -284,6 +290,12 @@ def file(
 
 def _interpret_scaffold_from_order_of_respect(order_of_respect):
     for fallback in order_of_respect:
+        # FILENAMES_OF_RESPECT
+        scaffold_path_jinja2 = (Path(fallback) / 'mulch-scaffold.toml.j2') 
+        #if scaffold_path_jinja2.exists():
+        #    with open(scaffold_path_jinja2, "r", encoding="utf-8") as f:
+        #        scaffold_dict = jinja.load(f)
+        #    return scaffold_dict
         scaffold_path_toml = (Path(fallback) / 'mulch-scaffold.toml')
         if scaffold_path_toml.exists():
             with open(scaffold_path_toml, "r", encoding="utf-8") as f:
