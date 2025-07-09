@@ -1,6 +1,5 @@
 [tool.poetry]
 name = "mulch"
-version = "0.2.0"
 description = "Workspace Factory CLI for initializing standard workspace folders in /workspaces/ and generating an introspective WorkspaceManager class in /src/."
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
@@ -33,7 +32,7 @@ twine = "^6.1.0"
 enable = true
 vcs = "git"
 style = "pep440"   # Default
-format = "{base}"  # <-- This avoids adding the +local part
+format = "{tag}"  # <-- This avoids adding the +local part
 
 
 [build-system]
