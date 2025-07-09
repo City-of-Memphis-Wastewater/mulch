@@ -3,6 +3,7 @@ dist/
 build/
 tests/
 logs/*.log
+.mulch/
 
 __pycache__
 mulch.lock
