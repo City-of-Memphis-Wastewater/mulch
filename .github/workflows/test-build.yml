@@ -40,8 +40,6 @@ jobs:
             rm -rf dist/ # bash
           fi
           python -m pip install --upgrade twine
-          poetry version -s > src/mulch/VERSION
-          LATEST_VERSION=$(poetry version -s)
           #twine upload --repository-url https://test.pypi.org/legacy/ dist/*
           #twine upload --repository testpypi dist/*
-          twine upload --repository testpypi dist/mulch-$LATEST_VERSION
+          #twine upload --repository testpypi dist/mulch-$LATEST_VERSION
