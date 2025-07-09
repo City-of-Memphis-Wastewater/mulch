@@ -2,10 +2,12 @@
 
 import typer
 import json
+import toml
 from pathlib import Path
 import logging
 import datetime
 from importlib.metadata import version, PackageNotFoundError
+import subprocess
 
 from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory
@@ -20,6 +22,10 @@ FALLBACK_SCAFFOLD = WorkspaceFactory.FALLBACK_SCAFFOLD
 HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
 LOCK_FILE_NAME = 'mulch.lock'
+
+# look for: '.\mulch-scaffold.toml','.\mulch-scaffold.json': in each of these directories 
+order_of_respect = ['.\.mulch','.\\','C:\Users\george.bennett\.mulch','C:\Users\george.bennett\AppData\.mulch','C:\Users\george.bennett\pipx\venvs\mulch\.mulch','FALLBACK_SCAFFOLD']
+TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [order_of_respect / 'mulch-scaffold-template-dictionary.toml']
 
 try:
     MULCH_VERSION = version("mulch")
@@ -140,6 +146,25 @@ def _render_workspace_manager(target_dir: Path, workspace_dir: Path, lock_data: 
 def _establish_software_elements(target_dir: Path):
     pass
 
+def _all_order_of_respect_failed(order_of_respect):
+    failed = True
+    for path in order_of_respect:
+        if Path(path).exists():
+            failed = False
+    return failed
+
+def make_dot_mulch_folder(target_dir):
+    dot_mulch_folder = Path(target_dir) / '.mulch'
+    if not dot_mulch_folder.exists():
+        if False:
+            dot_mulch_folder.mkdir()
+            # this isn't good enough
+            # it should run the logic for `mulch folder` instead, which includes templates, to the most available fallback, which ironically requires checking the list of order_or_respect
+        else:
+            # hack
+            command = ["mulch", "folder"]
+            return subprocess.call(command) == 0  # True if ping succeeds
+        
 @app.command()
 @with_logging
 def init(
@@ -148,13 +173,24 @@ def init(
     scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
     bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
-    set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml")
+    set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
+    enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' ")
+
 ):
     """
     Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
     Build the workspace_manager.py file in the source code.
     Establish a logs folder at root, with the logging.json file.
     """
+
+    
+    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
+    # The `mulch` command by itself in the context menu means either 
+    if enforce_mulch_folder:
+        order_of_respect = ['.\.mulch']
+    
+    if _all_order_of_respect_failed(order_of_respect):
+       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     if here:
         typer.secho(f"`here`: `bare` value forced to True.",fg=typer.colors.MAGENTA)
@@ -244,6 +280,72 @@ def file(
     typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
     typer.secho("✏️  You can now manually edit this file to customize your workspace layout.",fg=typer.colors.CYAN)
     typer.echo("⚙️  Changes to this scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
+
+
+def _interpret_scaffold_from_order_of_respect(order_of_respect):
+    for fallback in order_of_respect:
+        scaffold_path_toml = (Path(fallback) / 'mulch-scaffold.toml')
+        if scaffold_path_toml.exists():
+            with open(scaffold_path_toml, "r", encoding="utf-8") as f:
+                scaffold_dict = toml.load(f)
+            return scaffold_dict
+        
+        scaffold_path_json = (Path(fallback) / 'mulch-scaffold.json')
+        if scaffold_path_json.exists():
+            with open(scaffold_path_json, "r", encoding="utf-8") as f:
+                scaffold_dict = json.load(f)
+            return scaffold_dict
+        
+        if (fallback is WorkspaceFactory.FALLBACK_SCAFFOLD):
+            scaffold_dict = fallback
+            return scaffold_dict
+        else:
+            raise typer.Exit(code=1)
+            
+def load_template_choice_dictionary_from_file():
+    for path in TEMPLATE_CHOICE_DICTIONARY_FILEPATHS:
+        try:
+            toml.load(path)
+        except:
+            try:
+                json.load(path)
+            except:
+                raise typer.Exit(code=1)
+
+
+@app.command()
+def folder(
+    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
+    use_order_of_respect: bool = typer.Option(True,"--use-order-of-respect","-u",help = "This says that the new mulch-scaffold.* file will be generated with the most elevated template that can be found, in various possible directories, sorted by hierarchy of impact on the global and local system. See: the order_of_respect: list, in mulch/cli.py vars"),
+    template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization.")
+    ):
+    """
+
+    Drop a .mulch to disk, at the target directory.
+    The default is the next level of fallback in the order_of_respect list.
+    You are able to edit the .mulch/mulch-scaffold.* file manually.  
+
+        mulch folder --help
+    """
+    template_choice_dict = load_template_choice_dictionary_from_file()
+    
+    scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
+    # Find the scaffold_dict that should be written to this new .mulch folder, based on order_of_respect.
+    if use_order_of_respect:
+        scaffold_dict = _interpret_scaffold_from_order_of_respect()
+    elif template_choice:
+        scaffold_dict = template_choice_dict[template_choice] # template choice must be a number 1-9
+    if scaffold_path.exists():
+        if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
+            #typer.echo("Aborted: Did not overwrite existing scaffold file.") # this is a redundant message
+            raise typer.Abort()
+    with open(scaffold_path, "w", encoding="utf-8") as f:
+        json.dump(scaffold_dict, f, indent=2)
+    
+    typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
+    typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.CYAN)
+    typer.echo("⚙️  Changes to the scaffold file `.mulch\mulch-scaffold.*` in will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
+
 
 
 @app.command()
