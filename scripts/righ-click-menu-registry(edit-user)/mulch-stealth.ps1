@@ -1,19 +1,20 @@
+
 Windows Registry Editor Version 5.00
 
 ; Right-click ON folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_init]
-@="mulch here"
+@="mulch stealth"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
-[HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_init\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\george.bennett\\scripts\\mulch-init-here.ps1\" \"%L\""
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_stealth\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\george.bennett\\scripts\\mulch-stealth.ps1\" \"%L\""
 
 ; Right-click background of a folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_init]
-@="mulch here"
+@="mulch stealth"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
-[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_init\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\george.bennett\\scripts\\mulch-init-here.ps1\" \"%V\""
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_stealth\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\george.bennett\\scripts\\mulch-stealth.ps1\" \"%V\""

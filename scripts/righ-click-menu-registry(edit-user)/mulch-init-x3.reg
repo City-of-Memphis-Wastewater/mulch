@@ -2,7 +2,7 @@ Windows Registry Editor Version 5.00
 
 ; Right-click ON folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_init_here]
-@="Mulch Here"
+@="mulch init --here"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
@@ -11,7 +11,7 @@ Windows Registry Editor Version 5.00
 
 ; Right-click background of a folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_init_here]
-@="Mulch Here"
+@="mulch init --here"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
@@ -22,7 +22,7 @@ Windows Registry Editor Version 5.00
 
 ; Right-click ON folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_init_bare]
-@="Mulch Workspaces"
+@="mulch init --bare"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
@@ -31,7 +31,7 @@ Windows Registry Editor Version 5.00
 
 ; Right-click background of a folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_init_bare]
-@="Mulch Workspaces"
+@="mulch init --bare"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
@@ -41,7 +41,7 @@ Windows Registry Editor Version 5.00
 
 ; Right-click ON folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_init]
-@="Mulch Package"
+@="mulch init --enforce-mulch-folder"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
@@ -50,7 +50,7 @@ Windows Registry Editor Version 5.00
 
 ; Right-click background of a folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_init]
-@="Mulch Package"
+@="mulch init --enforce-mulch-folder"
 "Icon"="C:\\Users\\george.bennett\\scripts\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
