@@ -36,10 +36,9 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          try:
-            ri -r -fo .\dist\ # PowerShell
-          except:
+          if [ -d "dist" ]; then
             rm -rf dist/ # bash
+          fi
           python -m pip install --upgrade twine
           poetry version -s > src/mulch/VERSION
           LATEST_VERSION=$(poetry version -s)
