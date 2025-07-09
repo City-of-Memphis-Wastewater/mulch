@@ -25,7 +25,7 @@ jobs:
       - name: Configure Poetry (disable virtualenv)
         run: poetry config virtualenvs.create false
 
-      - name: Install dependencies (no dev)
+      - name: Install dependencies (without dev dependencies)
         run: poetry install --without dev
 
       - name: Build package
