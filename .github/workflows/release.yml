@@ -36,9 +36,9 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
+          python -m pip install --upgrade twine
+          twine upload dist/*
           if [ -d "dist" ]; then
             rm -rf dist/ # bash
           fi
-          python -m pip install --upgrade twine
-          twine upload dist/*
 
