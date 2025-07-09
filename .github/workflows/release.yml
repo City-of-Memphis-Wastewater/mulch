@@ -26,7 +26,7 @@ jobs:
         run: poetry config virtualenvs.create false
 
       - name: Install dependencies (no dev)
-        run: poetry install --no-dev
+        run: poetry install --without dev
 
       - name: Build package
         run: poetry build
