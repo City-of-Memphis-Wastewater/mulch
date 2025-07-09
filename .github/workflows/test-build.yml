@@ -36,7 +36,13 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
+          try:
+            ri -r -fo .\dist\ # PowerShell
+          except:
+            rm -rf dist/ # bash
           python -m pip install --upgrade twine
-          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-
-
+          poetry version -s > src/mulch/VERSION
+          LATEST_VERSION=$(poetry version -s)
+          #twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+          #twine upload --repository testpypi dist/*
+          twine upload --repository testpypi dist/mulch-$LATEST_VERSION

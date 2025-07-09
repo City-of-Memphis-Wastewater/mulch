@@ -31,7 +31,9 @@ twine = "^6.1.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true
-output-file = "src/mulch/VERSION"
+vcs = "git"
+style = "pep440"   # Default
+format = "{base}"  # <-- This avoids adding the +local part
 
 
 [build-system]
