@@ -13,4 +13,4 @@ Set-Location -Path $path
 $env:PATH += ";$env:USERPROFILE\.local\bin"
 
 # Run mulch init
-mulch init --bare # --enforce-mulch-folder
+mulch folder --order-of-respect

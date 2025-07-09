@@ -18,4 +18,4 @@ Set-Location -Path $path
 $env:PATH += ";$env:USERPROFILE\.local\bin"
 
 # Run mulch init
-mulch init --here
+mulch init --here # --enforce-mulch-folder
