@@ -1,25 +1,19 @@
 # mulch — Workspace Factory CLI
 
-`mulch` is a lightweight, project-agnostic CLI tool to scaffold and generate workspace directories
-for intentional, usable Python projects. It bootstraps a standardized workspace folder structure, an introspective templated `WorkspaceManager`, and other key files inside both your source directory and your workspaces directory.
-
-Set up new projects easily with workspace scaffolding and source-code templating. 
-
-Key feature: Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `mulch.lock`.
-
-Set up new projects easily with workspace scaffolding and source-code templating. 
-
-Key feature: Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `mulch.lock`.
+`mulch` is a lightweight CLI and context menu tool, with multiple directory scaffolding use cases. Developers will enjoy quickly standing up Python projects, and end users will enjoy right clicking in the file browser to set up file organization the same way every time, customizable to each directory.
+ 
 
 ---
 
 ## Features
 
-- Initialize workspaces with a consistent scaffold defined by `mulch-scaffold.json`
-- Create a `default-workspace.toml` to track the active workspace
+Key feature: Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `manager.lock`.
+
+Key feature: The hidden `.mulch` folder can be leveraged for configuration as well as in `--stealth` mode, so that shared directories can be crisp while given you space to write analysis scripts.
+
+More:
 - Easily installable and runnable via `pipx`
-- Uses a Pythonic `/package-root/src/pacakge-name/` paradigm
-- Enforces a separation of source code and workspace files, with workspace files organized into  `/package-root/workspaces/your-special-workspace/` structure.
+- Enforces a separation of source code and workspace files.
 
 ---
 
@@ -43,24 +37,34 @@ poetry install
 poetry build
 pipx install dist/mulch-*-py3-none-any.whl
 ```
-
+The git source code includes `.reg` files which can be leveraged to register right-click commands with your context menu, to enjoy the full power of `mulch` in your file browser as a user-facing power tool.
 
 # Usage
 
 ```bash
-# Generated a fresh mulch-scaffold.json file, to edit before running 'mulch init'.
-mulch file
+# Set up a new directory, where you anticipate to organizing multiple projects
+mkdir equipment-monitoring 
+cd equipment-monitoring
 
-# Initialize workspace named 'default' in the current directory
-mulch init
+# Generated a fresh .mulch\mulch-scaffold.json file, and edit the directory scaffold before running 'mulch init'.
+mulch seed --edit
 
-# Initialize workspace named 'workspace1' in ./myproject
-mulch init ./myproject --name workspace1
+# Stealth mode, best for shared directories
+mulch init --name bioreactor-1-team-analysis --stealth 
 
-# Initialize workspace named 'workspace1' in the current directory
-mulch init --name workspace1
+# Stanadard mode, best for Python developers
+mulch init --name API01toAPI05  
 
-# Skip creating default-workspace.toml
-mulch init ./myproject --name workspace1 --no-set-default
 ```
+
+## Folder Stucture Options, using `mulch init`
+
+| Flag        | Workspace Location   | Source Location      | Goal                        |
+| ----------- | -------------------- | -------------------- | --------------------------- |
+| *(none)*    | `workspaces/<name>/` | `src/<proj>/`        | Normal development use      |
+| `--here`    | `./<name>/`          | *(none)*             | Clean, user-facing          |
+| `--bare`    | `workspaces/<name>/` | *(none)*             | New workspace, no src impact|
+| `--stealth` | `./<name>/`          | `.mulch/src/<proj>/` | Play nice with shared dirs  |
+
+I am really excited about `mulch init --stealth` for mixed use directories. Business and engineering users can organize projects in a shared drive like SharePoint, while a dev can run custom analysis scripts catered to each type of project. 
 
