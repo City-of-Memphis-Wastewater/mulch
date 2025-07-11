@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scaffold_dict = resolve_scaffold(ORDER_OF_RESPECT, FILENAMES_OF_RESPECT)` added to the top of the `seed` CLI command due to failure of the seed command when no scaffold_dict was known. 
 
 ### Added
-- --edit flag to `mulch seed`, to launch editor
+- --edit flag in `mulch seed` and `mulch file`, to launch editor automatically. Otherwise, there is a typer.confirm(). 
 
 --
 
