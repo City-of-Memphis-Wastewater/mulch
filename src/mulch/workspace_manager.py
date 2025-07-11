@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 class WorkspaceManager:
     """
@@ -215,4 +216,4 @@ class WorkspaceManager:
 
 if __name__ == "__main__":
     wm = WorkspaceManager("")
-    print("Workspace initialized:", wm.get_workspace_path())
+    logger.debug("Workspace initialized:", wm.get_workspace_path())

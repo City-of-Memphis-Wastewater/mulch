@@ -27,7 +27,7 @@ DEFAULT_LOGGING_JSON = '''
       "class": "logging.handlers.RotatingFileHandler",
       "level": "DEBUG",
       "formatter": "default",
-      "filename": "logs/default.log",
+      "filename": ".mulch/logs/default.log",
       "maxBytes": 10485760,
       "backupCount": 3,
       "encoding": "utf8"
@@ -43,7 +43,7 @@ DEFAULT_LOGGING_JSON = '''
 
 
 def ensure_logs_folder_with_config(project_root: Path):
-    logs_dir = project_root / "logs"
+    logs_dir = project_root / ".mulch" / "logs"
     if not logs_dir.exists():
         logs_dir.mkdir(parents=True)
 
@@ -68,7 +68,7 @@ def ensure_logs_folder_with_config(project_root: Path):
 
 def setup_logging_portable():
     config = json.loads(DEFAULT_LOGGING_JSON)
-    log_path = Path("logs/default.log")
+    log_path = Path(".mulch/logs/default.log")
     if not log_path.parent.exists():
         config["handlers"].pop("file", None)
         if "file" in config["root"]["handlers"]:
@@ -87,7 +87,7 @@ def setup_logging(project_root: Path | None = None, portable: bool = False):
         project_root = Path.cwd()  
     
     ensure_logs_folder_with_config(project_root)
-    config_path = project_root / "logs" / "logging.json"
+    config_path = project_root / ".mulch" / "logs" / "logging.json"
     
     try:
         with open(config_path, 'r') as f:

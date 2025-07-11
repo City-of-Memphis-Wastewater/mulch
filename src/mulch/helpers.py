@@ -1,6 +1,61 @@
 from datetime import datetime
+from pathlib import Path
+import platform
+import os
+from typing import Union
+import json
+import toml
+from mulch.constants import FALLBACK_SCAFFOLD
+import typer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_nowtime_foldername():
     now = datetime.now()
     return now.strftime("%Y_%m%B_%d")
+
+def resolve_first_existing_path(bases: list[Path], filenames: list[str]) -> Path | None:
+    for base in bases:
+        for name in filenames:
+            candidate = base / name
+            if candidate.exists():
+                return candidate
+    return None
+    
+def resolve_scaffold(order_of_respect: list[Path], filenames_of_respect: list[str]) -> dict:
+    for base_path in order_of_respect:
+        if not isinstance(base_path, Path):
+            continue
+
+        for filename in filenames_of_respect:
+            candidate = Path(base_path) / filename
+            if candidate.exists():
+                try:
+                    if candidate.suffix == ".toml":
+                        typer.secho(f"📄 Loading scaffold from: {candidate}", fg=typer.colors.CYAN)
+                        return toml.load(candidate)
+                    elif candidate.suffix == ".json":
+                        typer.secho(f"📄 Loading scaffold from: {candidate}", fg=typer.colors.CYAN)
+                        with candidate.open("r", encoding="utf-8") as f:
+                            return json.load(f)
+                except Exception as e:
+                    typer.secho(f"⚠️ Error loading scaffold from {candidate}: {e}", fg=typer.colors.RED)
+                    logger.warning(f"Failed to load scaffold: {candidate}, error: {e}")
+                    continue
+
+    typer.secho("📦 Falling back to embedded scaffold structure.", fg=typer.colors.YELLOW)
+    return FALLBACK_SCAFFOLD
+
+
+def get_global_config_path(appname) -> Path:
+    if platform.system() == "Windows":
+        return Path(os.getenv("APPDATA", Path.home())) / appname
+    else:
+        return Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config")) / appname
+    
+
+def get_username_from_home_directory():
+    home_dir = Path.home()  # Get the home directory
+    return home_dir.name    # Extract the username from the home directory path
