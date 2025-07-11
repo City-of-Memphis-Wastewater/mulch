@@ -1,20 +1,19 @@
 # mulch — Workspace Factory CLI
 
-`mulch` is a lightweight CLI and context menu tool, with multiple directory scaffolding use cases. Developers will enjoy quickly standing up Python projects, and end users will enjoy right clicking in the file browser to set up file organization the same way every time, customizable to each directory.
+`mulch` is a lightweight CLI and right-click context menu tool. Use `mulch` to empower your file system. There with multiple use cases for enhanced directory scaffolding, both as an individual and in a shared drive with a team. Developers will enjoy quickly standing up Python projects, and end-users will enjoy right-clicking in the file browser to set up file organization the same way every time, customizable to each directory.
  
 
 ---
 
 ## Features
 
-Key feature: Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `manager.lock`.
-
-Key feature: The hidden `.mulch` folder can be leveraged for configuration as well as in `--stealth` mode, so that shared directories can be crisp while given you space to write analysis scripts.
-
-More:
+- Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `manager.lock`.
+- The hidden `.mulch` folder is leveraged for configuration.
+- In `--stealth` mode, code can be stashed in `.mulch`, so that workplace directories shared with non-technical co-workers can be crisp while giving you space to write localized analysis scripts.
 - Easily installable and runnable via `pipx`
 - Enforces a separation of source code and workspace files.
-
+- The `--here` flag enables basic scaffolding for directory-only generation, no code included.
+- The default workspace folder name is the date, if the `--name` flag is not provided.
 ---
 
 # Installation
@@ -49,11 +48,14 @@ cd equipment-monitoring
 # Generated a fresh .mulch\mulch-scaffold.json file, and edit the directory scaffold before running 'mulch init'.
 mulch seed --edit
 
-# Stealth mode, best for shared directories
+# Stealth mode, best for shared directories (`--stealth`)
 mulch init --name bioreactor-1-team-analysis --stealth 
 
-# Stanadard mode, best for Python developers
+# Standard mode, best for Python developers
 mulch init --name API01toAPI05  
+
+# User mode, for everyone (`--here`)
+mulch init --name SummerPhotos2025 --here 
 
 ```
 
