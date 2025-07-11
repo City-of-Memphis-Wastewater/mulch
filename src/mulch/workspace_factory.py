@@ -4,25 +4,18 @@ import json
 import logging
 from pathlib import Path
 from jinja2 import Environment, PackageLoader, select_autoescape #,FileSystemLoader
+from mulch.helpers import get_global_config_path
+
+from mulch.constants import FALLBACK_SCAFFOLD, DEFAULT_SCAFFOLD_FILENAME
+from mulch.logging_setup import setup_logging, setup_logging_portable
+from mulch.workspace_status import WorkspaceStatus
 
 import typer
 from importlib.resources import files
 
-from mulch.logging_setup import setup_logging_portable
-
-
 setup_logging_portable()
 logger = logging.getLogger(__name__)
 
-DEFAULT_SCAFFOLD_FILENAME = "mulch-scaffold.json"
-LOCK_FILE_NAME = 'mulch.lock'
-FALLBACK_SCAFFOLD = {
-        "": ["config", "docs", "imports", "exports", "scripts", "secrets", "queries","about_this_workspace.md"],
-        "exports": ["aggregate"],
-        "config": ["default-workspace.toml", "logging.json"],
-        "secrets": ["secrets-example.yaml"],
-        "queries": ["default-queries.toml"]
-    }
 
 class WorkspaceFactory:
     f"""
@@ -33,15 +26,33 @@ class WorkspaceFactory:
     
     DEFAULT_WORKSPACE_CONFIG_FILENAME = "default-workspace.toml"
     DEFAULT_TEMPLATE_DIR = Path(__file__).parent / "templates"
-    DEFAULT_TEMPLATE_FILENAME = "workspace_manager.py.j2"
+    DEFAULT_WORKSPACE_TEMPLATE_FILENAME = "workspace_manager.py.j2"
     FALLBACK_SCAFFOLD = FALLBACK_SCAFFOLD # to make accessible, for pip and interally
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
+    
 
-    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict):
+    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict, here=False, bare=False):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
         self.workspace_dir = workspace_dir 
+        self.workspace_lock_path = self.workspace_dir / "workspace.lock"
+        self.manager_lock_path = self.base_path / "src" / self.base_path.name / "manager.lock"
+        self.manager_path = self.base_path / "src" / self.base_path.name / "workspace_manager.py"
         self.lock_data = lock_data
+        self.here = here
+        self.bare = bare
+
+    def initialize(self, *, set_default: bool = True, here: bool = False, bare: bool = False):
+        """
+        Set up the workspace directories, default config, and emit status messages.
+        This is a safe wrapper for post-instantiation setup.
+        """
+        self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
+        typer.secho(f"Workspace '{self.workspace_name}' initialized at {self.workspace_dir}", fg=typer.colors.BRIGHT_MAGENTA)
+
+        if set_default and not here and not bare:
+            self.create_default_workspace_toml(self.base_path / "workspaces", self.workspace_name)
+
 
     def get_path(self, key: str) -> Path:
         """
@@ -51,6 +62,45 @@ class WorkspaceFactory:
         for part in key.strip("/").split("/"):
             path /= part
         return path
+    
+    def evaluate_workspace_status(self) -> WorkspaceStatus:
+        
+        if not self.workspace_dir.exists():
+            return WorkspaceStatus.MISSING
+
+        if self.workspace_lock_path.exists():
+            try:
+                with open(self.workspace_lock_path, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                existing_scaffold = existing.get("scaffold", {})
+                if existing_scaffold == self.lock_data.get("scaffold", {}):
+                    return WorkspaceStatus.MATCHES
+                else:
+                    return WorkspaceStatus.DIFFERS
+            except Exception as e:
+                logging.warning(f"Failed to read {self.workspace_lock_path}: {e}")
+                return WorkspaceStatus.DIFFERS
+        else:
+            return WorkspaceStatus.EXISTS_NO_LOCK
+        
+    #def evaluate_manager_status(self) -> WorkspaceManagerStatus:
+    #    lock_path = self.base_dir / "src" / pro
+        
+    def write_workspace_lockfile(self):
+        
+        with open(self.workspace_lock_path, "w", encoding="utf-8") as f:
+            json.dump(self.lock_data, f, indent=2)
+        logger.debug(f"Wrote lockfile to: {self.workspace_lock_path}")
+
+    def seed_scaffolded_workspace_files(self):
+        # no-op placeholder: future file seeding logic can go here
+        pass
+        
+    @classmethod
+    def determine_workspace_dir(cls, target_dir: Path, name: str, here: bool, bare: bool) -> Path:
+        if here:
+            return target_dir / name
+        return target_dir / "workspaces" / name
 
     def check_and_create_workspace_dirs_from_scaffold(self, workspace_dir):
         """
@@ -69,6 +119,19 @@ class WorkspaceFactory:
                     if not path.exists():
                         path.mkdir(parents=True, exist_ok=True)
                         logger.debug(f"Created folder: {path}")
+
+    def initialize_full_workspace(self, set_default: bool = True):
+        """
+        One-shot method to create dirs, seed files, write lockfile, and optionally write default-workspace.toml
+        """
+        self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
+        self.write_workspace_lockfile()
+        if not self.here:
+            self.render_workspace_manager()
+            setup_logging()
+        self.seed_scaffolded_workspace_files()
+        if set_default and not self.here and not self.bare:
+            self.create_default_workspace_toml(self.base_path / "workspaces", self.workspace_name)
 
     @classmethod
     def create_default_workspace_toml(cls, workspaces_root: Path, workspace_name: str):
@@ -151,57 +214,58 @@ class WorkspaceFactory:
         """
         Render a workspace_manager.py file based on the scaffold and template.
         """
+
+        if self.here or self.bare:
+            typer.echo(f"No workspace_manager.py file necessary, skipping.")
         #env = Environment(loader=FileSystemLoader(self.DEFAULT_TEMPLATE_DIR))
         
+        # jinja2 template loader from the mulch sourcecode
         env = Environment(
             loader=PackageLoader("mulch", "templates"),
             autoescape=select_autoescape()
         )
+        template = env.get_template(self.DEFAULT_WORKSPACE_TEMPLATE_FILENAME)
 
-
-        template = env.get_template(self.DEFAULT_TEMPLATE_FILENAME)
-
-        project_name = self.base_path.name
+        project_name = self.base_path.name # assumption
         rendered = template.render(
             project_name = project_name,
             scaffold=self.lock_data["scaffold"],
             workspace_dir_name=self.workspace_name
         )
 
-        src_dir = self.base_path / "src"  # <rootprojectname>/src
-        output_dir = src_dir / project_name
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / "workspace_manager.py"
-        lock_path = output_dir / LOCK_FILE_NAME
+
         
-        if lock_path.exists():
+        #lock_path = output_dir / LOCK_FILE_NAME 
+        logger.info(f"src lock_path = {self.manager_lock_path}")
+        if self.manager_lock_path.exists():
+
             try:
-                with open(lock_path, "r", encoding="utf-8") as f:
+                with open(self.manager_lock_path, "r", encoding="utf-8") as f:
                     
                     existing = json.load(f)
                 existing_scaffold = existing.get("scaffold", {})
                 if existing_scaffold == self.lock_data["scaffold"]: #self.scaffold:
-                    logging.debug(f"Scaffold unchanged. Skipping re-render of workspace_manager.py at {output_path}")
+                    logging.debug(f"Scaffold unchanged. Skipping re-render of workspace_manager.py at {self.manager_path}")
                     typer.echo(f"Scaffold unchanged. Skipping re-render of workspace_manager.py.")
                     return  # 🛑 Skip rendering
                 else:
-                    typer.confirm(f"⚠️ Existing {LOCK_FILE_NAME} does not match this scaffold structure. Continue?", abort=True)
+                    typer.confirm(f"⚠️ Existing {self.manager_lock_path} does not match this scaffold structure. Continue?", abort=True)
             except Exception as e:
-                logging.warning(f"Could not read {LOCK_FILE_NAME} for comparison: {e}")
+                logging.warning(f"Could not read {self.manager_lock_path.name} for comparison: {e}")
 
         # ✅ Check for overwrite *here*, not in CLI
-        if output_path.exists():
+        if self.manager_path.exists():
             typer.confirm(
-                f"⚠️ A workspace_manager.py file already exists at {output_path}. "
+                f"⚠️ A workspace_manager.py file already exists at {self.manager_path}. "
                 f"Overwriting it may break existing tooling. Continue?",
                 abort=True
             )
             
-        output_path.write_text(rendered)
-        with open(lock_path, "w", encoding="utf-8") as f:
+        self.manager_path.write_text(rendered)
+        with open(self.manager_lock_path, "w", encoding="utf-8") as f:
             json.dump(self.lock_data, f, indent=2)
         typer.echo(f"workspace_manager.py generated!")
-        logging.debug(f"Generated workspace_manager.py at {output_path}")
+        logging.debug(f"Generated workspace_manager.py at {self.manager_path}")
 
 def load_scaffold(scaffold_path: Path | None = None) -> dict:
     if not scaffold_path:
@@ -227,3 +291,28 @@ def load_scaffold(scaffold_path: Path | None = None) -> dict:
     except json.JSONDecodeError as e:
         logger.warning(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
         return FALLBACK_SCAFFOLD
+
+def load_scaffold(target_dir: Path | None = None) -> dict:
+    target_dir = target_dir or Path.cwd()
+    
+    paths_to_try = [
+        target_dir / ".mulch" / "mulch-scaffold.json",    # 1. Local .mulch folder
+        target_dir / "mulch-scaffold.json",               # 2. Root project dir
+        get_global_config_path(appname = "mulch") / "mulch-scaffold.json", # 3. Global config
+    ]
+
+    for path in paths_to_try:
+        if path.exists():
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    content = f.read().strip()
+                    if content:
+                        return json.loads(content)
+                    else:
+                        logger.warning(f"{path} is empty. Continuing to next scaffold source.")
+            except json.JSONDecodeError as e:
+                logger.warning(f"Invalid JSON in {path}: {e}. Continuing to next scaffold source.")
+
+    logger.warning("No valid scaffold file found. Falling back to internal scaffold.")
+    return FALLBACK_SCAFFOLD
+

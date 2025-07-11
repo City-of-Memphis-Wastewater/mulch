@@ -8,30 +8,43 @@ import logging
 import datetime
 from importlib.metadata import version, PackageNotFoundError
 import subprocess
+from pprint import pprint
 
 from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory
 from mulch.logging_setup import setup_logging, setup_logging_portable
-from mulch.helpers import calculate_nowtime_foldername
-
+from mulch.helpers import calculate_nowtime_foldername, resolve_scaffold, resolve_first_existing_path, get_username_from_home_directory
+from mulch.commands.dotfolder import create_dot_mulch
+from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
+from mulch.workspace_status import WorkspaceStatus
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-FALLBACK_SCAFFOLD = WorkspaceFactory.FALLBACK_SCAFFOLD
-HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
-DEFAULT_SCAFFOLD_FILENAME = 'mulch-scaffold.json'
-LOCK_FILE_NAME = 'mulch.lock'
 
-# look for: '.\mulch-scaffold.toml','.\mulch-scaffold.json': in each of these directories 
-order_of_respect = [Path('.\\.mulch\\'),
-                    Path('.\\'),
-                    Path('C:\\Users\\george.bennett\\.mulch\\'),
-                    Path('C:\\Users\\george.bennett\\AppData\\.mulch\\'),
-                    Path('C:\\Users\\george.bennett\\pipx\\venvs\\mulch\\.mulch\\'),
-                    'FALLBACK_SCAFFOLD']
-FILENAMES_OF_RESPECT = ['.\mulch-template.toml.j2','.\mulch-scaffold.toml','.\mulch-scaffold.json']
-TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [order_of_respect / 'mulch-scaffold-template-dictionary.toml']
+HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
+SCAFFOLD_TEMPLATES_FILENAME = 'mulch-scaffold-template-dictionary.toml'
+
+FILENAMES_OF_RESPECT = [
+    'mulch-template.toml.j2',
+    'mulch-scaffold.toml',
+    'mulch-scaffold.json'
+]
+
+ORDER_OF_RESPECT = [
+    Path('.\\.mulch\\'),
+    Path('.\\'),
+    Path('%USERPROFILE%\\mulch\\'),
+    Path('%USERPROFILE%\\AppData\\mulch\\'),
+    Path('%USERPROFILE%\\pipx\\venvs\\mulch\\mulch\\')
+] # windows specific. 
+
+TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [
+    p / SCAFFOLD_TEMPLATES_FILENAME
+    for p in ORDER_OF_RESPECT
+    if isinstance(p, Path)
+]
+
 
 try:
     MULCH_VERSION = version("mulch")
@@ -159,7 +172,11 @@ def _all_order_of_respect_failed(order_of_respect):
             failed = False
     return failed
 
+
 def make_dot_mulch_folder(target_dir):
+    return create_dot_mulch(target_dir, order_of_respect=ORDER_OF_RESPECT)
+
+def make_dot_mulch_folder_(target_dir):
     dot_mulch_folder = Path(target_dir) / '.mulch'
     if not dot_mulch_folder.exists():
         if False:
@@ -192,10 +209,12 @@ def init(
     
     # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
-    if enforce_mulch_folder:
-        order_of_respect = ['.\.mulch']
+    if not enforce_mulch_folder:
+        order_of_respect_local = ORDER_OF_RESPECT
+    else:
+        order_of_respect_local = ['.\.mulch']
     
-    if _all_order_of_respect_failed(order_of_respect):
+    if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     if here:
@@ -204,15 +223,16 @@ def init(
     if bare:
         typer.secho(f"`bare`: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
     
-
-    scaffold_dict = None
+    #scaffold_dict = None
+    scaffold_dict = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
+    pprint(scaffold_dict)
 
     if scaffold_filepath:
         with open(scaffold_filepath, "r", encoding="utf-8") as f:
             scaffold_dict = json.load(f)
         typer.secho(f"Scaffold loaded from explicitly provided file",fg=typer.colors.WHITE)
         logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
-
+    '''
     else:
         default_scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
         if default_scaffold_path.is_file():
@@ -224,27 +244,41 @@ def init(
             scaffold_dict = FALLBACK_SCAFFOLD
             typer.secho("Scaffold loaded from embedded fallback structure.",fg=typer.colors.WHITE)
             logging.debug("Scaffold loaded from embedded fallback structure.")
-
+    '''
     lock_data = {
         "scaffold": scaffold_dict,
         "generated_by": f"mulch {MULCH_VERSION}",
-        "generated_at": datetime.datetime.utcnow().isoformat() + "Z"
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "generated_by": get_username_from_home_directory()
     }
     
-
     workspace_dir = _determine_workspace_dir(target_dir, name, here, bare)
-    
-    if _should_generate_workspace(workspace_dir, lock_data):
-        wf = _init_workspace(target_dir, workspace_dir, name, lock_data, set_default, here, bare)
-        _generate_workspace_lockfile(workspace_dir, lock_data)
-        if not bare:
-            _render_workspace_manager(target_dir, workspace_dir, lock_data)
-            _establish_software_elements(target_dir)
-            setup_logging()
-        wf.seed_scaffolded_workspace_files()
-    else:
-        typer.echo(f"Workspace '{name}' already exists and is up-to-date with the scaffold.")
 
+
+    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here, bare=bare)
+    #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
+    workspace_status = wf.evaluate_workspace_status()
+    
+    if workspace_status == WorkspaceStatus.MATCHES:
+        typer.secho(f"✅ Workspace '{name}' is already set up at {workspace_dir}", fg=typer.colors.GREEN)
+        typer.echo("   (Scaffold unchanged. Nothing regenerated.)")
+        raise typer.Exit()
+
+    elif workspace_status == WorkspaceStatus.DIFFERS:
+        typer.secho(f"⚠️  Workspace '{name}' already exists and scaffold has changed.", fg=typer.colors.YELLOW)
+        if not typer.confirm("Overwrite existing workspace?", default=False):
+            typer.secho("❌ Aborting.", fg=typer.colors.RED)
+            raise typer.Exit()
+
+    elif workspace_status == WorkspaceStatus.EXISTS_NO_LOCK:
+        typer.secho(f"⚠️  Workspace exists at {workspace_dir} but no scaffold.lock found.", fg=typer.colors.YELLOW)
+        if not typer.confirm("Overwrite existing workspace?", default=False):
+            typer.secho("❌ Aborting.", fg=typer.colors.RED)
+            raise typer.Exit()
+
+    # Proceed to generate
+    wf.initialize_full_workspace(set_default=set_default)
+    typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
 
 @app.command()
 #@with_logging(use_portable=True)
@@ -287,65 +321,78 @@ def file(
     typer.secho("✏️  You can now manually edit this file to customize your workspace layout.",fg=typer.colors.CYAN)
     typer.echo("⚙️  Changes to this scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
-
 def _interpret_scaffold_from_order_of_respect(order_of_respect):
-    for fallback in order_of_respect:
-        # FILENAMES_OF_RESPECT
-        scaffold_path_jinja2 = (Path(fallback) / 'mulch-scaffold.toml.j2') 
-        #if scaffold_path_jinja2.exists():
-        #    with open(scaffold_path_jinja2, "r", encoding="utf-8") as f:
-        #        scaffold_dict = jinja.load(f)
-        #    return scaffold_dict
-        scaffold_path_toml = (Path(fallback) / 'mulch-scaffold.toml')
-        if scaffold_path_toml.exists():
-            with open(scaffold_path_toml, "r", encoding="utf-8") as f:
-                scaffold_dict = toml.load(f)
-            return scaffold_dict
-        
-        scaffold_path_json = (Path(fallback) / 'mulch-scaffold.json')
-        if scaffold_path_json.exists():
-            with open(scaffold_path_json, "r", encoding="utf-8") as f:
-                scaffold_dict = json.load(f)
-            return scaffold_dict
-        
-        if (fallback is WorkspaceFactory.FALLBACK_SCAFFOLD):
-            scaffold_dict = fallback
-            return scaffold_dict
-        else:
-            raise typer.Exit(code=1)
-            
+    for fallback_path in order_of_respect:
+        typer.echo(f"fallback_path: {fallback_path}")
+        if not isinstance(fallback_path, Path):
+            continue
+
+        #for filename in ['mulch-scaffold.toml.j2', 'mulch-scaffold.toml', 'mulch-scaffold.json']:
+        for filename in FILENAMES_OF_RESPECT:
+            candidate = fallback_path / filename
+            typer.echo(f"candidate: {candidate}")
+            if candidate.exists():
+                try:
+                    if candidate.suffix == ".toml":
+                        typer.secho(f"candidate: {candidate}")
+                        return toml.load(candidate)
+                    elif candidate.suffix == ".json":
+                        typer.secho(f"candidate: {candidate}")
+                        return json.load(candidate.open("r", encoding="utf-8"))
+                    # j2 support would go here
+                except Exception as e:
+                    typer.secho(f"⚠️ Error loading {candidate}: {e}", fg=typer.colors.RED)
+
+    # If none worked, fallback to embedded
+    typer.secho("📦 Using embedded fallback scaffold structure.", fg=typer.colors.YELLOW)
+    return WorkspaceFactory.FALLBACK_SCAFFOLD
+
 def load_template_choice_dictionary_from_file():
     for path in TEMPLATE_CHOICE_DICTIONARY_FILEPATHS:
-        try:
-            toml.load(path)
-        except:
+        if path.is_file():
             try:
-                json.load(path)
-            except:
-                raise typer.Exit(code=1)
-
+                return toml.load(path)
+            except Exception:
+                try:
+                    return json.load(open(path, "r", encoding="utf-8"))
+                except Exception:
+                    continue
+    typer.secho("❌ Failed to load template dictionary from all fallback paths.", fg=typer.colors.RED)
+    raise typer.Exit(code=1)
 
 @app.command()
-def folder(
+def stealth(
     target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
+    use_order_of_respect: bool = typer.Option(True,"--use-order-of-respect","-u",help = "This says that the new mulch-scaffold.* file will be generated with the most elevated template that can be found, in various possible directories, sorted by hierarchy of impact on the global and local system. See: the order_of_respect: list, in mulch/cli.py vars"),
+    template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization.")
+    ):
+
+    typer.echo(f"Coming soon. The purpose of `mulch stealth` or `mulch init --stealth` is to generate the workspaces dir and the src dir inside of the .mulch dir, rather than on the same level as it.")
+
+@app.command()
+#def dotfolder(
+#def dotmulch( 
+def seed(
+   target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
     use_order_of_respect: bool = typer.Option(True,"--use-order-of-respect","-u",help = "This says that the new mulch-scaffold.* file will be generated with the most elevated template that can be found, in various possible directories, sorted by hierarchy of impact on the global and local system. See: the order_of_respect: list, in mulch/cli.py vars"),
     template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization.")
     ):
     """
 
     Drop a .mulch to disk, at the target directory.
-    The default is the next level of fallback in the order_of_respect list.
+    The default is the next level of fallback in the ORDER_OF_RESPECT list.
     You are able to edit the .mulch/mulch-scaffold.* file manually.  
 
-        mulch folder --help
     """
-    template_choice_dict = load_template_choice_dictionary_from_file()
     
-    scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
-    # Find the scaffold_dict that should be written to this new .mulch folder, based on order_of_respect.
+    scaffold_path = target_dir / '.mulch' / DEFAULT_SCAFFOLD_FILENAME
+    # Find the scaffold_dict that should be written to this new .mulch folder, based on ORDER_OF_RESPECT.
     if use_order_of_respect:
-        scaffold_dict = _interpret_scaffold_from_order_of_respect()
+        typer.secho(f"Choosing scaffold by the order of respect")
+        scaffold_dict = _interpret_scaffold_from_order_of_respect(ORDER_OF_RESPECT)
     elif template_choice:
+        typer.secho(f"Choosing scaffold by the template (choose from options)", fg=typer.colors.WHITE)
+        template_choice_dict = load_template_choice_dictionary_from_file()
         scaffold_dict = template_choice_dict[template_choice] # template choice must be a number 1-9
     if scaffold_path.exists():
         if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
@@ -355,7 +402,7 @@ def folder(
         json.dump(scaffold_dict, f, indent=2)
     
     typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
-    typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.CYAN)
+    typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
     typer.echo("⚙️  Changes to the scaffold file `.mulch\mulch-scaffold.*` in will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
 
