@@ -1,23 +1,32 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All4able changes in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.4] - 2025-07-11
+
+### Added
+- `--stealth` tag now can be used with init (`mulch init --stealth`) to alter the basepath for where the workspace manifests (directly in root) and where the workspace_manager is built (in root/.mulch/src/root-name/).
+- basepath_manager.py helps to organize path context.
+ 
+
+---
+
 ## [0.2.1->3] - 2025-07-08 -> 2025-07-11
 
-## In Progress
+### In Progress
 - Really logs should never be generated at root/logs, but at root/.mulch/logs. mulch-scaffold.toml/.json is the only file that might be nice at the top level. 
 
-## Changes:
+### Changes:
 - Include verbose tag to `twine upload --repository testpypi dist/* --verbose` in `test-build.yml`
 - Refactor and migration of several functions internal to the internal cli.py to now be class functions in the WorkspaceFactory class.
 - Change `dotmulch` command to `seed`. Formerly: `folder` or `dotfolder`.
 
-## Added:
+### Added:
 - Small `WorkspaceStatus` class in `src.mulch.workspace_status` assists to manager complexity in the CLI init function.Use: `workspace_status = wf.evaluate_workspace_status()`
 
 ## [0.1.37] – 2025-07-08

@@ -84,32 +84,9 @@ def print_version(value: bool):
             typer.echo("Version info not found")
         raise typer.Exit()
 
-def _should_generate_workspace(workspace_dir: Path, lock_data: dict) -> bool:
-    lock_path = workspace_dir / LOCK_FILE_NAME
-
-    if workspace_dir.exists():
-        if lock_path.exists():
-            with open(lock_path, "r", encoding="utf-8") as f:
-                existing = json.load(f)
-            existing_scaffold = existing.get("scaffold", {})
-            if existing_scaffold == lock_data["scaffold"]:
-                typer.secho("✅ Scaffold matches existing scaffold.lock. Skipping workspace generation.", fg=typer.colors.BLUE)
-                return False
-            else:
-                typer.confirm(
-                    f"⚠️ {LOCK_FILE_NAME} exists and differs from current scaffold submission.\n"
-                    f"Overwrite workspace?",
-                    abort=True
-                )   
-        else:
-            typer.confirm(
-                f"⚠️ Workspace directory {workspace_dir} exists but no {LOCK_FILE_NAME} was found.\n"
-                f"Overwrite workspace?",
-                abort=True
-            )
-    return True
-
-def _determine_workspace_dir(target_dir, name, here, bare):
+def _determine_workspace_dir(target_dir, name, here, bare, stealth: bool = False) -> Path:
+    if stealth:
+        return target_dir / name
     if not here:
         workspace_dir = target_dir / "workspaces" / name
     elif here and bare:
@@ -119,21 +96,7 @@ def _determine_workspace_dir(target_dir, name, here, bare):
         raise typer.Abort()
     return workspace_dir # type: ignore
 
-def _init_workspace(target_dir: Path, workspace_dir: Path, name: str, lock_data: dict, set_default: bool, here: bool, bare: bool) -> WorkspaceFactory:
-    """
-    Shared internal logic to scaffold workspace directories.
-    """
-    
-    target_dir = target_dir.resolve()
-    wf = WorkspaceFactory(base_path=target_dir, workspace_dir = workspace_dir, workspace_name=name, lock_data = lock_data)
-    wf.check_and_create_workspace_dirs_from_scaffold(workspace_dir)
-    typer.secho(f"Workspace '{name}' initialized at {workspace_dir}",fg=typer.colors.BRIGHT_MAGENTA)
-
-    if set_default and not here and not bare:
-        wf.create_default_workspace_toml(target_dir / "workspaces", name)
-
-    return wf
-
+'''
 def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
     lock_path = workspace_dir / LOCK_FILE_NAME
     logger.debug(f"lock_path = {lock_path}")
@@ -152,15 +115,8 @@ def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
     with open(lock_path, "w", encoding="utf-8") as f:
         json.dump(lock_data, f, indent=2)
     logger.debug(f"Wrote {LOCK_FILE_NAME} to {lock_path}")
+'''
 
-def _render_workspace_manager(target_dir: Path, workspace_dir: Path, lock_data: dict):
-    """
-    Shared internal logic to render workspace_manager.py.
-    """
-        
-    wf = WorkspaceFactory(base_path=target_dir, workspace_dir= workspace_dir,workspace_name="placeholder_workspace_name", lock_data = lock_data)
-    wf.render_workspace_manager()
-    return
 
 def _establish_software_elements(target_dir: Path):
     pass
@@ -171,7 +127,6 @@ def _all_order_of_respect_failed(order_of_respect):
         if Path(path).exists():
             failed = False
     return failed
-
 
 def make_dot_mulch_folder(target_dir):
     return create_dot_mulch(target_dir, order_of_respect=ORDER_OF_RESPECT)
@@ -197,15 +152,14 @@ def init(
     bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
-    enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' ")
-
+    enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
+    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
     ):
     """
     Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
     Build the workspace_manager.py file in the source code.
     Establish a logs folder at root, with the logging.json file.
     """
-
     
     # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
@@ -240,10 +194,8 @@ def init(
         "generated_by": get_username_from_home_directory()
     }
     
-    workspace_dir = _determine_workspace_dir(target_dir, name, here, bare)
-
-
-    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here, bare=bare)
+    workspace_dir = _determine_workspace_dir(target_dir, name, here, bare,stealth)
+    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here, bare=bare, stealth=stealth)
     #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
     workspace_status = wf.evaluate_workspace_status()
     
@@ -349,16 +301,6 @@ def load_template_choice_dictionary_from_file():
     raise typer.Exit(code=1)
 
 @app.command()
-def stealth(
-    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
-    use_order_of_respect: bool = typer.Option(True,"--use-order-of-respect","-u",help = "This says that the new mulch-scaffold.* file will be generated with the most elevated template that can be found, in various possible directories, sorted by hierarchy of impact on the global and local system. See: the order_of_respect: list, in mulch/cli.py vars"),
-    template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization.")
-    ):
-
-    typer.echo(f"Coming soon. The purpose of `mulch stealth` or `mulch init --stealth` is to generate the workspaces dir and the src dir inside of the .mulch dir, rather than on the same level as it.")
-
-@app.command()
-#def dotfolder(
 #def dotmulch( 
 def seed(
    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
