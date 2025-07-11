@@ -9,7 +9,7 @@
 
 - Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `manager.lock`.
 - The hidden `.mulch` folder is leveraged for configuration.
-- In `--stealth` mode, code can be stashed in `.mulch`, so that workplace directories shared with non-technical co-workers can be crisp while giving you space to write localized analysis scripts.
+- In `--stealth` mode, code can be stashed in `.mulch`, so that workplace directories shared with non-technical co-workers can be crisp while providing space to write localized analysis scripts.
 - Easily installable and runnable via `pipx`
 - Enforces a separation of source code and workspace files.
 - The `--here` flag enables basic scaffolding for directory-only generation, no code included.
