@@ -13,7 +13,7 @@ from pprint import pprint
 from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
-from mulch.helpers import calculate_nowtime_foldername, resolve_scaffold, resolve_first_existing_path, get_username_from_home_directory
+from mulch.helpers import calculate_nowtime_foldername, resolve_scaffold, get_global_config_path, resolve_first_existing_path, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
@@ -26,7 +26,6 @@ HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 SCAFFOLD_TEMPLATES_FILENAME = 'mulch-scaffold-template-dictionary.toml'
 
 FILENAMES_OF_RESPECT = [
-    'mulch-template.toml.j2',
     'mulch-scaffold.toml',
     'mulch-scaffold.json'
 ]
@@ -34,8 +33,8 @@ FILENAMES_OF_RESPECT = [
 ORDER_OF_RESPECT = [
     Path('.\\.mulch\\'),
     Path('.\\'),
-    Path('%USERPROFILE%\\mulch\\'),
-    Path('%USERPROFILE%\\AppData\\mulch\\')
+    Path.home() / 'mulch',
+    get_global_config_path(appname = "mulch")
 ] # windows specific. 
 
 TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [
