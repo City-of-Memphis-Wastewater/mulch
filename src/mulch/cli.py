@@ -11,7 +11,7 @@ import subprocess
 from pprint import pprint
 
 from mulch.decorators import with_logging
-from mulch.workspace_factory import WorkspaceFactory
+from mulch.workspace_factory import WorkspaceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
 from mulch.helpers import calculate_nowtime_foldername, resolve_scaffold, resolve_first_existing_path, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
@@ -35,8 +35,7 @@ ORDER_OF_RESPECT = [
     Path('.\\.mulch\\'),
     Path('.\\'),
     Path('%USERPROFILE%\\mulch\\'),
-    Path('%USERPROFILE%\\AppData\\mulch\\'),
-    Path('%USERPROFILE%\\pipx\\venvs\\mulch\\mulch\\')
+    Path('%USERPROFILE%\\AppData\\mulch\\')
 ] # windows specific. 
 
 TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [
@@ -96,27 +95,6 @@ def _determine_workspace_dir(target_dir, name, here, bare, stealth: bool = False
         raise typer.Abort()
     return workspace_dir # type: ignore
 
-'''
-def _generate_workspace_lockfile(workspace_dir : Path, lock_data):
-    lock_path = workspace_dir / LOCK_FILE_NAME
-    logger.debug(f"lock_path = {lock_path}")
-    if lock_path.exists():
-        with open(lock_path, "r", encoding="utf-8") as f:
-            existing = json.load(f)
-        existing_scaffold = existing.get("scaffold", {})
-        if existing_scaffold != lock_data["scaffold"]:
-            typer.confirm(
-                f"⚠️ {LOCK_FILE_NAME} already exists at {lock_path}, but the scaffold structure has changed.\n"
-                f"Overwriting may cause incompatibility with this workspace.\n"
-                f"Continue?",
-                abort=True
-            )
-
-    with open(lock_path, "w", encoding="utf-8") as f:
-        json.dump(lock_data, f, indent=2)
-    logger.debug(f"Wrote {LOCK_FILE_NAME} to {lock_path}")
-'''
-
 
 def _establish_software_elements(target_dir: Path):
     pass
@@ -163,7 +141,16 @@ def init(
     
     # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
-    if not enforce_mulch_folder:
+    if enforce_mulch_folder:
+        try:
+            scaffold_dict = load_scaffold(
+                target_dir=target_dir,
+                strict_local_dotmulch=enforce_mulch_folder,
+                seed_if_missing=enforce_mulch_folder
+            )
+        except FileNotFoundError as e:
+            typer.secho(str(e), fg=typer.colors.RED)
+            raise typer.Exit(code=1)
         order_of_respect_local = ORDER_OF_RESPECT
     else:
         order_of_respect_local = ['.\.mulch']
@@ -301,10 +288,8 @@ def load_template_choice_dictionary_from_file():
     raise typer.Exit(code=1)
 
 @app.command()
-#def dotmulch( 
-def seed(
-   target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
-    use_order_of_respect: bool = typer.Option(True,"--use-order-of-respect","-u",help = "This says that the new mulch-scaffold.* file will be generated with the most elevated template that can be found, in various possible directories, sorted by hierarchy of impact on the global and local system. See: the order_of_respect: list, in mulch/cli.py vars"),
+def seed(#def dotmulch( 
+    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
     template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization.")
     ):
     """
@@ -316,11 +301,7 @@ def seed(
     """
     
     scaffold_path = target_dir / '.mulch' / DEFAULT_SCAFFOLD_FILENAME
-    # Find the scaffold_dict that should be written to this new .mulch folder, based on ORDER_OF_RESPECT.
-    if use_order_of_respect:
-        typer.secho(f"Choosing scaffold by the order of respect")
-        scaffold_dict = _interpret_scaffold_from_order_of_respect(ORDER_OF_RESPECT)
-    elif template_choice:
+    if template_choice:
         typer.secho(f"Choosing scaffold by the template (choose from options)", fg=typer.colors.WHITE)
         template_choice_dict = load_template_choice_dictionary_from_file()
         scaffold_dict = template_choice_dict[template_choice] # template choice must be a number 1-9
@@ -328,6 +309,7 @@ def seed(
         if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
             #typer.echo("Aborted: Did not overwrite existing scaffold file.") # this is a redundant message
             raise typer.Abort()
+    scaffold_path.parent.mkdir(parents=True, exist_ok=True)
     with open(scaffold_path, "w", encoding="utf-8") as f:
         json.dump(scaffold_dict, f, indent=2)
     

@@ -49,13 +49,48 @@ def resolve_scaffold(order_of_respect: list[Path], filenames_of_respect: list[st
     return FALLBACK_SCAFFOLD
 
 
-def get_global_config_path(appname) -> Path:
+def get_global_config_path(appname=None) -> Path:
     if platform.system() == "Windows":
         return Path(os.getenv("APPDATA", Path.home())) / appname
     else:
         return Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config")) / appname
     
+def get_user_root(appname=None) -> Path:
+    """
+    Return the user's home config path for mulch, e.g.:
+    - Windows: %USERPROFILE%
+    - Linux/macOS: ~/.config
+    """
+    if platform.system() == "Windows":
+        return Path(os.environ.get("USERPROFILE", Path.home())) / appname
+    else:
+        # Unix-like systems
+        return Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / appname
+    
 
 def get_username_from_home_directory():
     home_dir = Path.home()  # Get the home directory
     return home_dir.name    # Extract the username from the home directory path
+
+#VALID_EXTENSIONS = [".toml", ".json"]
+
+def try_load_scaffold_file(path: Path) -> dict | None:
+    try:
+        if not path.exists():
+            return None
+
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                logger.warning(f"{path} is empty. Continuing to next scaffold source.")
+                return None
+
+            if path.suffix == ".json":
+                return json.loads(content)
+            elif path.suffix == ".toml":
+                return toml.loads(content)
+            else:
+                logger.warning(f"Unsupported scaffold file type: {path}")
+    except Exception as e:
+        logger.warning(f"Failed to load scaffold from {path}: {e}")
+    return None
