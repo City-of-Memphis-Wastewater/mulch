@@ -199,7 +199,7 @@ def init(
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
     enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' ")
 
-):
+    ):
     """
     Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
     Build the workspace_manager.py file in the source code.
