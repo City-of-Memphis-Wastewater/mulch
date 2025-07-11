@@ -9,6 +9,7 @@ from mulch.helpers import get_global_config_path
 from mulch.constants import FALLBACK_SCAFFOLD, DEFAULT_SCAFFOLD_FILENAME
 from mulch.logging_setup import setup_logging, setup_logging_portable
 from mulch.workspace_status import WorkspaceStatus
+from mulch.basepath_manager import PathContext
 
 import typer
 from importlib.resources import files
@@ -31,16 +32,24 @@ class WorkspaceFactory:
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
     
 
-    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict, here=False, bare=False):
+    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict, here=False, bare=False, stealth: bool = False):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
-        self.workspace_dir = workspace_dir 
-        self.workspace_lock_path = self.workspace_dir / "workspace.lock"
-        self.manager_lock_path = self.base_path / "src" / self.base_path.name / "manager.lock"
-        self.manager_path = self.base_path / "src" / self.base_path.name / "workspace_manager.py"
+        #self.workspace_dir = workspace_dir 
+        #self.workspace_lock_path = self.workspace_dir / "workspace.lock"
+        #self.manager_lock_path = self.base_path / "src" / self.base_path.name / "manager.lock"
+        #self.manager_path = self.base_path / "src" / self.base_path.name / "workspace_manager.py"
         self.lock_data = lock_data
         self.here = here
         self.bare = bare
+        self.stealth = stealth 
+        self.context = PathContext(base_path, workspace_name, here=here, stealth=stealth)
+        self.workspace_dir = self.context.workspace_dir 
+        self.workspace_lock_path = self.context.workspace_lock_path
+        self.manager_lock_path = self.context.manager_lock_path
+        self.manager_path = self.context.manager_path 
+
+        self.project_name = self.base_path.name # assumption that the target dir is the package name, fair enough
 
     def initialize(self, *, set_default: bool = True, here: bool = False, bare: bool = False):
         """
@@ -51,7 +60,7 @@ class WorkspaceFactory:
         typer.secho(f"Workspace '{self.workspace_name}' initialized at {self.workspace_dir}", fg=typer.colors.BRIGHT_MAGENTA)
 
         if set_default and not here and not bare:
-            self.create_default_workspace_toml(self.base_path / "workspaces", self.workspace_name)
+            self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
 
 
     def get_path(self, key: str) -> Path:
@@ -131,7 +140,7 @@ class WorkspaceFactory:
             setup_logging()
         self.seed_scaffolded_workspace_files()
         if set_default and not self.here and not self.bare:
-            self.create_default_workspace_toml(self.base_path / "workspaces", self.workspace_name)
+            self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
 
     @classmethod
     def create_default_workspace_toml(cls, workspaces_root: Path, workspace_name: str):
@@ -226,9 +235,8 @@ class WorkspaceFactory:
         )
         template = env.get_template(self.DEFAULT_WORKSPACE_TEMPLATE_FILENAME)
 
-        project_name = self.base_path.name # assumption
         rendered = template.render(
-            project_name = project_name,
+            project_name = self.project_name,
             scaffold=self.lock_data["scaffold"],
             workspace_dir_name=self.workspace_name
         )
@@ -254,7 +262,7 @@ class WorkspaceFactory:
                 logging.warning(f"Could not read {self.manager_lock_path.name} for comparison: {e}")
 
 
-            
+        self.manager_path.parent.mkdir(parents=True, exist_ok=True)
         self.manager_path.write_text(rendered)
         with open(self.manager_lock_path, "w", encoding="utf-8") as f:
             json.dump(self.lock_data, f, indent=2)
