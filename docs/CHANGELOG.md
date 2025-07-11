@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.1] - 2025-07-08
+## [0.2.1->3] - 2025-07-08 -> 2025-07-11
 
 ## In Progress
 - Really logs should never be generated at root/logs, but at root/.mulch/logs. mulch-scaffold.toml/.json is the only file that might be nice at the top level. 
