@@ -214,6 +214,8 @@ def file(
     use_embedded: bool = typer.Option(
         False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded fallback structure."
     ),
+    edit: bool = typer.Option(
+        False, "--edit", "-e", help="Open the scaffold file for editing after it's created.")
     ):
     """
 
@@ -242,6 +244,9 @@ def file(
             raise typer.Abort()
     with open(scaffold_path, "w", encoding="utf-8") as f:
         json.dump(scaffold_dict, f, indent=2)
+
+    if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?"):
+        open_editor(scaffold_path)
     
     typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
     typer.secho("✏️  You can now manually edit this file to customize your workspace layout.",fg=typer.colors.CYAN)
