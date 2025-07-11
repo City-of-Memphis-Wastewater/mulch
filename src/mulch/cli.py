@@ -13,7 +13,7 @@ from pprint import pprint
 from mulch.decorators import with_logging
 from mulch.workspace_factory import WorkspaceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
-from mulch.helpers import calculate_nowtime_foldername, resolve_scaffold, get_global_config_path, resolve_first_existing_path, get_username_from_home_directory
+from mulch.helpers import open_editor, calculate_nowtime_foldername, resolve_scaffold, get_global_config_path, resolve_first_existing_path, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
@@ -289,13 +289,15 @@ def load_template_choice_dictionary_from_file():
 @app.command()
 def seed(#def dotmulch( 
     target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
-    template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization.")
-    ):
+    template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization."),
+    edit: bool = typer.Option(
+        False, "--edit", "-e", help="Open the scaffold file for editing after it's created.")
+        ):
     """
 
     Drop a .mulch to disk, at the target directory.
     The default is the next level of fallback in the ORDER_OF_RESPECT list.
-    You are able to edit the .mulch/mulch-scaffold.* file manually.  
+    You are able to edit the .mulch/mulch-scaffold file manually.  
 
     """
 
@@ -315,8 +317,12 @@ def seed(#def dotmulch(
         json.dump(scaffold_dict, f, indent=2)
     
     typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
+
+    if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?"):
+        open_editor(scaffold_path)
+
     typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
-    typer.echo("⚙️  Changes to the scaffold file `.mulch\mulch-scaffold.*` in will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
+    typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
 
 
