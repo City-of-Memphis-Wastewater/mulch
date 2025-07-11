@@ -299,6 +299,8 @@ def seed(#def dotmulch(
     You are able to edit the .mulch/mulch-scaffold.* file manually.  
 
     """
+
+    scaffold_dict = resolve_scaffold(ORDER_OF_RESPECT, FILENAMES_OF_RESPECT)
     
     scaffold_path = target_dir / '.mulch' / DEFAULT_SCAFFOLD_FILENAME
     if template_choice:

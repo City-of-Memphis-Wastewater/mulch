@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.5] - 2025-07-11
 
-### Status: In progress
+### In progress
+- mulch.helpers.resolve_scaffold() is vying for power with mulch.workspace_factory.load_scaffold()
+
+### Fixes
+- `scaffold_dict = resolve_scaffold(ORDER_OF_RESPECT, FILENAMES_OF_RESPECT)` added to the top of the `seed` CLI command due to failure of the seed command when no scaffold_dict was known. 
 --
 
 ## [0.2.4] - 2025-07-11
