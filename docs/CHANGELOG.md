@@ -10,7 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] - 2025-07-08
 
 ## In Progress
-- `dotfolder` command, AKA `dotmulch` AKA `folder`, needs to have logs in it. Really logs should never be generated at root/logs, but at root/.mulch/logs. mulch-scaffold.toml/.json is the only file that might be nice at the top level. 
+- Really logs should never be generated at root/logs, but at root/.mulch/logs. mulch-scaffold.toml/.json is the only file that might be nice at the top level. 
+
+## Changes:
+- Include verbose tag to `twine upload --repository testpypi dist/* --verbose` in `test-build.yml`
+- Refactor and migration of several functions internal to the internal cli.py to now be class functions in the WorkspaceFactory class.
+- Change `dotmulch` command to `seed`. Formerly: `folder` or `dotfolder`.
+
+## Added:
+- Small `WorkspaceStatus` class in `src.mulch.workspace_status` assists to manager complexity in the CLI init function.Use: `workspace_status = wf.evaluate_workspace_status()`
 
 ## [0.1.37] – 2025-07-08
 
