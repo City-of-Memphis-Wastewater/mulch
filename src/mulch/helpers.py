@@ -8,6 +8,8 @@ import toml
 from mulch.constants import FALLBACK_SCAFFOLD
 import typer
 import logging
+import sys
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -94,3 +96,13 @@ def try_load_scaffold_file(path: Path) -> dict | None:
     except Exception as e:
         logger.warning(f"Failed to load scaffold from {path}: {e}")
     return None
+def open_editor(file_path: Path):
+    """Open the file in an appropriate system editor."""
+    if sys.platform.startswith("win"):
+        os.startfile(str(file_path))
+    elif sys.platform == "darwin":
+        subprocess.run(["open", str(file_path)])
+    else:
+        # For Linux: prefer $EDITOR, fallback to nano
+        editor = os.getenv("EDITOR", "nano")
+        subprocess.run([editor, str(file_path)])
