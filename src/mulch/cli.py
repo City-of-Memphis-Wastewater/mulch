@@ -232,19 +232,7 @@ def init(
             scaffold_dict = json.load(f)
         typer.secho(f"Scaffold loaded from explicitly provided file",fg=typer.colors.WHITE)
         logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
-    '''
-    else:
-        default_scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
-        if default_scaffold_path.is_file():
-            with open(default_scaffold_path, "r", encoding="utf-8") as f:
-                scaffold_dict = json.load(f)
-            typer.secho(f"Scaffold loaded from default file.",fg=typer.colors.WHITE)
-            logger.debug(f"Scaffold loaded from default file. {default_scaffold_path}")
-        else:
-            scaffold_dict = FALLBACK_SCAFFOLD
-            typer.secho("Scaffold loaded from embedded fallback structure.",fg=typer.colors.WHITE)
-            logging.debug("Scaffold loaded from embedded fallback structure.")
-    '''
+
     lock_data = {
         "scaffold": scaffold_dict,
         "generated_by": f"mulch {MULCH_VERSION}",

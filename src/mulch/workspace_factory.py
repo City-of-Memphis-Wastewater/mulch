@@ -249,17 +249,11 @@ class WorkspaceFactory:
                     typer.echo(f"Scaffold unchanged. Skipping re-render of workspace_manager.py.")
                     return  # 🛑 Skip rendering
                 else:
-                    typer.confirm(f"⚠️ Existing {self.manager_lock_path} does not match this scaffold structure. Continue?", abort=True)
+                    typer.confirm(f"⚠️ Existing {self.manager_lock_path} does not match this scaffold structure. Overwriting the workspace_manager.py file can break references for existing workspaces. Continue?", abort=True)
             except Exception as e:
                 logging.warning(f"Could not read {self.manager_lock_path.name} for comparison: {e}")
 
-        # ✅ Check for overwrite *here*, not in CLI
-        if self.manager_path.exists():
-            typer.confirm(
-                f"⚠️ A workspace_manager.py file already exists at {self.manager_path}. "
-                f"Overwriting it may break existing tooling. Continue?",
-                abort=True
-            )
+
             
         self.manager_path.write_text(rendered)
         with open(self.manager_lock_path, "w", encoding="utf-8") as f:
