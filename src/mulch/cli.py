@@ -324,8 +324,6 @@ def seed(#def dotmulch(
     typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
     typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
-
-
 @app.command()
 def show(
     filepath: Path = typer.Option(
