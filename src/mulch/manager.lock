@@ -7,7 +7,8 @@
       "exports",
       "scripts",
       "secrets",
-      "queries"
+      "queries",
+      "monster-mash"
     ],
     "exports": [
       "aggregate"
@@ -25,5 +26,5 @@
     ]
   },
   "generated_by": "george.bennett",
-  "generated_at": "2025-07-11T05:19:27.989038+00:00"
+  "generated_at": "2025-07-11T05:26:49.644745+00:00"
 }

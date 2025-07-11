@@ -14,7 +14,7 @@ class WorkspaceManager:
 
     WORKSPACES_DIR_NAME = "workspaces"
 
-    ROOT_CONTENTS = ["config", "data", "imports", "exports", "scripts", "secrets", "queries"]
+    ROOT_CONTENTS = ["config", "data", "imports", "exports", "scripts", "secrets", "queries", "monster-mash"]
 
     EXPORTS_DIR_NAME = ["aggregate"]
 
@@ -120,6 +120,17 @@ class WorkspaceManager:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: queries")
+
+        path = base / "monster-mash"
+        if "." in "monster-mash":
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+                logging.DEBUG(f"Created file: monster-mash")
+        else:
+            if not path.exists():
+                path.mkdir(parents=True, exist_ok=True)
+                logging.DEBUG(f"Created folder: monster-mash")
 
 
         base = self.workspace_dir / "exports"
