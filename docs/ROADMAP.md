@@ -22,6 +22,18 @@ When you rollout `workspace` directories that reflect your `mulch-scaffold` file
 
 ---
 
+## Folder Stucture Options, using `mulch init`
+
+| Flag        | Workspace Location   | Source Location      | Goal                        |
+| ----------- | -------------------- | -------------------- | --------------------------- |
+| *(none)*    | `workspaces/<name>/` | `src/<proj>/`        | Normal development use      |
+| `--here`    | `./<name>/`          | *(none)*             | Clean, user-facing          |
+| `--bare`    | `workspaces/<name>/` | *(none)*             | New workspace, no src impact|
+| `--stealth` | `./<name>/`          | `.mulch/src/<proj>/` | Play nice with shared dirs  |
+
+
+---
+
 ## 🚧 In Progress
 
 These features are currently being developed or actively discussed:
