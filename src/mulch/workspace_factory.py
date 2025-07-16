@@ -32,7 +32,7 @@ class WorkspaceFactory:
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
     
 
-    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict, here=False, bare=False, stealth: bool = False):
+    def __init__(self, base_path: Path, workspace_dir: Path, workspace_name: str, lock_data: dict, here=False, stealth: bool = False):
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
         #self.workspace_dir = workspace_dir 
@@ -41,7 +41,6 @@ class WorkspaceFactory:
         #self.manager_path = self.base_path / "src" / self.base_path.name / "workspace_manager.py"
         self.lock_data = lock_data
         self.here = here
-        self.bare = bare
         self.stealth = stealth 
         self.context = PathContext(base_path, workspace_name, here=here, stealth=stealth)
         self.workspace_dir = self.context.workspace_dir 
@@ -51,7 +50,7 @@ class WorkspaceFactory:
 
         self.project_name = self.base_path.name # assumption that the target dir is the package name, fair enough
 
-    def initialize(self, *, set_default: bool = True, here: bool = False, bare: bool = False):
+    def initialize(self, *, set_default: bool = True, here: bool = False):
         """
         Set up the workspace directories, default config, and emit status messages.
         This is a safe wrapper for post-instantiation setup.
@@ -59,7 +58,7 @@ class WorkspaceFactory:
         self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
         typer.secho(f"Workspace '{self.workspace_name}' initialized at {self.workspace_dir}", fg=typer.colors.BRIGHT_MAGENTA)
 
-        if set_default and not here and not bare:
+        if set_default and not here:
             self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
 
 
@@ -136,14 +135,18 @@ class WorkspaceFactory:
         self.write_workspace_lockfile()
         
         self.seed_scaffolded_workspace_files()
-        if set_default and not self.here and not self.bare:
+        if set_default and not self.here:
             self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
     
-    def build_src_side(self):
-        if not self.here:
-            self.render_workspace_manager()
-            setup_logging()
+    def build_src_components(self):
+        self.adjust_mulch_config_toml(here=self.here) # to match and reinfornce the future behavior or `mulch workspace`.
+        #if not self.here:
+        self.render_workspace_manager()
+        setup_logging()
 
+    def adjust_mulch_config_toml(self,here):
+        pass
+    
     @classmethod
     def create_default_workspace_toml(cls, workspaces_root: Path, workspace_name: str):
         """
@@ -226,8 +229,8 @@ class WorkspaceFactory:
         Render a workspace_manager.py file based on the scaffold and template.
         """
 
-        if self.here or self.bare:
-            typer.echo(f"No workspace_manager.py file necessary, skipping.")
+        #if self.here:
+        #    typer.echo(f"No workspace_manager.py file necessary, skipping.")
         #env = Environment(loader=FileSystemLoader(self.DEFAULT_TEMPLATE_DIR))
         
         # jinja2 template loader from the mulch sourcecode

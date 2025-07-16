@@ -11,9 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 - split `mulch init` command into `mulch init` and `mulch workspace`
+- `_determine_workspace_dir(target_dir, name, here, bare, stealth)` inputs adjusted to `_determine_workspace_dir(target_dir, name, here, stealth)` 
 
 ### Fixes
 - Address failure to reference anything other than the fallback scaffold.
+- Implement `resolve_scaffold()` in `mulch file`. 
+
+### Changes
+- `--bare flag removed from both `mulch init` and `mulch workspace` by the nature of what the split represents.
+
+### To docs
+- `mulch workspace` should rely on the architecture for its default behavior (here VS standard), which should be represented in a configuration file, like `/root/.mulch/mulch-config.toml`
 
 ---
 

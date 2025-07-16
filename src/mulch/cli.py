@@ -89,16 +89,13 @@ def print_version(value: bool):
             typer.echo("Version info not found")
         raise typer.Exit()
 
-def _determine_workspace_dir(target_dir, name, here, bare, stealth: bool = False) -> Path:
+def _determine_workspace_dir(target_dir, name, here, stealth: bool = False) -> Path:
     if stealth:
         return target_dir / name
     if not here:
         workspace_dir = target_dir / "workspaces" / name
-    elif here and bare:
+    elif here:
         workspace_dir = target_dir / name
-    elif here and not bare:
-        typer.secho(f"The `--here/-h` flag requires that the `--bare/-b` flag is also used.",fg=typer.colors.RED)
-        raise typer.Abort()
     return workspace_dir # type: ignore
 
 
@@ -132,10 +129,8 @@ def make_dot_mulch_folder_(target_dir):
 def init(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
     name: str = typer.Option(calculate_nowtime_foldername(), "--name", "-n", help="Name of the workspace to create."),
-    scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
-    bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
-    here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
-    set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
+    #here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
+    #set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
     enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
     ):
@@ -163,18 +158,8 @@ def init(
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
-    #scaffold_dict = None
     scaffold_dict = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     pprint(scaffold_dict)
-
-    if scaffold_filepath:
-        scaffold_path = Path(scaffold_filepath)
-        scaffold_dict = load_scaffold_file(scaffold_path)
-        if scaffold_dict is None:
-            typer.secho(f"❌ Failed to load scaffold from: {scaffold_filepath}", fg=typer.colors.RED)
-            raise typer.Abort()
-        typer.secho(f"✅ Scaffold loaded from explicitly provided file: {scaffold_filepath}", fg=typer.colors.WHITE)
-        logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
 
     lock_data = {
         "scaffold": scaffold_dict,
@@ -183,54 +168,26 @@ def init(
         "generated_by": get_username_from_home_directory()
     }
     
-    workspace_dir = _determine_workspace_dir(target_dir, name, here, bare,stealth)
-    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here, bare=bare, stealth=stealth)
+    workspace_dir = _determine_workspace_dir(target_dir, name, stealth)
     #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
-    workspace_status = wf.evaluate_workspace_status()
-    
-    if workspace_status == WorkspaceStatus.MATCHES:
-        typer.secho(f"✅ Workspace '{name}' is already set up at {workspace_dir}", fg=typer.colors.GREEN)
-        typer.echo("   (Scaffold unchanged. Nothing regenerated.)")
-        raise typer.Exit()
-
-    elif workspace_status == WorkspaceStatus.DIFFERS:
-        typer.secho(f"⚠️  Workspace '{name}' already exists and scaffold has changed.", fg=typer.colors.YELLOW)
-        if not typer.confirm("Overwrite existing workspace?", default=False):
-            typer.secho("❌ Aborting.", fg=typer.colors.RED)
-            raise typer.Exit()
-
-    elif workspace_status == WorkspaceStatus.EXISTS_NO_LOCK:
-        typer.secho(f"⚠️  Workspace exists at {workspace_dir} but no scaffold.lock found.", fg=typer.colors.YELLOW)
-        if not typer.confirm("Overwrite existing workspace?", default=False):
-            typer.secho("❌ Aborting.", fg=typer.colors.RED)
-            raise typer.Exit()
-
-    # Proceed to generate
-    wf.initialize_full_workspace(set_default=set_default)
-    typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
+    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, stealth=stealth)
+    wf.build_src_components()
 
 @app.command()
 @with_logging
 def workspace(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
     name: str = typer.Option(calculate_nowtime_foldername(), "--name", "-n", help="Name of the workspace to create."),
-    scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
-    bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
     enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
-    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
     ):
     """
     Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
     """
     
     if here:
-        typer.secho(f"`here`: `bare` value forced to True.",fg=typer.colors.MAGENTA)
-        bare = True
-    if bare:
-        typer.secho(f"`bare`: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
-
+        typer.secho(f"`here`: True.",fg=typer.colors.MAGENTA)
 
     # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
@@ -255,14 +212,6 @@ def workspace(
     scaffold_dict = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     pprint(scaffold_dict)
 
-    if scaffold_filepath:
-        scaffold_path = Path(scaffold_filepath)
-        scaffold_dict = load_scaffold_file(scaffold_path)
-        if scaffold_dict is None:
-            typer.secho(f"❌ Failed to load scaffold from: {scaffold_filepath}", fg=typer.colors.RED)
-            raise typer.Abort()
-        typer.secho(f"✅ Scaffold loaded from explicitly provided file: {scaffold_filepath}", fg=typer.colors.WHITE)
-        logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
 
     lock_data = {
         "scaffold": scaffold_dict,
@@ -271,13 +220,34 @@ def workspace(
         "generated_by": get_username_from_home_directory()
     }
     
-    workspace_dir = _determine_workspace_dir(target_dir, name, here, bare,stealth)
-    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here, bare=bare, stealth=stealth)
+    workspace_dir = _determine_workspace_dir(target_dir, name, here)
+    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here)
 
-    wf.build_src_side()
+    workspace_status = wf.evaluate_workspace_status()
+    
+    if workspace_status == WorkspaceStatus.MATCHES:
+        typer.secho(f"✅ Workspace '{name}' is already set up at {workspace_dir}", fg=typer.colors.GREEN)
+        typer.echo("   (Scaffold unchanged. Nothing regenerated.)")
+        raise typer.Exit()
+
+    elif workspace_status == WorkspaceStatus.DIFFERS:
+        typer.secho(f"⚠️  Workspace '{name}' already exists and scaffold has changed.", fg=typer.colors.YELLOW)
+        if not typer.confirm("Overwrite existing workspace?", default=False):
+            typer.secho("❌ Aborting.", fg=typer.colors.RED)
+            raise typer.Exit()
+
+    elif workspace_status == WorkspaceStatus.EXISTS_NO_LOCK:
+        typer.secho(f"⚠️  Workspace exists at {workspace_dir} but no scaffold.lock found.", fg=typer.colors.YELLOW)
+        if not typer.confirm("Overwrite existing workspace?", default=False):
+            typer.secho("❌ Aborting.", fg=typer.colors.RED)
+            raise typer.Exit()
+        
+    # Proceed to generate
+    wf.build_workspace(set_default=set_default)
+    typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
+
     typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)
     
-
 #@with_logging(use_portable=True)
 @app.command()
 def file(
@@ -311,8 +281,10 @@ def file(
             raise typer.Abort()
         typer.secho(f"✅ Scaffold loaded from: {filepath}", fg=typer.colors.GREEN)
     else:
-        scaffold_dict = FALLBACK_SCAFFOLD
-        typer.secho("📦 No filepath provided. Using embedded fallback structure.", fg=typer.colors.YELLOW)
+        # Add order of respect
+        scaffold_dict = resolve_scaffold(ORDER_OF_RESPECT, FILENAMES_OF_RESPECT)
+        #scaffold_dict = FALLBACK_SCAFFOLD
+        #typer.secho("📦 Resolved the scaffold reference.", fg=typer.colors.YELLOW)
 
     # Step 2: Confirm overwrite
     if scaffold_path.exists():
@@ -332,8 +304,8 @@ def file(
     typer.echo("⚙️  Changes to this scaffold file will affect 'mulch init' behavior.")
 
     # If none worked, fallback to embedded
-    typer.secho("📦 Using embedded fallback scaffold structure.", fg=typer.colors.YELLOW)
-    return WorkspaceFactory.FALLBACK_SCAFFOLD
+    #typer.secho("📦 Using embedded fallback scaffold structure.", fg=typer.colors.YELLOW)
+    #return WorkspaceFactory.FALLBACK_SCAFFOLD
 
 def load_template_choice_dictionary_from_file():
     """
