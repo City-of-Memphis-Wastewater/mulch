@@ -5,6 +5,18 @@ All4able changes in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
+## [0.2.8->0.2.8] - 2025-07-11=5
+
+### Breaking Changes
+- split `mulch init` command into `mulch init` and `mulch workspace`
+
+### Fixes
+- Address failure to reference anything other than the fallback scaffold.
+
+---
+
 ## [0.2.7->0.2.8] - 2025-07-11
 
 ### Fixes
