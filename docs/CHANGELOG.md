@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 - `--bare flag removed from both `mulch init` and `mulch workspace` by the nature of what the split represents.
+- Remove `bare` implementations in `workspace_factory.py`
 
 ### To docs
 - `mulch workspace` should rely on the architecture for its default behavior (here VS standard), which should be represented in a configuration file, like `/root/.mulch/mulch-config.toml`
