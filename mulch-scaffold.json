@@ -2,6 +2,7 @@
   "": [
     "config",
     "docs",
+	"flagA",
     "imports",
     "exports",
     "scripts",
