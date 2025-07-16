@@ -134,12 +134,15 @@ class WorkspaceFactory:
         """
         self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
         self.write_workspace_lockfile()
-        if not self.here:
-            self.render_workspace_manager()
-            setup_logging()
+        
         self.seed_scaffolded_workspace_files()
         if set_default and not self.here and not self.bare:
             self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
+    
+    def build_src_side(self):
+        if not self.here:
+            self.render_workspace_manager()
+            setup_logging()
 
     @classmethod
     def create_default_workspace_toml(cls, workspaces_root: Path, workspace_name: str):

@@ -17,6 +17,8 @@ from mulch.helpers import open_editor, calculate_nowtime_foldername, resolve_sca
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
+from mulch.scaffold_loader import load_scaffold_file
+
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -30,12 +32,17 @@ FILENAMES_OF_RESPECT = [
     'mulch-scaffold.json'
 ]
 
+# Paths are checked in order of respect for loading the scaffold template dictionary.
+# These are used when running `mulch file`, `mulch show`, or any command needing layout templates.
 ORDER_OF_RESPECT = [
-    Path('.\\.mulch\\'),
-    Path('.\\'),
-    Path.home() / 'mulch',
-    get_global_config_path(appname = "mulch")
-] # windows specific. 
+    Path('.mulch'),
+    Path('.'),
+    Path.home() / 'mulch'#,
+    #get_global_config_path(appname="mulch")
+]
+maybe_global = get_global_config_path(appname="mulch")
+if maybe_global:
+    ORDER_OF_RESPECT.append(Path(maybe_global))
 
 TEMPLATE_CHOICE_DICTIONARY_FILEPATHS = [
     p / SCAFFOLD_TEMPLATES_FILENAME
@@ -133,8 +140,7 @@ def init(
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
     ):
     """
-    Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
-    Build the workspace_manager.py file in the source code.
+    Build the workspace_manager.py file in the source code, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
     Establish a logs folder at root, with the logging.json file.
     """
     
@@ -157,20 +163,17 @@ def init(
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
-    if here:
-        typer.secho(f"`here`: `bare` value forced to True.",fg=typer.colors.MAGENTA)
-        bare = True
-    if bare:
-        typer.secho(f"`bare`: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
-    
     #scaffold_dict = None
     scaffold_dict = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     pprint(scaffold_dict)
 
     if scaffold_filepath:
-        with open(scaffold_filepath, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
-        typer.secho(f"Scaffold loaded from explicitly provided file",fg=typer.colors.WHITE)
+        scaffold_path = Path(scaffold_filepath)
+        scaffold_dict = load_scaffold_file(scaffold_path)
+        if scaffold_dict is None:
+            typer.secho(f"❌ Failed to load scaffold from: {scaffold_filepath}", fg=typer.colors.RED)
+            raise typer.Abort()
+        typer.secho(f"✅ Scaffold loaded from explicitly provided file: {scaffold_filepath}", fg=typer.colors.WHITE)
         logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
 
     lock_data = {
@@ -207,88 +210,144 @@ def init(
     typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
 
 @app.command()
-#@with_logging(use_portable=True)
-def file(
-    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
-    filepath: str = typer.Option(None,"--filepath","-f",help = f"Copy and existing scaffold file to the new local {DEFAULT_SCAFFOLD_FILENAME}"),
-    use_embedded: bool = typer.Option(
-        False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded fallback structure."
-    ),
-    edit: bool = typer.Option(
-        False, "--edit", "-e", help="Open the scaffold file for editing after it's created.")
+@with_logging
+def workspace(
+    target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
+    name: str = typer.Option(calculate_nowtime_foldername(), "--name", "-n", help="Name of the workspace to create."),
+    scaffold_filepath: str = typer.Option(None, "--filepath", "-f", help="File holding scaffold structure to determine the folder hierarchy for each workspace."),
+    bare: bool = typer.Option(False, "--bare", "-b", help="Don't build source code or logs, just make scaffolded workspace directories!"),
+    here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
+    set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
+    enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
+    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
     ):
     """
+    Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
+    """
+    
+    if here:
+        typer.secho(f"`here`: `bare` value forced to True.",fg=typer.colors.MAGENTA)
+        bare = True
+    if bare:
+        typer.secho(f"`bare`: Source code and logging control will not generated.",fg=typer.colors.MAGENTA)
 
-    Drop a scaffold file to disk, at the target directory.
-    The default is the fallback embedded scaffold structure.
-    You are able to edit this file manually.  
 
-    Alternatively, you can use the 'show' command. 
-    Example PowerShell snippet:
+    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
+    # The `mulch` command by itself in the context menu means either 
+    if enforce_mulch_folder:
+        try:
+            scaffold_dict = load_scaffold(
+                target_dir=target_dir,
+                strict_local_dotmulch=enforce_mulch_folder,
+                seed_if_missing=enforce_mulch_folder
+            )
+        except FileNotFoundError as e:
+            typer.secho(str(e), fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+        order_of_respect_local = ORDER_OF_RESPECT
+    else:
+        order_of_respect_local = ['.\.mulch']
+    
+    if _all_order_of_respect_failed(order_of_respect_local):
+       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
+
+    #scaffold_dict = None
+    scaffold_dict = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
+    pprint(scaffold_dict)
+
+    if scaffold_filepath:
+        scaffold_path = Path(scaffold_filepath)
+        scaffold_dict = load_scaffold_file(scaffold_path)
+        if scaffold_dict is None:
+            typer.secho(f"❌ Failed to load scaffold from: {scaffold_filepath}", fg=typer.colors.RED)
+            raise typer.Abort()
+        typer.secho(f"✅ Scaffold loaded from explicitly provided file: {scaffold_filepath}", fg=typer.colors.WHITE)
+        logger.debug(f"Scaffold loaded from explicitly provided file: {scaffold_filepath}")
+
+    lock_data = {
+        "scaffold": scaffold_dict,
+        "generated_by": f"mulch {MULCH_VERSION}",
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "generated_by": get_username_from_home_directory()
+    }
+    
+    workspace_dir = _determine_workspace_dir(target_dir, name, here, bare,stealth)
+    wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here, bare=bare, stealth=stealth)
+
+    wf.build_src_side()
+    typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)
+    
+
+#@with_logging(use_portable=True)
+@app.command()
+def file(
+    target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
+    filepath: str = typer.Option(None, "--filepath", "-f", help=f"Copy an existing scaffold file to the new local {DEFAULT_SCAFFOLD_FILENAME}"),
+    use_embedded: bool = typer.Option(False, "--use-embedded-fallback-structure", "-e", help="Use the embedded fallback scaffold."),
+    edit: bool = typer.Option(False, "--edit", "-e", help="Open the scaffold file for editing after it's created.")
+    ):
+    """
+    Drop a scaffold file to disk at the target directory.
+
+    Default is the embedded fallback structure. You can optionally copy from another file.
+    Use 'show' to preview options.
+
+    Example (PowerShell):
         mulch show -c
         $scaffold_str = '{"": ["config", "data", ...]}'
         $scaffold_str | Out-File -Encoding utf8 -FilePath mulch-scaffold.json
     """
-    
     scaffold_path = target_dir / DEFAULT_SCAFFOLD_FILENAME
-    scaffold_dict = FALLBACK_SCAFFOLD
-    if use_embedded:
-        pass # scaffold_dict = FALLBACK_SCAFFOLD
-    elif filepath:
-        with open(filepath, "r", encoding="utf-8") as f:
-            scaffold_dict = json.load(f)
 
+    # Step 1: Load scaffold dictionary
+    if use_embedded:
+        scaffold_dict = FALLBACK_SCAFFOLD
+        typer.secho("📦 Using embedded fallback structure.", fg=typer.colors.YELLOW)
+    elif filepath:
+        scaffold_path_in = Path(filepath)
+        scaffold_dict = load_scaffold_file(scaffold_path_in)
+        if scaffold_dict is None:
+            typer.secho(f"❌ Failed to load scaffold from: {filepath}", fg=typer.colors.RED)
+            raise typer.Abort()
+        typer.secho(f"✅ Scaffold loaded from: {filepath}", fg=typer.colors.GREEN)
+    else:
+        scaffold_dict = FALLBACK_SCAFFOLD
+        typer.secho("📦 No filepath provided. Using embedded fallback structure.", fg=typer.colors.YELLOW)
+
+    # Step 2: Confirm overwrite
     if scaffold_path.exists():
         if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
-            #typer.echo("Aborted: Did not overwrite existing scaffold file.") # this is a redundant message
             raise typer.Abort()
+
+    # Step 3: Write JSON scaffold
     with open(scaffold_path, "w", encoding="utf-8") as f:
         json.dump(scaffold_dict, f, indent=2)
+    typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
 
+    # Step 4: Optional edit
     if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?"):
         open_editor(scaffold_path)
-    
-    typer.echo(f"✅ Wrote scaffold to: {scaffold_path}")
-    typer.secho("✏️  You can now manually edit this file to customize your workspace layout.",fg=typer.colors.CYAN)
-    typer.echo("⚙️  Changes to this scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
 
-def _interpret_scaffold_from_order_of_respect(order_of_respect):
-    for fallback_path in order_of_respect:
-        typer.echo(f"fallback_path: {fallback_path}")
-        if not isinstance(fallback_path, Path):
-            continue
-
-        #for filename in ['mulch-scaffold.toml.j2', 'mulch-scaffold.toml', 'mulch-scaffold.json']:
-        for filename in FILENAMES_OF_RESPECT:
-            candidate = fallback_path / filename
-            typer.echo(f"candidate: {candidate}")
-            if candidate.exists():
-                try:
-                    if candidate.suffix == ".toml":
-                        typer.secho(f"candidate: {candidate}")
-                        return toml.load(candidate)
-                    elif candidate.suffix == ".json":
-                        typer.secho(f"candidate: {candidate}")
-                        return json.load(candidate.open("r", encoding="utf-8"))
-                    # j2 support would go here
-                except Exception as e:
-                    typer.secho(f"⚠️ Error loading {candidate}: {e}", fg=typer.colors.RED)
+    typer.secho("✏️  You can now manually edit this file to customize your workspace layout.", fg=typer.colors.CYAN)
+    typer.echo("⚙️  Changes to this scaffold file will affect 'mulch init' behavior.")
 
     # If none worked, fallback to embedded
     typer.secho("📦 Using embedded fallback scaffold structure.", fg=typer.colors.YELLOW)
     return WorkspaceFactory.FALLBACK_SCAFFOLD
 
 def load_template_choice_dictionary_from_file():
+    """
+    Attempts to load a TOML or JSON template choice dictionary from known fallback paths.
+    """
     for path in TEMPLATE_CHOICE_DICTIONARY_FILEPATHS:
         if path.is_file():
-            try:
-                return toml.load(path)
-            except Exception:
-                try:
-                    return json.load(open(path, "r", encoding="utf-8"))
-                except Exception:
-                    continue
-    typer.secho("❌ Failed to load template dictionary from all fallback paths.", fg=typer.colors.RED)
+            data = load_scaffold_file(path)
+            if data is not None:
+                typer.secho(f"✅ Loaded template choices from: {path}", fg=typer.colors.GREEN)
+                return data
+            else:
+                typer.secho(f"⚠️ Failed to parse {path.name} as TOML or JSON.", fg=typer.colors.YELLOW)
+    typer.secho("❌ Failed to load template choice dictionary from any known paths.", fg=typer.colors.RED)
     raise typer.Exit(code=1)
 
 @app.command()
