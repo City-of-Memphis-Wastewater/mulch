@@ -324,12 +324,22 @@ def where(
     """
     typer.echo("Please develop")
     typer.echo(""" \n
-     1. Path(.mulch) / 'mulch.toml' \n
-     2. Path('.') / 'mulch.toml' \n
-     3. Path.home() / 'mulch' / 'mulch.toml' \n
-     \n""")
+               1. Path(.mulch) / 'mulch.toml' \n
+               2. Path('.') / 'mulch.toml' \n
+               3. Path.home() / 'mulch' / 'mulch.toml' \n
+               \n
+               \n
+               Available: 1, 3.
+               If you would like, select an option to display the contents. \n
+               \n
+               
+               
+               """)
     typer.echo(f"ORDER_OF_RESPECT = {ORDER_OF_RESPECT}")
     typer.echo(f"FILENAMES_OF_RESPECT = {FILENAMES_OF_RESPECT}")
+    typer.echo()
+    typer.confirm("If you would like, select an option to display the contents.")
+    typer.Option("If you would like, select an option to display the contents.",rich_help_panel=True )
 def load_template_choice_dictionary_from_file():
     """
     Attempts to load a TOML or JSON template choice dictionary from known fallback paths.
