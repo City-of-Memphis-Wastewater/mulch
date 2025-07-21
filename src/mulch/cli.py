@@ -385,7 +385,9 @@ def seed(#def dotmulch(
             raise typer.Abort()
     scaffold_path.parent.mkdir(parents=True, exist_ok=True)
     with open(scaffold_path, "w", encoding="utf-8") as f:
-        json.dump(scaffold_dict, f, indent=2)
+        #json.dump(scaffold_dict, f, indent=2)
+        toml.dump(scaffold_dict, f, indent=2)
+        
     
     typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
 
