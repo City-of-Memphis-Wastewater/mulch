@@ -28,6 +28,8 @@ def resolve_first_existing_path(bases: list[Path], filenames: list[str]) -> Path
     
 def resolve_scaffold(order_of_respect: list[Path], filenames_of_respect: list[str]) -> dict:
     for base_path in order_of_respect:
+        logger.info(f"base_path = {base_path}")
+        logger.info(f"type(base_path) = {type(base_path)}")
         if not isinstance(base_path, Path):
             continue
 

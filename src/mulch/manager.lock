@@ -2,13 +2,13 @@
   "scaffold": {
     "": [
       "config",
-      "data",
+      "docs",
       "imports",
       "exports",
       "scripts",
       "secrets",
       "queries",
-      "monster-mash"
+      "about_this_workspace.md"
     ],
     "exports": [
       "aggregate"
@@ -18,7 +18,6 @@
       "logging.json"
     ],
     "secrets": [
-      "secrets.yaml",
       "secrets-example.yaml"
     ],
     "queries": [
@@ -26,5 +25,5 @@
     ]
   },
   "generated_by": "george.bennett",
-  "generated_at": "2025-07-11T05:26:49.644745+00:00"
+  "generated_at": "2025-07-21T00:05:36.622463+00:00"
 }

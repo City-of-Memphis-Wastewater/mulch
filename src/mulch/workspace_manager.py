@@ -14,13 +14,13 @@ class WorkspaceManager:
 
     WORKSPACES_DIR_NAME = "workspaces"
 
-    ROOT_CONTENTS = ["config", "data", "imports", "exports", "scripts", "secrets", "queries", "monster-mash"]
+    ROOT_CONTENTS = ["config", "docs", "imports", "exports", "scripts", "secrets", "queries", "about_this_workspace.md"]
 
     EXPORTS_DIR_NAME = ["aggregate"]
 
     CONFIG_DIR_NAME = ["default-workspace.toml", "logging.json"]
 
-    SECRETS_DIR_NAME = ["secrets.yaml", "secrets-example.yaml"]
+    SECRETS_DIR_NAME = ["secrets-example.yaml"]
 
     QUERIES_DIR_NAME = ["default-queries.toml"]
 
@@ -55,16 +55,16 @@ class WorkspaceManager:
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: config")
 
-        path = base / "data"
-        if "." in "data":
+        path = base / "docs"
+        if "." in "docs":
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-                logging.DEBUG(f"Created file: data")
+                logging.DEBUG(f"Created file: docs")
         else:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: data")
+                logging.DEBUG(f"Created folder: docs")
 
         path = base / "imports"
         if "." in "imports":
@@ -121,16 +121,16 @@ class WorkspaceManager:
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: queries")
 
-        path = base / "monster-mash"
-        if "." in "monster-mash":
+        path = base / "about_this_workspace.md"
+        if "." in "about_this_workspace.md":
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-                logging.DEBUG(f"Created file: monster-mash")
+                logging.DEBUG(f"Created file: about_this_workspace.md")
         else:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: monster-mash")
+                logging.DEBUG(f"Created folder: about_this_workspace.md")
 
 
         base = self.workspace_dir / "exports"
@@ -173,17 +173,6 @@ class WorkspaceManager:
 
 
         base = self.workspace_dir / "secrets"
-
-        path = base / "secrets.yaml"
-        if "." in "secrets.yaml":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: secrets.yaml")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: secrets.yaml")
 
         path = base / "secrets-example.yaml"
         if "." in "secrets-example.yaml":
