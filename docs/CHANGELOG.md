@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.9] - 2025-07-20
+
+### Fixes
+- We need a way to enforce the `--here` for additional workspaces, if it is forgotten, if it has already been used, or if 	`mulch init --stealth` has been used. Leverage a configuration file in `.mulch` for this.
+
+---
+
 ## [0.2.8->0.2.9] - 2025-07-11-->2025-07-20
 
 ### Breaking Changes
