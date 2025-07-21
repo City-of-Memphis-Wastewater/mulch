@@ -4,7 +4,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.9] - 2025-07-20
+## [0.2.9] - 2025-07-
+
+### Vibe
+- "mid way through progress on changing to toml and enforcing a particular strucutre in .mulch"
 
 ### Fixes
 - We need a way to enforce the `--here` for additional workspaces, if it is forgotten, if it has already been used, or if 	`mulch init --stealth` has been used. Leverage a configuration file in `.mulch` for this.
