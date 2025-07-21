@@ -49,13 +49,15 @@ cd equipment-monitoring
 mulch seed --edit
 
 # Stealth mode, best for shared directories (`--stealth`)
-mulch init --name bioreactor-1-team-analysis --stealth 
+mulch init --stealth
+mulch workspace --name bioreactor-1-team-analysis --here 
 
 # Standard mode, best for Python developers
-mulch init --name API01toAPI05  
+mulch init 
+mulch workspace --name API01toAPI05  
 
 # User mode, for everyone (`--here`)
-mulch init --name SummerPhotos2025 --here 
+mulch workspace --name SummerPhotos2025 --here 
 
 ```
 
@@ -65,7 +67,6 @@ mulch init --name SummerPhotos2025 --here
 | ----------- | -------------------- | -------------------- | --------------------------- |
 | *(none)*    | `workspaces/<name>/` | `src/<proj>/`        | Normal development use      |
 | `--here`    | `./<name>/`          | *(none)*             | Clean, user-facing          |
-| `--bare`    | `workspaces/<name>/` | *(none)*             | New workspace, no src impact|
 | `--stealth` | `./<name>/`          | `.mulch/src/<proj>/` | Play nice with shared dirs  |
 
 I am really excited about `mulch init --stealth` for mixed use directories. Business and engineering users can organize projects in a shared drive like SharePoint, while a dev can run custom analysis scripts catered to each type of project. 
