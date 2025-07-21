@@ -35,4 +35,4 @@ wf = WorkspaceFactory(
 )
 
 wf.check_and_create_workspace_dirs_from_scaffold()
-wf.seed_scaffolded_workspace_files()
+wf.build_scaffolded_workspace_files()

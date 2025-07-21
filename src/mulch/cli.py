@@ -153,7 +153,7 @@ def init(
             raise typer.Exit(code=1)
         order_of_respect_local = ORDER_OF_RESPECT
     else:
-        order_of_respect_local = ['.\.mulch']
+        order_of_respect_local = [Path.cwd() / '.mulch']
     
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
@@ -172,6 +172,7 @@ def init(
     #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
     wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, stealth=stealth)
     wf.build_src_components()
+    typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)
 
 @app.command()
 @with_logging
@@ -203,7 +204,7 @@ def workspace(
             raise typer.Exit(code=1)
         order_of_respect_local = ORDER_OF_RESPECT
     else:
-        order_of_respect_local = ['.\.mulch']
+        order_of_respect_local = [Path.cwd() / '.mulch']
     
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
@@ -246,7 +247,6 @@ def workspace(
     wf.build_workspace(set_default=set_default)
     typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
 
-    typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)
     
 #@with_logging(use_portable=True)
 @app.command()

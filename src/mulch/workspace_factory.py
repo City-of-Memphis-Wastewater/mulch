@@ -99,7 +99,7 @@ class WorkspaceFactory:
             json.dump(self.lock_data, f, indent=2)
         logger.debug(f"Wrote lockfile to: {self.workspace_lock_path}")
 
-    def seed_scaffolded_workspace_files(self):
+    def build_scaffolded_workspace_files(self):
         # no-op placeholder: future file seeding logic can go here
         pass
         
@@ -134,10 +134,17 @@ class WorkspaceFactory:
         self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
         self.write_workspace_lockfile()
         
-        self.seed_scaffolded_workspace_files()
+        self.build_scaffolded_workspace_files()
         if set_default and not self.here:
             self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
-    
+
+    def build_workspace(self, set_default: bool = True):
+        self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
+        self.write_workspace_lockfile()
+        self.build_scaffolded_workspace_files()
+        if set_default and not self.here:
+            self.create_default_workspace_toml(self.workspace_dir, self.workspace_name)
+        
     def build_src_components(self):
         self.adjust_mulch_config_toml(here=self.here) # to match and reinfornce the future behavior or `mulch workspace`.
         #if not self.here:
@@ -159,17 +166,17 @@ class WorkspaceFactory:
         else:
             logging.debug(f"{config_path} already exists; skipping overwrite")
 
-    def seed_scaffolded_workspace_files(self):
+    def build_scaffolded_workspace_files(self):
         """
         Seed both static and templated workspace files.
         Call this after workspace creation.
         Seed only placeholder files that are already declared in scaffold and still empty.
         This ensures the scaffold drives structure, not the seeder.
         """
-        self.seed_static_workspace_files()
-        self.seed_templated_workspace_file()
+        self.build_static_workspace_files()
+        self.build_templated_workspace_files()
         
-    def seed_static_workspace_files(self):
+    def build_static_workspace_files(self):
         """
         Populate essential workspace files *only if* their placeholder files already exist.
         Avoids introducing files/folders not declared in the scaffold.
@@ -195,7 +202,7 @@ class WorkspaceFactory:
             else:
                 logger.debug(f"Skipped seeding {dest}; file doesn't exist or is not empty.")
 
-    def seed_templated_workspace_file(self):
+    def build_templated_workspace_files(self):
         """
         Generate helpful default files in the new workspace, such as about_this_workspace.md.
         """
