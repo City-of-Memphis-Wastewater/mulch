@@ -28,6 +28,7 @@ HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 SCAFFOLD_TEMPLATES_FILENAME = 'mulch-scaffold-template-dictionary.toml'
 
 FILENAMES_OF_RESPECT = [
+    'mulch.toml',
     'mulch-scaffold.toml',
     'mulch-scaffold.json'
 ]
@@ -247,7 +248,11 @@ def workspace(
     wf.build_workspace(set_default=set_default)
     typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
 
-    
+'''
+Ta ta for now.
+Good bye `mulch file`.
+We need to enforce the root/.mulch/mulch.toml standard.
+
 #@with_logging(use_portable=True)
 @app.command()
 def file(
@@ -306,7 +311,25 @@ def file(
     # If none worked, fallback to embedded
     #typer.secho("📦 Using embedded fallback scaffold structure.", fg=typer.colors.YELLOW)
     #return WorkspaceFactory.FALLBACK_SCAFFOLD
+'''
 
+#@with_logging(use_portable=True)
+@app.command()
+def where(
+    target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
+    ):
+    """
+    Determine the ordered list of available fallbacks. 
+    You can then request to see contents from an identifying number as a CLI input.
+    """
+    typer.echo("Please develop")
+    typer.echo(""" \n
+     1. Path(.mulch) / 'mulch.toml' \n
+     2. Path('.') / 'mulch.toml' \n
+     3. Path.home() / 'mulch' / 'mulch.toml' \n
+     \n""")
+    typer.echo(f"ORDER_OF_RESPECT = {ORDER_OF_RESPECT}")
+    typer.echo(f"FILENAMES_OF_RESPECT = {FILENAMES_OF_RESPECT}")
 def load_template_choice_dictionary_from_file():
     """
     Attempts to load a TOML or JSON template choice dictionary from known fallback paths.
