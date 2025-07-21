@@ -1,12 +1,12 @@
 
-DEFAULT_SCAFFOLD_FILENAME = "mulch-scaffold.json"
+DEFAULT_SCAFFOLD_FILENAME = "mulch.toml"
 
 LOCK_FILE_NAME = 'mulch.lock'
 
 FALLBACK_SCAFFOLD = {
-        "": ["config", "docs", "imports", "exports", "scripts", "secrets", "queries","about_this_workspace.md"],
+        "": ["scripts", "tools", "templates", "exports", "imports", "images", "documents", "configurations", "about_this_workspace.md"],
         "exports": ["aggregate"],
-        "config": ["default-workspace.toml", "logging.json"],
-        "secrets": ["secrets-example.yaml"],
-        "queries": ["default-queries.toml"]
+        "configurations": ["default-workspace.toml", "logging.json"],
+        "secrets": ["to-be-run-at-creation.yaml"],
+        "tools": ["to-be-used-as-needed.toml"]
     }

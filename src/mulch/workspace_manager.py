@@ -14,7 +14,7 @@ class WorkspaceManager:
 
     WORKSPACES_DIR_NAME = "workspaces"
 
-    ROOT_CONTENTS = ["config", "docs", "imports", "exports", "scripts", "secrets", "queries", "about_this_workspace.md"]
+    ROOT_CONTENTS = ["config", "docs", "flagA", "imports", "exports", "scripts", "secrets", "queries", "about_this_workspace.md"]
 
     EXPORTS_DIR_NAME = ["aggregate"]
 
@@ -65,6 +65,17 @@ class WorkspaceManager:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: docs")
+
+        path = base / "flagA"
+        if "." in "flagA":
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+                logging.DEBUG(f"Created file: flagA")
+        else:
+            if not path.exists():
+                path.mkdir(parents=True, exist_ok=True)
+                logging.DEBUG(f"Created folder: flagA")
 
         path = base / "imports"
         if "." in "imports":

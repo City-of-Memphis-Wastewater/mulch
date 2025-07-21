@@ -3,6 +3,7 @@
     "": [
       "config",
       "docs",
+      "flagA",
       "imports",
       "exports",
       "scripts",
@@ -25,5 +26,5 @@
     ]
   },
   "generated_by": "george.bennett",
-  "generated_at": "2025-07-21T00:05:36.622463+00:00"
+  "generated_at": "2025-07-21T08:01:23.989277+00:00"
 }

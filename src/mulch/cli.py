@@ -15,6 +15,7 @@ from mulch.workspace_factory import WorkspaceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
 from mulch.helpers import open_editor, calculate_nowtime_foldername, resolve_scaffold, get_global_config_path, resolve_first_existing_path, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
+from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
 from mulch.scaffold_loader import load_scaffold_file
@@ -340,6 +341,7 @@ def where(
     typer.echo()
     typer.confirm("If you would like, select an option to display the contents.")
     typer.Option("If you would like, select an option to display the contents.",rich_help_panel=True )
+    #typer.run()
 def load_template_choice_dictionary_from_file():
     """
     Attempts to load a TOML or JSON template choice dictionary from known fallback paths.
@@ -392,6 +394,8 @@ def seed(#def dotmulch(
 
     typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
     typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
+    
+    build_dotmulch_standard_contents()
 
 @app.command()
 def show(
