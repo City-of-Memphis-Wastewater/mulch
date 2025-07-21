@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.8->0.2.9] - 2025-07-11=5
+## [0.2.8->0.2.9] - 2025-07-11-->2025-07-20
 
 ### Breaking Changes
 - split `mulch init` command into `mulch init` and `mulch workspace`
 - `_determine_workspace_dir(target_dir, name, here, bare, stealth)` inputs adjusted to `_determine_workspace_dir(target_dir, name, here, stealth)` 
 
 ### Fixes
-- Address failure to reference anything other than the fallback scaffold.
+- Address failure to reference anything other than the fallback scaffold; order_of_respect_local = [Path.cwd() / '.mulch']
 - Implement `resolve_scaffold()` in `mulch file`. 
 
 ### Changes
