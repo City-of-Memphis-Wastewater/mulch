@@ -14,15 +14,7 @@ class WorkspaceManager:
 
     WORKSPACES_DIR_NAME = "workspaces"
 
-    ROOT_CONTENTS = ["config", "docs", "flagA", "imports", "exports", "scripts", "secrets", "queries", "about_this_workspace.md"]
-
-    EXPORTS_DIR_NAME = ["aggregate"]
-
-    CONFIG_DIR_NAME = ["default-workspace.toml", "logging.json"]
-
-    SECRETS_DIR_NAME = ["secrets-example.yaml"]
-
-    QUERIES_DIR_NAME = ["default-queries.toml"]
+    WORKSPACE_DIR_NAME = {"config": {"files": ["logging.json"]}, "root": ["config", "documents", "spreadsheets", "emails", "images", "scripts", "about_this_workspace.md"]}
 
 
     DEFAULT_WORKSPACE_TOML = "default-workspace.toml"
@@ -42,7 +34,18 @@ class WorkspaceManager:
         Ensures all directories and files from scaffold exist in the workspace.
         """
 
-        base = self.workspace_dir / ""
+        base = self.workspace_dir / "workspace"
+
+        path = base / "root"
+        if "." in "root":
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+                logging.DEBUG(f"Created file: root")
+        else:
+            if not path.exists():
+                path.mkdir(parents=True, exist_ok=True)
+                logging.DEBUG(f"Created folder: root")
 
         path = base / "config"
         if "." in "config":
@@ -54,161 +57,6 @@ class WorkspaceManager:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
                 logging.DEBUG(f"Created folder: config")
-
-        path = base / "docs"
-        if "." in "docs":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: docs")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: docs")
-
-        path = base / "flagA"
-        if "." in "flagA":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: flagA")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: flagA")
-
-        path = base / "imports"
-        if "." in "imports":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: imports")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: imports")
-
-        path = base / "exports"
-        if "." in "exports":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: exports")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: exports")
-
-        path = base / "scripts"
-        if "." in "scripts":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: scripts")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: scripts")
-
-        path = base / "secrets"
-        if "." in "secrets":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: secrets")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: secrets")
-
-        path = base / "queries"
-        if "." in "queries":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: queries")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: queries")
-
-        path = base / "about_this_workspace.md"
-        if "." in "about_this_workspace.md":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: about_this_workspace.md")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: about_this_workspace.md")
-
-
-        base = self.workspace_dir / "exports"
-
-        path = base / "aggregate"
-        if "." in "aggregate":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: aggregate")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: aggregate")
-
-
-        base = self.workspace_dir / "config"
-
-        path = base / "default-workspace.toml"
-        if "." in "default-workspace.toml":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: default-workspace.toml")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: default-workspace.toml")
-
-        path = base / "logging.json"
-        if "." in "logging.json":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: logging.json")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: logging.json")
-
-
-        base = self.workspace_dir / "secrets"
-
-        path = base / "secrets-example.yaml"
-        if "." in "secrets-example.yaml":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: secrets-example.yaml")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: secrets-example.yaml")
-
-
-        base = self.workspace_dir / "queries"
-
-        path = base / "default-queries.toml"
-        if "." in "default-queries.toml":
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.touch()
-                logging.DEBUG(f"Created file: default-queries.toml")
-        else:
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: default-queries.toml")
 
 
 

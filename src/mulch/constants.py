@@ -16,7 +16,7 @@ FALLBACK_SCAFFOLD = {
     "workspace": {
         "root": [
             "config",
-            "word docs",
+            "documents",
             "spreadsheets",
             "emails",
             "images",
