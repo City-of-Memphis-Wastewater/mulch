@@ -29,9 +29,9 @@ HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 SCAFFOLD_TEMPLATES_FILENAME = 'mulch-scaffold-template-dictionary.toml'
 
 FILENAMES_OF_RESPECT = [
-    'mulch.toml',
-    'mulch-scaffold.toml',
-    'mulch-scaffold.json'
+    'mulch.toml'#,
+    #'mulch-scaffold.toml',
+    #'mulch-scaffold.json'
 ]
 
 # Paths are checked in order of respect for loading the scaffold template dictionary.
@@ -93,7 +93,10 @@ def print_version(value: bool):
 
 def _determine_workspace_dir(target_dir, name, here, stealth: bool = False) -> Path:
     if stealth:
-        return target_dir / name
+        workspace_dir = target_dir / '.mulch' / name
+        logging.debug(f"workspace_dir = {workspace_dir}")
+        print(f"workspace_dir = {workspace_dir}")
+        return workspace_dir
     if not here:
         workspace_dir = target_dir / "workspaces" / name
     elif here:
@@ -170,7 +173,9 @@ def init(
         "generated_by": get_username_from_home_directory()
     }
     
+    print(f"stealth = {stealth}")
     workspace_dir = _determine_workspace_dir(target_dir, name, stealth)
+    print(f"workspace_dir = {workspace_dir}")
     #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
     wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, stealth=stealth)
     wf.build_src_components()
@@ -184,6 +189,7 @@ def workspace(
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
     enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
+    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put workspace in .mulch/workspaces/ instead of root/workspaces/."),
     ):
     """
     Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceFactory.
@@ -208,6 +214,7 @@ def workspace(
     else:
         order_of_respect_local = [Path.cwd() / '.mulch']
     
+    
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
@@ -222,8 +229,9 @@ def workspace(
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "generated_by": get_username_from_home_directory()
     }
-    
-    workspace_dir = _determine_workspace_dir(target_dir, name, here)
+    print(f"stealth = {stealth}")
+    workspace_dir = _determine_workspace_dir(target_dir, name, stealth)
+    print(f"workspace_dir = {workspace_dir}")
     wf = WorkspaceFactory(target_dir, workspace_dir, name, lock_data, here=here)
 
     workspace_status = wf.evaluate_workspace_status()
@@ -386,7 +394,8 @@ def seed(#def dotmulch(
     scaffold_path.parent.mkdir(parents=True, exist_ok=True)
     with open(scaffold_path, "w", encoding="utf-8") as f:
         #json.dump(scaffold_dict, f, indent=2)
-        toml.dump(scaffold_dict, f, indent=2)
+        #toml.dump(scaffold_dict, f, indent=2)
+        toml.dump(scaffold_dict,f)
         
     
     typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
@@ -397,7 +406,7 @@ def seed(#def dotmulch(
     typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
     typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
     
-    build_dotmulch_standard_contents()
+    build_dotmulch_standard_contents(target_dir = Path.cwd())
 
 @app.command()
 def show(

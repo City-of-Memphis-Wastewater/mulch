@@ -4,13 +4,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.9] - 2025-07-
+## [0.2.9-->0.2.11] - 2025-07-22
 
 ### Vibe
-- "mid way through progress on changing to toml and enforcing a particular strucutre in .mulch"
+- Aside from testing, we have succeeded in changing to TOML mulch.toml standard, and moving away from the mulch-scaffold.json standard. 
 
-### Fixes
+### Unfinished
+- build_dotmulch_standard_contents() is not yet useful
+- `--stealth` flag should also be used for `mulch workspace` command, to build inside of root/.mulch/workspaces/
 - We need a way to enforce the `--here` for additional workspaces, if it is forgotten, if it has already been used, or if 	`mulch init --stealth` has been used. Leverage a configuration file in `.mulch` for this.
+
 
 ---
 
