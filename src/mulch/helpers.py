@@ -5,11 +5,13 @@ import os
 from typing import Union
 import json
 import toml
-from mulch.constants import FALLBACK_SCAFFOLD
 import typer
 import logging
 import sys
 import subprocess
+
+from mulch.constants import FALLBACK_SCAFFOLD
+
 
 logger = logging.getLogger(__name__)
 

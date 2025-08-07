@@ -1,6 +1,11 @@
 from pathlib import Path
 class PathContext:
-    def __init__(self, base_path: Path, workspace_name: str, here: bool = False, stealth: bool = False):
+    def __init__(self,
+                 base_path: Path,
+                 workspace_name: str,
+                 *,
+                 here: bool = False,
+                 stealth: bool = False):
         self.base_path = base_path
         self.workspace_name = workspace_name
         self.here = here
@@ -30,8 +35,10 @@ class PathContext:
     def manager_lock_path(self) -> Path:
         return self.module_dir / "manager.lock"
     
-
-
     @property
     def workspace_lock_path(self) -> Path:
         return self.workspace_dir / "space.lock"
+    
+    @property
+    def flags_lock_path(self) -> Path:
+        return self.base_path / ".mulch" / "flags.lock"

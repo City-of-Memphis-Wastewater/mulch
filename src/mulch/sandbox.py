@@ -39,7 +39,7 @@ def evaluate_manager_status(self) -> bool:
                     f"Existing: {self.manager_lock_path}\nContinue?", abort=True
                 )
         except Exception as e:
-            logging.warning(f"Could not read manager.lock for comparison: {e}")
+            logger.warning(f"Could not read manager.lock for comparison: {e}")
 
 
 import toml
