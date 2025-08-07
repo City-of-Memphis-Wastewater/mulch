@@ -1,4 +1,4 @@
-from mulch import WorkspaceFactory, load_scaffold, workspace_factory
+from mulch import WorkspaceFactory, load_scaffold, workspace_manager_generator
 
 from pathlib import Path
 

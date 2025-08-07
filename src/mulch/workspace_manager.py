@@ -14,7 +14,7 @@ class WorkspaceManager:
 
     WORKSPACES_DIR_NAME = "workspaces"
 
-    WORKSPACE_DIR_NAME = {"config": {"files": ["logging.json"]}, "root": ["config", "documents", "spreadsheets", "emails", "images", "scripts", "about_this_workspace.md"]}
+    SCAFFOLD_DIR_NAME = {"dirs": ["data", "data/raw", "data/processed/monthly", "queries/historical/archive"], "files": ["queries/historical/default-queries.toml", "data/processed/monthly/README.md", "secrets/secrets-example.yaml"]}
 
 
     DEFAULT_WORKSPACE_TOML = "default-workspace.toml"
@@ -34,29 +34,29 @@ class WorkspaceManager:
         Ensures all directories and files from scaffold exist in the workspace.
         """
 
-        base = self.workspace_dir / "workspace"
+        base = self.workspace_dir / "scaffold"
 
-        path = base / "root"
-        if "." in "root":
+        path = base / "dirs"
+        if "." in "dirs":
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-                logging.DEBUG(f"Created file: root")
+                logging.DEBUG(f"Created file: dirs")
         else:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: root")
+                logging.DEBUG(f"Created folder: dirs")
 
-        path = base / "config"
-        if "." in "config":
+        path = base / "files"
+        if "." in "files":
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
-                logging.DEBUG(f"Created file: config")
+                logging.DEBUG(f"Created file: files")
         else:
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
-                logging.DEBUG(f"Created folder: config")
+                logging.DEBUG(f"Created folder: files")
 
 
 

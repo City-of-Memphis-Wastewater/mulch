@@ -3,6 +3,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.2.12] - 2025-08-07
+
+### Added
+- New `create_workspace()` method for cleaner workspace initialization
+- Type hints for better code maintainability and IDE support
+- Support for both flat and nested scaffold structures
+- Better error handling and status reporting
+
+### Changed
+- Split `WorkspaceManagerGenerator` and `WorkspaceInstanceFactory` into separate classes
+- Improved lock file handling with proper directory creation order
+- Better scaffold structure validation
+- More consistent path resolution through `PathContext`
+
+### Fixed
+- Lock file creation ordering issue
+- Proper handling of nested scaffold directories
+- Default workspace config file placement
+- Double-nested scaffold data parsing
+
+### Removed
+- Deprecated initialization methods
+- Redundant workspace building functions
+- Unused file loader imports
+
 
 ## [0.2.9-->0.2.11] - 2025-07-22
 

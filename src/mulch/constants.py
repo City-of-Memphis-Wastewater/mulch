@@ -11,13 +11,23 @@ FALLBACK_SCAFFOLD_JSON = {
         "tools": ["to-be-used-as-needed.toml"]
     }
 
-
+FALLBACK_SCAFFOLD_TOML = '''[scaffold]
+dirs = [
+    "data",
+    "data/raw",
+    "data/processed/monthly",
+    "queries/historical/archive",
+]
+files = [
+    "queries/historical/default-queries.toml",
+    "data/processed/monthly/README.md",
+    "secrets/secrets-example.yaml"
+]'''
 FALLBACK_SCAFFOLD = {
     "workspace": {
         "root": [
             "config",
             "documents",
-            "spreadsheets",
             "emails",
             "images",
             "scripts",
