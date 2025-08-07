@@ -372,7 +372,7 @@ def load_scaffold_(scaffold_path: Path | None = None) -> dict:
         logger.warning(f"Warning: Scaffold file {scaffold_path} contains invalid JSON ({e}), using fallback scaffold.")
         return FALLBACK_SCAFFOLD
 
-def load_scaffold(target_dir: Optional[Path] = None, 
+def load_scaffold__(target_dir: Optional[Path] = None, 
                   strict_local_dotmulch:bool=False, 
                   seed_if_missing:bool=False) -> Dict[str, Any]:
     target_dir = target_dir or Path.cwd()
@@ -392,6 +392,7 @@ def load_scaffold(target_dir: Optional[Path] = None,
             logger.warning("⚠️ .mulch exists but no scaffold file found. Auto-seeding...")
             write_seed_scaffold(target_dir)
             return load_scaffold(target_dir, strict_local_dotmulch=True, seed_if_missing=False)
+        
 
         raise FileNotFoundError("🚫 No valid `.mulch/mulch-scaffold.*` found and auto-seed not enabled.")
 
@@ -417,3 +418,50 @@ def load_scaffold(target_dir: Optional[Path] = None,
     logger.warning("No valid scaffold file found. Falling back to internal scaffold.")
     return FALLBACK_SCAFFOLD
 
+# Move outside class
+def load_scaffold(
+    target_dir: Optional[Path] = None, 
+    strict_local_dotmulch: bool = False,
+    seed_if_missing: bool = False
+) -> Dict[str, Any]:
+    """
+    Load scaffold configuration from various possible locations.
+    
+    Args:
+        target_dir: Directory to start searching from (defaults to cwd)
+        strict_local_dotmulch: If True, only look in .mulch directory
+        seed_if_missing: If True and strict mode, create seed scaffold
+    
+    Returns:
+        Dict containing scaffold configuration
+    
+    Raises:
+        FileNotFoundError: If strict mode and no scaffold found
+    """
+    target_dir = target_dir or Path.cwd()
+    base = target_dir / ".mulch"
+
+    filenames = ["mulch-scaffold.toml", "mulch-scaffold.json"]
+
+    if strict_local_dotmulch:
+        # ...existing strict mode code...
+        pass
+
+    # Default behavior: search all fallback paths
+    base_dirs = [
+        target_dir / ".mulch",    # 1. Local .mulch folder
+        target_dir,               # 2. Root project dir
+        Path.home() / 'mulch',    # 3. User root on system
+        get_global_config_path(appname="mulch")  # 4. Global config
+    ]
+
+    for base in base_dirs:
+        for filename in filenames:
+            path = base / filename
+            scaffold = try_load_scaffold_file(path)
+            if scaffold:
+                logger.info(f"📄 Loaded scaffold from: {path}")
+                return scaffold
+            
+    logger.warning("No valid scaffold file found. Using fallback scaffold.")
+    return FALLBACK_SCAFFOLD

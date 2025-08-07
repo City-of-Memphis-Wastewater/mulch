@@ -1,4 +1,4 @@
-
+import toml
 DEFAULT_SCAFFOLD_FILENAME = "mulch.toml"
 
 LOCK_FILE_NAME = 'mulch.lock'
@@ -23,22 +23,7 @@ files = [
     "data/processed/monthly/README.md",
     "secrets/secrets-example.yaml"
 ]'''
-FALLBACK_SCAFFOLD = {
-    "workspace": {
-        "root": [
-            "config",
-            "documents",
-            "emails",
-            "images",
-            "scripts",
-            "about_this_workspace.md"
-        ],
-        "config": {
-            "files": ["logging.json"]
-        }
-    }
-}
-
+FALLBACK_SCAFFOLD = toml.loads(FALLBACK_SCAFFOLD_TOML)
 
 '''EXAMPLE
 data = {

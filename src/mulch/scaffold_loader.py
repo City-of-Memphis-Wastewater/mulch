@@ -11,6 +11,18 @@ from mulch.commands.dotfolder import create_dot_mulch
 logger = logging.getLogger(__name__)
 
 def load_scaffold_file(path: Path) -> Optional[Dict[str, Any]]:
+    """Load scaffold configuration from file."""
+    if not path.exists():
+        return None
+        
+    try:
+        return toml.load(path)
+    except Exception as e:
+        logger.warning(f"Failed to parse {path}: {e}")
+        return None
+
+
+def load_scaffold_file_(path: Path) -> Optional[Dict[str, Any]]:
     """
     Low-level function to read and parse a scaffold file.
     Supports both TOML and JSON formats.
@@ -64,4 +76,4 @@ def resolve_scaffold(
                 return data
     
     logger.warning("No valid scaffold file found, using fallback")
-    return FALLBACK_SCAFFOLD
+    return FALLBACK_SCAFFOLD  # Now uses the TOML-based scaffold
