@@ -6,8 +6,8 @@ import toml
 import json
 import logging
 
-from src.mulch.constants import FALLBACK_SCAFFOLD, DEFAULT_SCAFFOLD_FILENAME
-from src.mulch.commands.dotfolder import create_dot_mulch
+from mulch.constants import FALLBACK_SCAFFOLD, DEFAULT_SCAFFOLD_FILENAME
+from mulch.commands.dotfolder import create_dot_mulch
 logger = logging.getLogger(__name__)
 
 def load_scaffold_file(path: Path) -> Optional[Dict[str, Any]]:
