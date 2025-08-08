@@ -1,0 +1,23 @@
+Windows Registry Editor Version 5.00
+
+; --- Remove existing entries ---
+[-HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_workspace]
+[-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_workspace]
+
+; Right-click ON folder
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_workspace]
+@="mulch workspace"
+"Icon"="%LOCALAPPDATA%\\mulch\\mulch-icon.ico"
+"Position"="Top"
+"CommandFlags"=dword:00000000
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_workspace\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\mulch\\call-mulch-workspace.ps1\" \"%L\""
+
+; Right-click background of a folder
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_workspace]
+@="mulch workspace"
+"Icon"="\"%LOCALAPPDATA%\\mulch\\mulch-icon.ico"
+"Position"="Top"
+"CommandFlags"=dword:00000000
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_workspace\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\mulch\\call-mulch-workspace.ps1\" \"%V\""
