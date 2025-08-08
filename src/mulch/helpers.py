@@ -17,7 +17,7 @@ from mulch.constants import FALLBACK_SCAFFOLD
 logger = logging.getLogger(__name__)
 
 
-def calculate_nowtime_foldername():
+def calculate_nowtime_foldername() -> str:
     now = datetime.now()
     # use an Obsidian-template-friendly hyphen between the month number and the month name.
     return now.strftime("%Y_%m-%B_%d")
