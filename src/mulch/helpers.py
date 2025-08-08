@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 def calculate_nowtime_foldername():
     now = datetime.now()
-    return now.strftime("%Y_%m%B_%d")
+    # use an Obsidian-template-friendly hyphen between the month number and the month name.
+    return now.strftime("%Y_%m-%B_%d")
 
 def resolve_first_existing_path(bases: list[Path], filenames: list[str]) -> Path | None:
     for base in bases:
