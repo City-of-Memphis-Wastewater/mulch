@@ -15,7 +15,7 @@ from mulch.decorators import with_logging
 from mulch.workspace_manager_generator import WorkspaceManagerGenerator
 from mulch.workspace_instance_factory import WorkspaceInstanceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
-from mulch.helpers import open_editor, calculate_nowtime_foldername, get_global_config_path, index_to_letters, get_username_from_home_directory
+from mulch.helpers import open_editor, calculate_nowtime_foldername, get_default_untitled_workspace_name_based_on_operating_system, get_global_config_path, index_to_letters, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
@@ -165,6 +165,7 @@ def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New works
      - If the '--pattern new' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc.   
      - 'mulch workspace --pattern new --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
     '''
+    
     if pattern == NamingPattern.date:
         suffix_index = 0
         while True:
@@ -179,13 +180,8 @@ def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New works
             suffix_index += 1
     elif pattern == NamingPattern.new:
         # check for existing workspace folders to append (n) if necessary, like "New workspace (2)", to mimmick windows "New folder (2)" behavior.
-        n = 1
-        while True:
-            suffix = f" ({n})" if n > 1 else ""
-            folder_name = f"{base_name}{suffix}"
-            if not (workspaces_dir / folder_name).exists(): # 
-                return folder_name
-            n+=1
+        return get_default_untitled_workspace_name_based_on_operating_system(workspaces_dir)
+        
 
 @app.command()
 @with_logging

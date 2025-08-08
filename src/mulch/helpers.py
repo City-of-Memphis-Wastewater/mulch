@@ -123,3 +123,40 @@ def open_editor(file_path: Path):
         # For Linux: prefer $EDITOR, fallback to nano
         editor = os.getenv("EDITOR", "nano")
         subprocess.run([editor, str(file_path)])
+
+def get_default_untitled_workspace_name_based_on_operating_system(workspaces_dir,override_os=None):
+    os_name = platform.system()
+    if override_os is not None:
+        os_name = override_os
+    if os_name == "Windows": 
+        base_name = "New workspace"
+        n = 1
+        while True:
+            suffix = f" ({n})" if n > 1 else ""
+            folder_name = f"{base_name}{suffix}"
+            if not (workspaces_dir / folder_name).exists(): # 
+                return folder_name
+            n+=1
+    elif os_name == "Darwin":
+        base_name = "untitled workspace"
+        n = 1
+        while True:
+            suffix = f" {n}" if n > 1 else ""
+            folder_name = f"{base_name}{suffix}"
+            if not (workspaces_dir / folder_name).exists(): # 
+                return folder_name
+            n+=1
+    elif os_name == "Linux":
+        base_name = "New Workspace"
+        n = 0
+        while True:
+            suffix = f" ({n})" if n > 0 else ""
+            folder_name = f"{base_name}{suffix}"
+            if not (workspaces_dir / folder_name).exists(): # 
+                return folder_name
+            n+=1
+    else:
+        return get_default_untitled_workspace_name_based_on_operating_system(workspaces_dir,override_os="Linux")
+
+    
+    
