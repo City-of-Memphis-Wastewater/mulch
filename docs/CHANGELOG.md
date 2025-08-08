@@ -4,6 +4,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.15] - 2025-08-08
+
+### Changed
+- The quintessential context menu option for `mulch` now is `mulch workspace`. This calls `mulch-workspace.ps1`. The command is actually `mulch workspace --here --pattern new` 
+
+### Added
+- Added `--pattern` flag to `mulch workspace` command, to enable the current data standard as well as `New workspace (3)` standard to mimick windows. This is ideal for the user-facing right click context menu entry.
+
+### Removed
+- Extraneous or outdated .reg files for `mulch` commands  that do not need to be user facing.
+
+### To Do
+- Generate the .reg file templated based on user name, to hardcode the path, which is required.
+- Add the mulch-icon.ico file, the mulch-workspace.reg file, the mulch-workspace.ps1 file, a mulch.toml scaffold file, and the .mulchvision file to a <user>/AppData/Local/mulch/ directory on Windows, or possibly to /<user>/.mulch. Use the /.mulch folder for Linux.
+- Automatically generate these local folders as necessary.
+---
+
 ## [0.2.14] - 2025-08-07
 
 ### Fixed
@@ -64,6 +81,7 @@ files = [
 - Redundant workspace building functions
 - Unused file loader imports
 
+---
 
 ## [0.2.9-->0.2.11] - 2025-07-22
 
