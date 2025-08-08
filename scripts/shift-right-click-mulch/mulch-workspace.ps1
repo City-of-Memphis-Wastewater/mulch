@@ -16,4 +16,6 @@ $env:PATH += ";$env:USERPROFILE\.local\bin"
 #";$env:USERPROFILE\.mulch"
 
 # Run mulch init
-mulch workspace --pattern new --here # --pattern date
+mulch workspace --here #--pattern new --here # --pattern date
+
+# Start-Sleep -Seconds 1
