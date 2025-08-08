@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generate the .reg file templated based on user name, to hardcode the path, which is required.
 - Add the mulch-icon.ico file, the mulch-workspace.reg file, the mulch-workspace.ps1 file, a mulch.toml scaffold file, and the .mulchvision file to a <user>/AppData/Local/mulch/ directory on Windows, or possibly to /<user>/.mulch. Use the /.mulch folder for Linux.
 - Automatically generate these local folders as necessary.
+- Develop evaluate_flags_lock_status() to enforce `mulch workspace` consistency as necessary. Is this necessary, if the right click menu is the user facing option? The workspace_manager.py file can only reference one of them. This begs a questions about `mulch init` needing clarity on where the `mulch workspace` folders will go. Or, it can be an input into the calls in 'workspace_manager.py, with a default of the `workspaces` folder in root, but with alternative options as necessary. Let them blow their legs off.
 ---
 
 ## [0.2.14] - 2025-08-07
