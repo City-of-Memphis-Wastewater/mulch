@@ -7,7 +7,7 @@
 
 ## Features
 
-- Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch-scaffold.json` and protected by `manager.lock`.
+- Benefit from introspective directory getters and file getters in the `WorkspaceManager` class, dictated by `mulch.toml` and protected by `manager.lock`.
 - The hidden `.mulch` folder is leveraged for configuration.
 - In `--stealth` mode, code can be stashed in `.mulch`, so that workplace directories shared with non-technical co-workers can be crisp while providing space to write localized analysis scripts.
 - Easily installable and runnable via `pipx`
@@ -45,7 +45,7 @@ The git source code includes `.reg` files which can be leveraged to register rig
 mkdir equipment-monitoring 
 cd equipment-monitoring
 
-# Generated a fresh .mulch\mulch-scaffold.json file, and edit the directory scaffold before running 'mulch init'.
+# Generated a fresh .mulch\mulch.toml file, and edit the directory scaffold before running 'mulch init'.
 mulch seed --edit
 
 # Stealth mode, best for shared directories (`--stealth`)

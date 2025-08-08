@@ -281,15 +281,15 @@ def workspace(
 
 #@with_logging(use_portable=True)
 @app.command()
-def where(
+def order(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
     ):
     """
     Determine the ordered list of available fallbacks. 
     You can then request to see contents from an identifying number as a CLI input.
     """
-    typer.echo("Please develop")
-    typer.echo(""" \n
+    typer.echo("Coming soon :)")
+    '''typer.echo(""" \n
                1. Path(.mulch) / 'mulch.toml' \n
                2. Path('.') / 'mulch.toml' \n
                3. Path.home() / 'mulch' / 'mulch.toml' \n
@@ -301,6 +301,7 @@ def where(
                
                
                """)
+    '''
     typer.echo(f"ORDER_OF_RESPECT = {ORDER_OF_RESPECT}")
     typer.echo(f"FILENAMES_OF_RESPECT = {FILENAMES_OF_RESPECT}")
     typer.echo()
