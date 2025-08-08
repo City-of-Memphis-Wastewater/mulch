@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added `--pattern` flag to `mulch workspace` command, to enable the current data standard as well as `New workspace (3)` standard to mimick windows. This is ideal for the user-facing right click context menu entry.
+- implement helpers.get_default_untitled_workspace_name_based_on_operating_system()
 
 ### Removed
 - Extraneous or outdated .reg files for `mulch` commands  that do not need to be user facing.

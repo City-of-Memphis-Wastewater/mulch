@@ -162,7 +162,7 @@ def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New works
     Dynamically generate a workspace folder name based on the chosen pattern.
     Implementation, if the '--name' flag is not used with `mulch workspace`:
      - Default to {date}, and then {date}b, {date}c, {date}d
-     - If the '--pattern new' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc.   
+     - If the '--pattern new' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc, if Windows.   
      - 'mulch workspace --pattern new --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
     '''
     
