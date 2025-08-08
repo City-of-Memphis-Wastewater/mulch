@@ -8,6 +8,7 @@ import toml
 import typer
 import logging
 import sys
+import string
 import subprocess
 
 from mulch.constants import FALLBACK_SCAFFOLD
@@ -53,6 +54,17 @@ def resolve_scaffold(order_of_respect: list[Path], filenames_of_respect: list[st
 
     typer.secho("📦 Falling back to embedded scaffold structure.", fg=typer.colors.YELLOW)
     return FALLBACK_SCAFFOLD
+
+def index_to_letters(index: int) -> str:
+    """Converts a 1-based index to a sequence of lowercase letters"""
+    letters = string.ascii_lowercase
+    result = ""
+    while index > 0:
+        index, remainder = divmod(index - 1,26)
+        result = letters[remainder] + result
+    return result
+
+
 
 
 def get_global_config_path(appname=None) -> Path:

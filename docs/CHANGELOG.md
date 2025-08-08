@@ -3,6 +3,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [0.2.14] - 2025-08-07
+
+### Fixed
+- Fixed scaffold loading to properly use `FALLBACK_SCAFFOLD_TOML` instead of legacy workspace structure
+- Fixed import paths to use `mulch.` instead of `src.mulch.`
+- Corrected scaffold file structure in `.mulch/mulch.toml` generation
+
+### Changed
+- Improved scaffold file handling with proper TOML/JSON support
+- Enhanced logging messages for scaffold loading
+- Streamlined scaffold resolution process
+
+### Added
+- Better error handling for scaffold file parsing
+- More descriptive log messages for scaffold loading steps
+- Type hints for scaffold loading functions
+
+### Removed
+- Legacy workspace structure fallback
+- Redundant scaffold loading functions
+
+The key change in this version is fixing the scaffold structure to properly use the data-centric layout:
+```toml
+[scaffold]
+dirs = [
+    "data",
+    "data/raw",
+    "data/processed/monthly",
+    "queries/historical/archive"
+]
+files = [
+    "queries/historical/default-queries.toml",
+    "data/processed/monthly/README.md",
+    "secrets/secrets
+```
 ## [0.2.12] - 2025-08-07
 
 ### Added

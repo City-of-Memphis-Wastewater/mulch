@@ -5,6 +5,7 @@ import json
 import toml
 from pathlib import Path
 import logging
+from enum import Enum
 import datetime
 from importlib.metadata import version, PackageNotFoundError
 import subprocess
@@ -14,7 +15,7 @@ from mulch.decorators import with_logging
 from mulch.workspace_manager_generator import WorkspaceManagerGenerator
 from mulch.workspace_instance_factory import WorkspaceInstanceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
-from mulch.helpers import open_editor, calculate_nowtime_foldername, get_global_config_path, resolve_first_existing_path, get_username_from_home_directory
+from mulch.helpers import open_editor, calculate_nowtime_foldername, get_global_config_path, index_to_letters, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
@@ -152,11 +153,46 @@ def init(
     if was_source_generated:
         typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)
 
+class NamingPattern(str,Enum):
+    date = "date"
+    new = "new"
+
+def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New workspace", workspaces_dir: Path = Path.cwd() / "workspaces") -> str:
+    '''
+    Dynamically generate a workspace folder name based on the chosen pattern.
+    Implementation, if the '--name' flag is not used with `mulch workspace`:
+     - Default to {date}, and then {date}b, {date}c, {date}d
+     - If the '--pattern new' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc.   
+     - 'mulch workspace --pattern new --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
+    '''
+    if pattern == NamingPattern.date:
+        suffix_index = 0
+        while True:
+            if suffix_index == 0:
+                folder_name = calculate_nowtime_foldername()
+            else:
+                # Skip 'a', start from 'b'
+                suffix = index_to_letters(suffix_index + 1)
+                folder_name = f"{calculate_nowtime_foldername()}{suffix}"
+            if not (workspaces_dir / folder_name).exists(): # 
+                return folder_name
+            suffix_index += 1
+    elif pattern == NamingPattern.new:
+        # check for existing workspace folders to append (n) if necessary, like "New workspace (2)", to mimmick windows "New folder (2)" behavior.
+        n = 1
+        while True:
+            suffix = f" ({n})" if n > 1 else ""
+            folder_name = f"{base_name}{suffix}"
+            if not (workspaces_dir / folder_name).exists(): # 
+                return folder_name
+            n+=1
+
 @app.command()
 @with_logging
 def workspace(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
-    name: str = typer.Option(calculate_nowtime_foldername(), "--name", "-n", help="Name of the workspace to create."),
+    pattern: NamingPattern = typer.Option(NamingPattern.date, help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'name' for 'New workspace (n)'"),
+    name: str = typer.Option(None, "--name", "-n", help="Name of the workspace to create."),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
     enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
@@ -165,9 +201,21 @@ def workspace(
     """
     Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
-    
+    # Provide instant feedback on the --here setting.
     if here:
-        typer.secho(f"`here`: True.",fg=typer.colors.MAGENTA)
+        typer.secho(f"`here`: True.",fg=typer.colors.WHITE)
+    
+    # First determine workspaces directory
+    workspaces_dir = WorkspaceInstanceFactory.determine_workspaces_dir(
+        target_dir=target_dir,
+        here=here,
+        stealth=stealth
+    )
+    # Second determine the value of name. If the name flag was used, use the explicitly provided name.
+    # If the name flag was not used, check the value of the pattern flag for which automated name pattern to use.
+    if name is None:
+        name=get_folder_name(pattern = pattern, workspaces_dir=workspaces_dir)
+    
 
     # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
@@ -199,28 +247,21 @@ def workspace(
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "generated_by": get_username_from_home_directory()
     }
-    #workspace_dir = _determine_workspace_dir(target_dir, name, here)
-        # First determine workspace directory
-    workspace_dir = WorkspaceInstanceFactory.determine_workspace_dir(
-        target_dir=target_dir,
-        name=name,
-        here=here,
-        stealth=stealth
-    )
-    print(f"workspace_dir = {workspace_dir}")
+    
+    print(f"workspace_dirs = {workspaces_dir}")
     '''# Check if workspace already exists
     if workspace_dir.exists():
-        typer.secho(f"⚠️ Workspace '{name}' already exists at {workspace_dir}", fg=typer.colors.YELLOW)
+        typer.secho(f"⚠️ Workspace '{name}' already exists at {workspaces_dir}", fg=typer.colors.YELLOW)
         if not typer.confirm("Overwrite existing workspace?", default=False):
             typer.secho("❌ Aborting.", fg=typer.colors.RED)
             raise typer.Exit()
     '''
-    wif = WorkspaceInstanceFactory(target_dir, workspace_dir, name, lock_data, here=here, stealth = stealth)
+    wif = WorkspaceInstanceFactory(target_dir, workspaces_dir, name, lock_data, here=here, stealth = stealth)
     
     workspace_status = wif.evaluate_workspace_status()
     
     if workspace_status == WorkspaceStatus.MATCHES:
-        typer.secho(f"✅ Workspace '{name}' is already set up at {workspace_dir}", fg=typer.colors.GREEN)
+        typer.secho(f"✅ Workspace '{name}' is already set up in {workspaces_dir}", fg=typer.colors.GREEN)
         typer.echo("   (Scaffold unchanged. Nothing regenerated.)")
         raise typer.Exit()
 
@@ -231,7 +272,7 @@ def workspace(
             raise typer.Exit()
 
     elif workspace_status == WorkspaceStatus.EXISTS_NO_LOCK:
-        typer.secho(f"⚠️  Workspace exists at {workspace_dir} but no scaffold.lock found.", fg=typer.colors.YELLOW)
+        typer.secho(f"⚠️  Workspace exists at {workspaces_dir / name} but no scaffold.lock found.", fg=typer.colors.YELLOW)
         if not typer.confirm("Overwrite existing workspace?", default=False):
             typer.secho("❌ Aborting.", fg=typer.colors.RED)
             raise typer.Exit()
@@ -240,7 +281,7 @@ def workspace(
     #wif.build_workspace(set_default=set_default)
     wif.create_workspace(set_default=set_default)
     
-    typer.secho(f"📁 Workspace created at: {workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
+    typer.secho(f"📁 Workspace created at: {workspaces_dir / name}", fg=typer.colors.BRIGHT_GREEN)
 
 #@with_logging(use_portable=True)
 @app.command()
