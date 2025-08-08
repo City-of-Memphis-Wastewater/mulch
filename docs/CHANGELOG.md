@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the mulch-icon.ico file, the mulch-workspace.reg file, the mulch-workspace.ps1 file, a mulch.toml scaffold file, and the .mulchvision file to a <user>/AppData/Local/mulch/ directory on Windows, or possibly to /<user>/.mulch. Use the /.mulch folder for Linux.
 - Automatically generate these local folders as necessary.
 - Develop evaluate_flags_lock_status() to enforce `mulch workspace` consistency as necessary. Is this necessary, if the right click menu is the user facing option? The workspace_manager.py file can only reference one of them. This begs a questions about `mulch init` needing clarity on where the `mulch workspace` folders will go. Or, it can be an input into the calls in 'workspace_manager.py, with a default of the `workspaces` folder in root, but with alternative options as necessary. Let them blow their legs off. In this way, you can have stealth and non-stealth src, and workspace dirs in --here, in --stealth --here, in --stealth, and in `root/workspaces`, if you want; That's the user's business, not mine. But maybe we should warn them to be consistent and let them force?
-
+- We need a `mulch context` command to run the `mulch-workspace.reg` file to install the command the context menu. This will naturally build the user's mulch system folder, wherever it might be (see above).
+- `mulch system` or `mulch user` is cool, but then we are really getting busy when we run `mulch --help`
 ---
 
 ## [0.2.14] - 2025-08-07
