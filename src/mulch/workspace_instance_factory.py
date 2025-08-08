@@ -36,7 +36,7 @@ class WorkspaceInstanceFactory:
 
     def __init__(self, 
                  base_path: Path,
-                 workspace_dir: Path,
+                 workspaces_dir: Path,
                  workspace_name: str,
                  lock_data: dict,
                  *,
@@ -74,7 +74,8 @@ class WorkspaceInstanceFactory:
         )
 
         # Get paths from context
-        self.workspace_dir = self.context.workspace_dir 
+        #self.workspace_dir = self.context.workspace_dir 
+        self.workspace_dir = workspaces_dir / workspace_name # relies on WorkspaceInstanceFactory.determine_workspaces_dir() rather than PathContext. 
         self.workspace_lock_path = self.context.workspace_lock_path
         self.flags_lock_path = self.context.flags_lock_path
         self.manager_lock_path = self.context.manager_lock_path
@@ -144,21 +145,20 @@ class WorkspaceInstanceFactory:
             return False
 
     @classmethod
-    def determine_workspace_dir(cls, target_dir: Path, name: str, here: bool, stealth: bool) -> Path:
+    def determine_workspaces_dir(cls, target_dir: Path, here: bool, stealth: bool) -> Path:
         """
         Determine the workspace directory path based on flags.
         
         Args:
             target_dir: Base project directory
-            name: Workspace name
             here: If True, create in current directory
             stealth: If True, use .mulch/workspaces/
         """
         if here:
-            return target_dir / name
+            return target_dir 
         if stealth:
-            return target_dir / ".mulch" / "workspaces" / name
-        return target_dir / "workspaces" / name
+            return target_dir / ".mulch" / "workspaces" 
+        return target_dir / "workspaces" 
     
     def check_and_create_workspace_dirs_from_scaffold(self, workspace_dir: Path) -> None:
         """
