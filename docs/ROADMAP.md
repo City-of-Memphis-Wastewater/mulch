@@ -28,7 +28,6 @@ When you rollout `workspace` directories that reflect your `mulch-scaffold` file
 | ----------- | -------------------- | -------------------- | --------------------------- |
 | *(none)*    | `workspaces/<name>/` | `src/<proj>/`        | Normal development use      |
 | `--here`    | `./<name>/`          | *(none)*             | Clean, user-facing          |
-| `--bare`    | `workspaces/<name>/` | *(none)*             | New workspace, no src impact|
 | `--stealth` | `./<name>/`          | `.mulch/src/<proj>/` | Play nice with shared dirs  |
 
 I am really excited about `mulch init --stealth` for mixed use directories. Business and engineering users can organize projects in a shared drive like SharePoint, while a dev can run custom analysis scripts catered to each type of project. 

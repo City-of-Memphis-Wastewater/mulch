@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mulch"
-version = "0.2.21"
+version = "0.2.22"
 description = "CLI for initializing standard and templated workspaces, controlled by `.mulch/mulch.toml`."
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
@@ -9,7 +9,16 @@ include = [
 	"src/mulch/mulch.toml",
 	"src/mulch/logging.json",
 	"src/mulch/default-workspace.toml",
-	"src/mulch/templates/*.j2"
+	"src/mulch/templates/*.j2",
+	# Windows installation files
+    "src/mulch/scripts/install/setup.ps1",
+    "src/mulch/scripts/install/call-mulch-workspace.ps1",
+    "src/mulch/scripts/install/mulch-workspace.ps1",
+    "src/mulch/scripts/install/mulch-icon.ico",
+    "src/mulch/scripts/install/install-mulch-workspace-userprofile.reg",
+    "src/mulch/scripts/install/install-mulch-workspace-localappdata.reg",
+    # Linux installation files
+    "src/mulch/scripts/install/mulch-workspace.desktop"
 	] 
 readme = "README.md"
 
