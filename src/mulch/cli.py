@@ -106,15 +106,15 @@ def make_dot_mulch_folder(target_dir):
 @with_logging
 def src(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
-    enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
+    #enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
     ):
     """
-    Build the workspace_manager.py file in the source code, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceManagerGenerator.
+    Build the workspace_manager.py file in the source code, using the mulch.tomlstructure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
-    
-    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
+    '''
+    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch workspace` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
     if enforce_mulch_folder:
         try:
@@ -130,9 +130,10 @@ def src(
         order_of_respect_local = ORDER_OF_RESPECT
     else:
         order_of_respect_local = [Path.cwd() / '.mulch']
-    
+    '''
+    order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
-       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
+       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     #pprint(scaffold_data)
@@ -194,7 +195,7 @@ def workspace(
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put workspace in .mulch/workspaces/ instead of root/workspaces/."),
     ):
     """
-    Initialize a new workspace folder tree, using the mulch-scaffold.json structure or the fallback structure embedded in WorkspaceManagerGenerator.
+    Initialize a new workspace folder tree, using the mulch.tomlstructure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
     # Provide instant feedback on the --here setting.
     if here:
@@ -212,7 +213,7 @@ def workspace(
         name=get_folder_name(pattern = pattern, workspaces_dir=workspaces_dir)
     
     """
-    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
+    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch workspace` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
     if enforce_mulch_folder:
         try:
@@ -230,7 +231,7 @@ def workspace(
     """
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
-       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
+       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     pprint(scaffold_data)
@@ -381,7 +382,7 @@ def seed(#def dotmulch(
 @app.command()
 def show(
     filepath: Path = typer.Option(
-        None, "--filepath", "-f", help="Path to an explicit scaffold JSON file."
+        None, "--filepath", "-f", help="Path to an explicit scaffold TOML file."
     ),
     use_default: bool = typer.Option(
         False, "--use-default-filepath", "-d", help=f"Reference the default filepath .\{DEFAULT_SCAFFOLD_FILENAME}."
@@ -394,7 +395,7 @@ def show(
     ),
     ):
     """
-    Display the fallback scaffold dictionary structure or load and display a scaffold JSON file.
+    Display the fallback scaffold dictionary structure or load and display a scaffold TOML file.
     """
     default_path = Path.cwd() / DEFAULT_SCAFFOLD_FILENAME
 

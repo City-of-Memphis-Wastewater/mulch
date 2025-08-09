@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mulch"
-version = "0.2.23"
+version = "0.2.24"
 description = "Pythonic Typer CLI for bootstrapping standard and templated workspaces. Controlled per-directory using `.mulch/mulch.toml`. Stealth options available for directories shared between dev and non-dev folk."
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
