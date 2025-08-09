@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class WorkspaceManagerGenerator:
     f"""
-    workspace manager generator for use with the mulch CLI command `mulch init`.
+    workspace manager generator for use with the mulch CLI command `mulch src`.
     Manages directory creation and standardized file placement based on {DEFAULT_SCAFFOLD_FILENAME}.
     """
     

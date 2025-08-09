@@ -10,7 +10,7 @@ Welcome to the Mulch project roadmap! This document outlines where the project i
 
 Mulch is a fast, flexible scaffolding CLI for Python (and beyond). It helps you spin up clean, consistent project structures with one command—without needing to start from scratch every time.
 
-Our goal is to make `mulch init` the best "starter kit" CLI for real-world development.
+Our goal is to make `mulch src` the best "starter kit" CLI for real-world development.
 
 ---
 
@@ -22,7 +22,7 @@ When you rollout `workspace` directories that reflect your `mulch-scaffold` file
 
 ---
 
-## Folder Stucture Options, using `mulch init`
+## Folder Stucture Options, using `mulch src`
 
 | Flag        | Workspace Location   | Source Location      | Goal                        |
 | ----------- | -------------------- | -------------------- | --------------------------- |
@@ -30,7 +30,7 @@ When you rollout `workspace` directories that reflect your `mulch-scaffold` file
 | `--here`    | `./<name>/`          | *(none)*             | Clean, user-facing          |
 | `--stealth` | `./<name>/`          | `.mulch/src/<proj>/` | Play nice with shared dirs  |
 
-I am really excited about `mulch init --stealth` for mixed use directories. Business and engineering users can organize projects in a shared drive like SharePoint, while a dev can run custom analysis scripts catered to each type of project. 
+I am really excited about `mulch src --stealth` for mixed use directories. Business and engineering users can organize projects in a shared drive like SharePoint, while a dev can run custom analysis scripts catered to each type of project. 
 
 
 ---

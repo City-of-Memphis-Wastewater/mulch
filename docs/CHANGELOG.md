@@ -5,6 +5,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.23] - 2025-08-09
+
+### Breaking
+- `mulch init` -> `mulch src`. 
+
+### Changed
+- Remove `Path('.')` from ORDER_OF_RESPECT.  https://github.com/City-of-Memphis-Wastewater/mulch/issues/9
+
+### Added
+- Use 'bootstrapper' in `pyproject.toml` description and `README.md`
+- Example in `README.md` to demonstrate the `--pattern` flag in `mulch workspace`
+
+---
+
 ## [0.2.22] - 2025-08-09
 
 ### Fixed
