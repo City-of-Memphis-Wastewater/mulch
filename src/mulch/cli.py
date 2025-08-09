@@ -155,15 +155,15 @@ def init(
 
 class NamingPattern(str,Enum):
     date = "date"
-    os = "os"
+    new = "new"
 
 def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New workspace", workspaces_dir: Path = Path.cwd() / "workspaces") -> str:
     '''
     Dynamically generate a workspace folder name based on the chosen pattern.
     Implementation, if the '--name' flag is not used with `mulch workspace`:
      - Default to {date}, and then {date}b, {date}c, {date}d
-     - If the '--pattern os' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc, if Windows.   
-     - 'mulch workspace --pattern os --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
+     - If the '--pattern new' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc, if Windows.   
+     - 'mulch workspace --pattern new --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
     '''
     
     if pattern == NamingPattern.date:
@@ -187,7 +187,7 @@ def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New works
 @with_logging
 def workspace(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
-    pattern: NamingPattern = typer.Option(NamingPattern.date, help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'name' for 'New workspace (n)'"),
+    pattern: NamingPattern = typer.Option(NamingPattern.date, "--pattern", "-p",  help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'name' for 'New workspace (n)'"),
     name: str = typer.Option(None, "--name", "-n", help="Name of the workspace to create."),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
