@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Action
+Name=Mulch Workspace
+Profiles=profile-zero;
+
+[X-Action-Profile profile-zero]
+Exec=mulch workspace --here --pattern new
+MimeTypes=inode/directory;

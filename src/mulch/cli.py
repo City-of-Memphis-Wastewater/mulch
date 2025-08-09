@@ -155,15 +155,15 @@ def init(
 
 class NamingPattern(str,Enum):
     date = "date"
-    new = "new"
+    os = "os"
 
 def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New workspace", workspaces_dir: Path = Path.cwd() / "workspaces") -> str:
     '''
     Dynamically generate a workspace folder name based on the chosen pattern.
     Implementation, if the '--name' flag is not used with `mulch workspace`:
      - Default to {date}, and then {date}b, {date}c, {date}d
-     - If the '--pattern new' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc, if Windows.   
-     - 'mulch workspace --pattern new --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
+     - If the '--pattern os' is used when calling `mulch workspace`, the generated name will be 'New workspace', then 'New workspace (2)', etc, if Windows.   
+     - 'mulch workspace --pattern os --here' will be used as the default register context menu command for 'mulch workspace', using the mulch-workspace.reg file. 
     '''
     
     if pattern == NamingPattern.date:
@@ -278,6 +278,15 @@ def workspace(
     wif.create_workspace(set_default=set_default)
     
     typer.secho(f"📁 Workspace created at: {workspaces_dir / name}", fg=typer.colors.BRIGHT_GREEN)
+
+@app.command()
+def context():
+    """
+    Install the right-click `mulch workspace` context menu registry item by calling install.py 
+    """
+    from src.scripts.install import install
+    install.setup()
+
 
 #@with_logging(use_portable=True)
 @app.command()
