@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.19->0.2.20] - 2025-08-09
+
+### Changed
+- Implement the `mulch-context` as its own Tpyer command so that mulch-context shows up properly.
+
+---
+
 ## [0.2.18] - 2025-08-09
 
 ### Changed
