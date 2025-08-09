@@ -4,7 +4,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.19] - 2025-08-09
+## [0.2.21] - 2025-08-09
+
+### Fixed
+- `/src/mulch/scipts/install/.desktop` -> `/src/mulch/scipts/install/mulch-workspace.desktop` 
+
+---
+
+## [0.2.19->0.20.20] - 2025-08-09
 
 ### Changed
 - `src.mulch.etcetera` references destroyed in favor of just `mulch.etcetera`.
