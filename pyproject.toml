@@ -23,18 +23,10 @@ jinja2 = "^3.1.6"
 
 [tool.poetry.scripts]
 mulch = "mulch.cli:app"
-mulch-setup = "src.scripts.install.install:run_install"
+mulch-setup = "src.scripts.install.install:setup"
 
 [tool.poetry.group.dev.dependencies]
 twine = "^6.1.0"
-
-# Not working for me, reverts to manual
-#[tool.poetry-dynamic-versioning]
-#enable = true
-#vcs = "git"
-#style = "pep440"   # Default
-#format = "{tag}"  # <-- This avoids adding the +local part
-
 
 [build-system]
 requires = ["poetry-core"]

@@ -4,6 +4,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.16] - 2025-08-09
+
+### Changed
+- `mulch workspace --pattern new` changed to `mulch workspace --pattern os`, for a more memorable tag, infering that the behavior differs for each operating sytem. Using a value like 'new' is confounding, because the Apple standard is 'untitled folder' which can be mimicked as 'untitled workspace'; the Linux and Windows standards both include the word 'New'. 
+
+---
+
 ## [0.2.15] - 2025-08-08
 
 ### Changed
