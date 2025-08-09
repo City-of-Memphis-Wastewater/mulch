@@ -41,8 +41,7 @@ ORDER_OF_RESPECT = [
     Path('.mulch'), # project local hidden folder
     Path.home() / '.mulch', # user profile hidden folde
     get_local_appdata_path("mulch"), # OS standard config path
-    get_global_config_path("mulch"), # Roaming AppData on Windows, ~/.config on Linux/macOS
-    Path('.') # mulch.toml might be in the current working directory
+    get_global_config_path("mulch") # Roaming AppData on Windows, ~/.config on Linux/macOS
 ]
 maybe_global = get_global_config_path(appname="mulch")
 if maybe_global:
@@ -105,7 +104,7 @@ def make_dot_mulch_folder(target_dir):
 
 @app.command()
 @with_logging
-def init(
+def src(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
     enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/. Workspace still built in root."),
@@ -136,7 +135,7 @@ def init(
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
-    pprint(scaffold_data)
+    #pprint(scaffold_data)
 
     # Create lock data
     lock_data = {
@@ -244,7 +243,7 @@ def workspace(
         "generated_by": get_username_from_home_directory()
     }
     
-    print(f"workspace_dirs = {workspaces_dir}")
+    logger.DEBUG(f"workspace_dirs = {workspaces_dir}")
     '''# Check if workspace already exists
     if workspace_dir.exists():
         typer.secho(f"⚠️ Workspace '{name}' already exists at {workspaces_dir}", fg=typer.colors.YELLOW)
@@ -375,7 +374,7 @@ def seed(#def dotmulch(
         open_editor(scaffold_path)
 
     typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
-    typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch init'.")
+    typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch src'.")
     
     build_dotmulch_standard_contents(target_dir = Path.cwd())
 

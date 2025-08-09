@@ -12,7 +12,7 @@ Set-Location -Path $path
 ## Where does mulch.exe live on a Windows system
 $env:PATH += ";$env:USERPROFILE\.local\bin"
 
-## Run mulch init
+## Run mulch src
 mulch workspace --here --pattern new # --pattern date
 
 # Start-Sleep -Seconds 1

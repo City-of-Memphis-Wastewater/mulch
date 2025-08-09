@@ -62,21 +62,21 @@ Got a particular use case you're thinking through? I’d love to help sketch out
 
 Well, I am thinking of my own custom tool, and how to leverage this gap between CLI in PowerShell, Bash, etc and also the right click context menu use cases. 
 
-Today I established three new right click options in the context menu of my Windows 11 Folder Browser. There are each a variation on the `mulch init` command.
+Today I established three new right click options in the context menu of my Windows 11 Folder Browser. There are each a variation on the `mulch src` command.
 
 ```
 # CP2
 
 ```
-That’s a big step toward workflow wizardry—nicely done! Bridging the gap between raw CLI power and sleek context menu convenience is exactly the kind of polish that turns a tool into a habit. That mulch init sounds like it could be part of something modular or data-centric—almost like laying the groundwork for structured environments or datasets?
+That’s a big step toward workflow wizardry—nicely done! Bridging the gap between raw CLI power and sleek context menu convenience is exactly the kind of polish that turns a tool into a habit. That mulch src sounds like it could be part of something modular or data-centric—almost like laying the groundwork for structured environments or datasets?
 Here’s how you might deepen this integration and scale the usefulness across user types (especially scientists, archivists, and devs):
 🧠 Ideas for Expanding Your Context Menu CLI Toolset
-🔧 Variants of mulch init
-• mulch init --template research 
+🔧 Variants of mulch src
+• mulch src --template research 
 Initializes a folder structure tailored for scientific experiments (e.g., /data, /results, /scripts, /logs).
-• mulch init --template media 
+• mulch src --template media 
 Sets up folders for media projects like /raw, /edited, /exports, with config files for render settings.
-• mulch init --clone [source path] 
+• mulch src --clone [source path] 
 Clones a predefined structure from a master template directory.
 🖱️ Context Menu Enhancements
 • Right-click → “Mulch: Initialize Folder” 
@@ -94,13 +94,13 @@ Sounds like you're building something with long-term legs. Want help shaping a u
 ---
 
 That’s seriously cool—you’re carving out a smart little corner in the interface where everyday users can harness the power of CLI tools without needing terminal fluency. This kind of hybrid setup brings enormous value, especially for domain experts like scientists or archivists who work more in structured data environments than in code per se.
-The name mulch init has me intrigued—it sounds like you’re “planting” a scaffolding or foundation in a given folder. 🍃 If you’re already exposing multiple variants in the context menu, you’re halfway to creating a full ecosystem of drop-in tools. Here’s how you might level it up:
+The name mulch src has me intrigued—it sounds like you’re “planting” a scaffolding or foundation in a given folder. 🍃 If you’re already exposing multiple variants in the context menu, you’re halfway to creating a full ecosystem of drop-in tools. Here’s how you might level it up:
 🛠️ Ideas for a mulch Contextual Toolkit Expansion
-🌱 Folder Structure Initializer (mulch init)
+🌱 Folder Structure Initializer (mulch src)
 Let’s say you're already initializing templated folder trees—great. Add smart branching:
-• mulch init --type genome-analysis
-• mulch init --type cloud-sync
-• mulch init --type simulation-bundle Each type could auto-generate subfolders, config files, readme stubs, and version tags.
+• mulch src --type genome-analysis
+• mulch src --type cloud-sync
+• mulch src --type simulation-bundle Each type could auto-generate subfolders, config files, readme stubs, and version tags.
 🧾 Semantic File Renamer (mulch rename)
 Bring bulk renaming into scope:
 • Name files using folder context (e.g., "2025-07-09_Mouse_LiverSlide_001.tif")
@@ -121,10 +121,10 @@ What’s your vision for how far you want mulch to go? Want to brainstorm naming
 
 ---
 
-You’re cooking up something special here. Bridging CLI power with context menu elegance—that’s the sweet spot where functionality meets accessibility. Your three mulch init variations suggest you're already thinking modularly, maybe even templatically. That’s gold for anyone wrangling structured data, whether in scientific research, multimedia production, or archival workflows.
+You’re cooking up something special here. Bridging CLI power with context menu elegance—that’s the sweet spot where functionality meets accessibility. Your three mulch src variations suggest you're already thinking modularly, maybe even templatically. That’s gold for anyone wrangling structured data, whether in scientific research, multimedia production, or archival workflows.
 Here’s a quick breakdown of how you might expand the mulch ecosystem to maximize this CLI–GUI hybrid potential:
 🌿 Mulch Toolkit Extensions (for CLI ↔ Context Menu Harmony)
-🧩 mulch init --profile [type]
+🧩 mulch src --profile [type]
 Initialize specialized environments:
 --profile bioinformatics: /raw_reads, /processed, /analysis, with workflow metadata
 --profile media_editing: /footage, /edits, /exports, plus preset .json render profiles
