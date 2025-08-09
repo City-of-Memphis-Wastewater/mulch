@@ -14,6 +14,7 @@ FALLBACK_SCAFFOLD_JSON = {
 FALLBACK_SCAFFOLD_TOML = '''[scaffold]
 dirs = [
     "data",
+    "secrets",
     "data/raw",
     "data/processed/monthly",
     "queries/historical/archive",
