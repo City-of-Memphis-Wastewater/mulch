@@ -10,12 +10,13 @@ import datetime
 from importlib.metadata import version, PackageNotFoundError
 import subprocess
 from pprint import pprint
+import os
 
 from mulch.decorators import with_logging
 from mulch.workspace_manager_generator import WorkspaceManagerGenerator
 from mulch.workspace_instance_factory import WorkspaceInstanceFactory, load_scaffold
 from mulch.logging_setup import setup_logging, setup_logging_portable
-from mulch.helpers import open_editor, calculate_nowtime_foldername, get_default_untitled_workspace_name_based_on_operating_system, get_global_config_path, index_to_letters, get_username_from_home_directory
+from mulch.helpers import dedupe_paths, open_editor, calculate_nowtime_foldername, get_local_appdata_path, get_default_untitled_workspace_name_based_on_operating_system, get_global_config_path, index_to_letters, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
@@ -31,18 +32,17 @@ HELP_TEXT = "Mulch CLI for scaffolding Python project workspaces."
 SCAFFOLD_TEMPLATES_FILENAME = 'mulch-scaffold-template-dictionary.toml'
 
 FILENAMES_OF_RESPECT = [
-    'mulch.toml'#,
-    #'mulch-scaffold.toml',
-    #'mulch-scaffold.json'
+    'mulch.toml'
 ]
 
 # Paths are checked in order of respect for loading the scaffold template dictionary.
 # These are used when running `mulch file`, `mulch show`, or any command needing layout templates.
 ORDER_OF_RESPECT = [
-    Path('.mulch'),
-    Path('.'),
-    Path.home() / 'mulch'#,
-    #get_global_config_path(appname="mulch")
+    Path('.mulch'), # project local hidden folder
+    Path.home() / '.mulch', # user profile hidden folde
+    get_local_appdata_path("mulch"), # OS standard config path
+    get_global_config_path("mulch"), # Roaming AppData on Windows, ~/.config on Linux/macOS
+    Path('.') # mulch.toml might be in the current working directory
 ]
 maybe_global = get_global_config_path(appname="mulch")
 if maybe_global:
@@ -191,7 +191,7 @@ def workspace(
     name: str = typer.Option(None, "--name", "-n", help="Name of the workspace to create."),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory. The `--here` flag can only be used with the `--bare` flag."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
-    enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
+    #enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put workspace in .mulch/workspaces/ instead of root/workspaces/."),
     ):
     """
@@ -212,7 +212,7 @@ def workspace(
     if name is None:
         name=get_folder_name(pattern = pattern, workspaces_dir=workspaces_dir)
     
-
+    """
     # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch folder` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
     # The `mulch` command by itself in the context menu means either 
     if enforce_mulch_folder:
@@ -228,8 +228,8 @@ def workspace(
         order_of_respect_local = ORDER_OF_RESPECT
     else:
         order_of_respect_local = [Path.cwd() / '.mulch']
-    
-    
+    """
+    order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch folder` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
@@ -287,37 +287,40 @@ def context():
     from src.scripts.install import install_context
     install_context.setup()
 
+from rich.table import Table
+from rich.console import Console
 
 #@with_logging(use_portable=True)
 @app.command()
 def order(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
-    ):
+):
     """
-    Determine the ordered list of available fallbacks. 
-    You can then request to see contents from an identifying number as a CLI input.
+    Show the ordered list of mulch scaffold search paths and indicate which exist.
     """
-    typer.echo("Coming soon :)")
-    '''typer.echo(""" \n
-               1. Path(.mulch) / 'mulch.toml' \n
-               2. Path('.') / 'mulch.toml' \n
-               3. Path.home() / 'mulch' / 'mulch.toml' \n
-               \n
-               \n
-               Available: 1, 3.
-               If you would like, select an option to display the contents. \n
-               \n
-               
-               
-               """)
-    '''
-    typer.echo(f"ORDER_OF_RESPECT = {ORDER_OF_RESPECT}")
-    typer.echo(f"FILENAMES_OF_RESPECT = {FILENAMES_OF_RESPECT}")
-    typer.echo()
-    typer.confirm("If you would like, select an option to display the contents.")
-    typer.Option("If you would like, select an option to display the contents.",rich_help_panel=True )
-    #typer.run()
+    console = Console()
 
+    table = Table(title="Mulch Scaffold Order of Respect")
+
+    table.add_column("Index", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Path", style="magenta")
+    table.add_column("Exists?", justify="center", style="green")
+
+    unique_order_of_respect = dedupe_paths(ORDER_OF_RESPECT)
+
+    typer.echo(f"DEBUG ORDER_OF_RESPECT list:")
+    for idx, p in enumerate(unique_order_of_respect):
+        typer.echo(f"  {idx+1}: {p} ({p.resolve() if p.exists() else 'does not exist'})")
+
+
+    for i, path in enumerate(unique_order_of_respect, start=1):
+        base_path = (target_dir / path) if not path.is_absolute() else path
+        resolved_path = (base_path / "mulch.toml").resolve()
+        exists = resolved_path.exists()
+        table.add_row(str(i), str(resolved_path), "✅" if exists else "❌")
+
+    console.print(table)
+    
 def load_template_choice_dictionary_from_file():
     """
     Attempts to load a TOML or JSON template choice dictionary from known fallback paths.

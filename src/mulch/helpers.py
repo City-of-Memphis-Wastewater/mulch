@@ -65,7 +65,13 @@ def index_to_letters(index: int) -> str:
         result = letters[remainder] + result
     return result
 
-
+def get_local_appdata_path(appname=None) -> Path:
+    if platform.system() == "Windows":
+        # Local app data, e.g., C:\Users\User\AppData\Local
+        return Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / appname
+    else:
+        # On Linux/macOS fallback to the same as get_global_config_path
+        return get_global_config_path(appname)
 
 
 def get_global_config_path(appname=None) -> Path:
@@ -160,3 +166,12 @@ def get_default_untitled_workspace_name_based_on_operating_system(workspaces_dir
 
     
     
+def dedupe_paths(paths):
+    seen = set()
+    unique = []
+    for p in paths:
+        resolved = str(p.resolve()) if p.exists() else str(p)
+        if resolved not in seen:
+            unique.append(p)
+            seen.add(resolved)
+    return unique
