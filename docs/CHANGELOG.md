@@ -4,6 +4,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.19] - 2025-08-09
+
+### Changed
+- `src.mulch.etcetera` references destroyed in favor of just `mulch.etcetera`.
+- `scipts/install/` moved from `/src/` to `/src/mulch/`
+
+---
+
 ## [0.2.18] - 2025-08-09
 
 ### Changed

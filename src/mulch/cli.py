@@ -284,7 +284,7 @@ def context():
     """
     Install the right-click `mulch workspace` context menu registry item by calling install.py 
     """
-    from src.scripts.install import install_context
+    from mulch.scripts.install import install_context
     install_context.setup()
 
 from rich.table import Table
