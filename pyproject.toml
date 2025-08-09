@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mulch"
-version = "0.2.16"
+version = "0.2.17"
 description = "CLI for initializing standard and templated workspaces, controlled by `.mulch/mulch.toml`."
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
