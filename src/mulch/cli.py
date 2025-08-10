@@ -106,7 +106,7 @@ def make_dot_mulch_folder(target_dir):
 def src(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
     #enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
-    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of root/src/."),
+    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of src/."),
     force: bool = typer.Option(False, "--force", help="Override existing, forced."),
     ):
     """
@@ -187,7 +187,7 @@ def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New works
 @with_logging
 def workspace(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
-    pattern: NamingPattern = typer.Option(NamingPattern.date, "--pattern", "-p",  help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'name' for os-specific pattern like 'New workspace (n)'"),
+    pattern: NamingPattern = typer.Option(NamingPattern.date, "--pattern", "-p",  help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'new' for os-specific pattern like 'New workspace (n)'"),
     name: str = typer.Option(None, "--name", "-n", help="Name of the workspace to create."),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
@@ -276,8 +276,6 @@ def workspace(
     # Proceed to generate
     #wif.build_workspace(set_default=set_default)
     wif.create_workspace(set_default=set_default)
-    
-    typer.secho(f"📁 Workspace created at: {workspaces_dir / name}", fg=typer.colors.BRIGHT_GREEN)
 
 @app.command()
 def context():
