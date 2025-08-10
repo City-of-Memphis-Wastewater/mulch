@@ -261,8 +261,7 @@ class WorkspaceInstanceFactory:
         if set_default and not self.here:
             self.create_default_workspace_toml(self.workspace_dir.parent, self.workspace_name)
         
-        typer.secho(f"✨ Workspace '{self.workspace_name}' created at {self.workspace_dir}", 
-                    fg=typer.colors.BRIGHT_MAGENTA)
+        typer.secho(f"✨ Workspace created at: {self.workspace_name}", fg=typer.colors.BRIGHT_GREEN)
 
     
     @classmethod
