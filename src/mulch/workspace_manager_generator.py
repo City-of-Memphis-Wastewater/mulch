@@ -31,14 +31,14 @@ class WorkspaceManagerGenerator:
     FALLBACK_SCAFFOLD = FALLBACK_SCAFFOLD # to make accessible, for pip and interally
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
     
-
-    def __init__(self, base_path: Path, lock_data: dict, stealth: bool = False):
+    def __init__(self, base_path: Path, lock_data: dict, stealth: bool = False, force: bool = False):
         """
         WorkspaceManagerGenerator.context is a mystery to me.
         """
         self.base_path = Path(base_path).resolve()
         self.lock_data = lock_data
         self.stealth = stealth 
+        self.force = force
         self.context = PathContext(base_path, workspace_name=None, here=None, stealth=stealth)
         self.flags_lock_path = self.context.flags_lock_path
         self.manager_lock_path = self.context.manager_lock_path
@@ -85,7 +85,7 @@ class WorkspaceManagerGenerator:
         ) # self.lock_data["scaffold"] is the scaffold dict loaded from the mulch-scaffold file
 
         logger.info(f"src lock_path = {self.manager_lock_path}")
-        if self.manager_lock_path.exists():
+        if self.manager_lock_path.exists() and not self.force:
             try:
                 with open(self.manager_lock_path, "r", encoding="utf-8") as f:
                     existing = json.load(f)
