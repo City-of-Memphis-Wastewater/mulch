@@ -93,13 +93,13 @@ The `--stealth` flag for the `mulch workspace` command will be **deprecated in a
 
 ### Background and Use Case
 
-The `--stealth` option was originally introduced to allow creating workspace directories inside the hidden `.mulch` folder. This was intended to keep workspace folders out of sight for shared directories, supporting workflows where non-technical users focus on visible workspace files while developers maintain custom local software configurations hidden away.
+The `--stealth` option was originally introduced to allow creating an src directory inside the hidden `.mulch` folder. When `mulch init` split into `mulch src` and `mulch workspace`, the `--stealth flag` was maintained for each. The loose theory was that a stealth option for `workspace` might be useful in supporting workflows where non-technical users focus on visible workspaces while developers maintain custom local software with multiple configurations in hidden workspace folders.
 
 This use case is valid and important for scenarios involving mixed user environments and evolving projects with increasing complexity. However, managing stealth workspaces via this flag can be unintuitive and may cause confusion about the current working directory context.
 
 ### Recommended Alternative
 
-To maintain clean and organized hidden workspace directories, we recommend **changing your current working directory (CWD) to the `.mulch` folder** and then running:
+To maintain clean and organized hidden workspace directories, if you must have them, we recommend **changing your current working directory (CWD) to the `.mulch` folder** and then running:
 
 ```bash
 cd root/.mulch
@@ -108,6 +108,16 @@ mulch workspace [options]
 
 This approach clearly scopes the workspace creation inside the hidden folder without relying on the deprecated `--stealth` flag.
 
+However, this means there will be no references in the src/.../workspace_manager.py file to the hidden workspaces. 
+You can choose only one set of workspace references. you can run `mulch src --force` from inside of `.mulch` and it will break the references to the public workspace set and build them for the private set. 
+
+---
+
+## A Rule: Run `mulch workspace` at least once before running `mulch src`, particularly if you want to run `mulch workspace --here`
+- For `mulch src` to make the proper references, if you plan to use `--here` flag, you must run `mulch workspace --here` at least once first, to contribute some truth to the `.mulch/reference.lock` file.
+- If you run `mulch src` without first running `mulch workspace`, the workspace_manager.py references will include to the standard /workspaces/ reference, as if the `--here` flag was not used.
+- If you end up running `mulch workspace` without the `--here` flag, I don't think you'll have any trouble.
+- The `reference.lock` should enfore consistency, not allowing you to mix `--here` workspaces with lackthereof workspaces in the same project. 
 ---
 
 ## Workspace and Source Directory Layout Complexity
