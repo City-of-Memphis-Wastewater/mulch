@@ -82,3 +82,41 @@ I am really excited about `mulch src --stealth` for mixed use directories. Busin
 These do the same thing. 
 `mulch-context` is an independant CLI tool to register `mulch workspace` behavior to the context menu.
 `mulch context` is a command in the `mulch` CLI, which also calls the `app()` function in `install_context.py`.
+
+Sure! Here's a clear, professional notice you can add to your README explaining the deprecation of `mulch workspace --stealth` along with guidance for users:
+
+---
+
+## Notice: Deprecation of `mulch workspace --stealth`
+
+The `--stealth` flag for the `mulch workspace` command will be **deprecated in an upcoming release**.
+
+### Background and Use Case
+
+The `--stealth` option was originally introduced to allow creating workspace directories inside the hidden `.mulch` folder. This was intended to keep workspace folders out of sight for shared directories, supporting workflows where non-technical users focus on visible workspace files while developers maintain custom local software configurations hidden away.
+
+This use case is valid and important for scenarios involving mixed user environments and evolving projects with increasing complexity. However, managing stealth workspaces via this flag can be unintuitive and may cause confusion about the current working directory context.
+
+### Recommended Alternative
+
+To maintain clean and organized hidden workspace directories, we recommend **changing your current working directory (CWD) to the `.mulch` folder** and then running:
+
+```bash
+cd root/.mulch
+mulch workspace [options]
+```
+
+This approach clearly scopes the workspace creation inside the hidden folder without relying on the deprecated `--stealth` flag.
+
+---
+
+## Workspace and Source Directory Layout Complexity
+
+Due to the various workspace and source directory placement options and their interactions, path references in `workspace_manager.py` can become complex and confusing.
+
+For a detailed explanation of this situation, recommended usage patterns, and guidance on managing hidden vs. public workspaces and source directories, please see the dedicated documentation file:
+
+**[Workspace and Source Layout Complexity — mulch-layout.md](docs/mulch-layout.md)**
+
+This document provides an in-depth discussion and best practices to help you navigate these nuances.
+

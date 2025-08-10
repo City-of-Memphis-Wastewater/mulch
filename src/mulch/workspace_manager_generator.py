@@ -42,6 +42,7 @@ class WorkspaceManagerGenerator:
         self.context = PathContext(base_path, workspace_name=None, here=None, stealth=stealth)
         self.flags_lock_path = self.context.flags_lock_path
         self.manager_lock_path = self.context.manager_lock_path
+        self.src_path = self.manager_lock_path.parent
         self.manager_path = self.context.manager_path 
         self.project_name = self.base_path.name # assumption that the target dir is the package name, fair enough
 
