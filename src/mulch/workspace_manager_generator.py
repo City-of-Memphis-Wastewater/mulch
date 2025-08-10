@@ -148,8 +148,8 @@ def load_scaffold(target_dir: Path | None = None, strict_local_dotmulch:bool=Fal
         get_global_config_path(appname = "mulch") # 4. Global config
     ]
     
-    filenames = ["mulch-scaffold.toml", "mulch-scaffold.json"]
-
+    filenames = ["mulch.toml"]
+    
     for base in base_dirs:
         for filename in filenames:
             path = base / filename
