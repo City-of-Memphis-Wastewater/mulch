@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.27] - 2025-08-09
 
 ### Changed
-- Remove defunct show_() command.
 - Improve description in pyproject.toml and on GitHub top level README.md.
 
 ---

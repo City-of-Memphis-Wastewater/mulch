@@ -110,7 +110,7 @@ def src(
     force: bool = typer.Option(False, "--force", help="Override existing, forced."),
     ):
     """
-    Build the workspace_manager.py file in the source code, using the mulch.tomlstructure or the fallback structure embedded in WorkspaceManagerGenerator.
+    Build the workspace_manager.py file in the source code, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
     '''
@@ -133,7 +133,7 @@ def src(
     '''
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
-       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
+       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     #pprint(scaffold_data)
@@ -195,7 +195,7 @@ def workspace(
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put workspace in .mulch/workspaces/ instead of root/workspaces/."),
     ):
     """
-    Initialize a new workspace folder tree, using the mulch.tomlstructure or the fallback structure embedded in WorkspaceManagerGenerator.
+    Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
     # Provide instant feedback on the --here setting.
     if here:
@@ -231,7 +231,7 @@ def workspace(
     """
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
-       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch-scaffold.toml` file is the user is not comfortable doingediting it themselves in a text editor.
+       make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     pprint(scaffold_data)
@@ -282,7 +282,7 @@ def workspace(
 @app.command()
 def context():
     """
-    Install the right-click `mulch workspace` context menu registry item by calling install.py 
+    Install the right-click `mulch workspace` context menu registry item.
     """
     from mulch.scripts.install import install_context
     install_context.setup()
@@ -345,12 +345,10 @@ def seed(#def dotmulch(
         ):
     """
 
-    Drop a .mulch to disk, at the target directory.
-    The default is the next level of fallback in the ORDER_OF_RESPECT list.
-    You are able to edit the .mulch/mulch-scaffold file manually.  
-
+    Drop a .mulch folder to disk, at the target directory.
+    The default scaffold is the next level of fallback in the ORDER_OF_RESPECT list.
+    Edit the .mulch/mulch.toml file manually. Coming soon: interactive prompt file filler.  
     """
-
     scaffold_dict = resolve_scaffold(ORDER_OF_RESPECT, FILENAMES_OF_RESPECT)
     
     scaffold_path = target_dir / '.mulch' / DEFAULT_SCAFFOLD_FILENAME
@@ -360,15 +358,11 @@ def seed(#def dotmulch(
         scaffold_dict = template_choice_dict[template_choice] # template choice must be a number 1-9
     if scaffold_path.exists():
         if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
-            #typer.echo("Aborted: Did not overwrite existing scaffold file.") # this is a redundant message
             raise typer.Abort()
     scaffold_path.parent.mkdir(parents=True, exist_ok=True)
     with open(scaffold_path, "w", encoding="utf-8") as f:
-        #json.dump(scaffold_dict, f, indent=2)
-        #toml.dump(scaffold_dict, f, indent=2)
         toml.dump(scaffold_dict,f)
-        
-    
+            
     typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
 
     if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?"):
