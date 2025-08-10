@@ -2,7 +2,6 @@ from datetime import datetime
 from pathlib import Path
 import platform
 import os
-from typing import Union
 import json
 import toml
 import typer

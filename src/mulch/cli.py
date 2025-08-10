@@ -1,27 +1,24 @@
 # src/mulch/cli.py
 
 import typer
-import json
 import toml
 from pathlib import Path
 import logging
 from enum import Enum
 import datetime
 from importlib.metadata import version, PackageNotFoundError
-import subprocess
 from pprint import pprint
-import os
 
 from mulch.decorators import with_logging
 from mulch.workspace_manager_generator import WorkspaceManagerGenerator
-from mulch.workspace_instance_factory import WorkspaceInstanceFactory, load_scaffold
+from mulch.workspace_instance_factory import WorkspaceInstanceFactory
 from mulch.logging_setup import setup_logging, setup_logging_portable
 from mulch.helpers import dedupe_paths, open_editor, calculate_nowtime_foldername, get_local_appdata_path, get_default_untitled_workspace_name_based_on_operating_system, get_global_config_path, index_to_letters, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
-from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
+from mulch.constants import FALLBACK_SCAFFOLD_TOML, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
-from mulch.scaffold_loader import load_scaffold, load_scaffold_file, resolve_scaffold
+from mulch.scaffold_loader import load_scaffold_file, resolve_scaffold
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -113,24 +110,7 @@ def src(
     Build the workspace_manager.py file in the source code, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
-    '''
-    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch workspace` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
-    # The `mulch` command by itself in the context menu means either 
-    if enforce_mulch_folder:
-        try:
-            #scaffold_dict = load_scaffold(
-            #    target_dir=target_dir,
-            #    strict_local_dotmulch=enforce_mulch_folder,
-            #    seed_if_missing=enforce_mulch_folder
-            #)
-            scaffold_data = load_scaffold(target_dir, strict_local_dotmulch=True)
-        except FileNotFoundError as e:
-            typer.secho(str(e), fg=typer.colors.RED)
-            raise typer.Exit(code=1)
-        order_of_respect_local = ORDER_OF_RESPECT
-    else:
-        order_of_respect_local = [Path.cwd() / '.mulch']
-    '''
+
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch.toml` file is the user is not comfortable doingediting it themselves in a text editor.
@@ -146,7 +126,6 @@ def src(
         "generated_by": get_username_from_home_directory()
     }
     
-    print(f"stealth = {stealth}")
     #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
     mgf = WorkspaceManagerGenerator(target_dir, lock_data, stealth=stealth, force=force)
     was_source_generated = mgf.build_src_components()
@@ -212,23 +191,6 @@ def workspace(
     if name is None:
         name=get_folder_name(pattern = pattern, workspaces_dir=workspaces_dir)
     
-    """
-    # The enforce_mulch_folder flag allows the _all_order_of_respect_failed to reach the end of the order_of_respect list, such that a generation of a `.mulch` folder is forceable, without an explicit `mulch workspace` call. Otherwise, `mulch` as a single context menu command would use some fallback, rather than forcing a `.mulch` folder to be created, which it should if there is not one.
-    # The `mulch` command by itself in the context menu means either 
-    if enforce_mulch_folder:
-        try:
-            scaffold_data = load_scaffold(
-                target_dir=target_dir,
-                strict_local_dotmulch=enforce_mulch_folder,
-                seed_if_missing=enforce_mulch_folder
-            )
-        except FileNotFoundError as e:
-            typer.secho(str(e), fg=typer.colors.RED)
-            raise typer.Exit(code=1)
-        order_of_respect_local = ORDER_OF_RESPECT
-    else:
-        order_of_respect_local = [Path.cwd() / '.mulch']
-    """
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch.toml` file is the user is not comfortable doingediting it themselves in a text editor.
@@ -245,13 +207,6 @@ def workspace(
     }
     
     logger.debug(f"workspace_dirs = {workspaces_dir}")
-    '''# Check if workspace already exists
-    if workspace_dir.exists():
-        typer.secho(f"⚠️ Workspace '{name}' already exists at {workspaces_dir}", fg=typer.colors.YELLOW)
-        if not typer.confirm("Overwrite existing workspace?", default=False):
-            typer.secho("❌ Aborting.", fg=typer.colors.RED)
-            raise typer.Exit()
-    '''
     wif = WorkspaceInstanceFactory(target_dir, workspaces_dir, name, lock_data, here=here, stealth = stealth)
     
     workspace_status = wif.evaluate_workspace_status()
@@ -274,7 +229,6 @@ def workspace(
             raise typer.Exit()
         
     # Proceed to generate
-    #wif.build_workspace(set_default=set_default)
     wif.create_workspace(set_default=set_default)
 
 @app.command()
