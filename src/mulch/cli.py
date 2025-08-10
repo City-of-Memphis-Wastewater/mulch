@@ -19,6 +19,8 @@ from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_stand
 from mulch.constants import FALLBACK_SCAFFOLD_TOML, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
 from mulch.scaffold_loader import load_scaffold_file, resolve_scaffold
+from mulch.reference_lock_manager import ReferenceLockManager, build_flags
+
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -72,6 +74,7 @@ except PackageNotFoundError:
 # Create the Typer CLI app
 app = typer.Typer(help=HELP_TEXT, no_args_is_help=True, add_completion=False)
 
+#@app.callback(invoke_without_command=True)
 @app.callback()
 def main(
     version: bool = typer.Option(None, "--version", callback=lambda v: print_version(v), is_eager=True, help="Show the version and exit.")
@@ -79,6 +82,13 @@ def main(
     """
     Mulch CLI for scaffolding Python project workspaces
     """
+    
+    lock = ReferenceLockManager.load_lock()
+    if lock is None:
+        print("Warning: No reference.lock found — run src and workspace commands first.")
+    else:
+        pass
+        # validate, warn, etc
 
 def print_version(value: bool):
     if value:
@@ -130,7 +140,10 @@ def src(
     mgf = WorkspaceManagerGenerator(target_dir, lock_data, stealth=stealth, force=force)
     was_source_generated = mgf.build_src_components()
     if was_source_generated:
-        typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)
+        typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)    
+        # create reference lock file contents for src
+        flags = build_flags(stealth=stealth)
+        ReferenceLockManager.update_lock_src(path=mgf.src_path, flags=flags)
 
 class NamingPattern(str,Enum):
     date = "date"
@@ -171,7 +184,6 @@ def workspace(
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
     #enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
-    stealth: bool = typer.Option(False, "--stealth", "-s", help="Put workspace in .mulch/workspaces/ instead of root/workspaces/."),
     ):
     """
     Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
@@ -183,8 +195,7 @@ def workspace(
     # First determine workspaces directory
     workspaces_dir = WorkspaceInstanceFactory.determine_workspaces_dir(
         target_dir=target_dir,
-        here=here,
-        stealth=stealth
+        here=here
     )
     # Second determine the value of name. If the name flag was used, use the explicitly provided name.
     # If the name flag was not used, check the value of the pattern flag for which automated name pattern to use.
@@ -207,7 +218,7 @@ def workspace(
     }
     
     logger.debug(f"workspace_dirs = {workspaces_dir}")
-    wif = WorkspaceInstanceFactory(target_dir, workspaces_dir, name, lock_data, here=here, stealth = stealth)
+    wif = WorkspaceInstanceFactory(target_dir, workspaces_dir, name, lock_data, here=here)
     
     workspace_status = wif.evaluate_workspace_status()
     
@@ -231,6 +242,10 @@ def workspace(
     # Proceed to generate
     wif.create_workspace(set_default=set_default)
 
+    # create reference lock file contents for workspace 
+    flags = build_flags(here=here)
+    ReferenceLockManager.update_lock_workspace(path=workspaces_dir / name, flags=flags)
+    
 @app.command()
 def context():
     """
@@ -238,6 +253,7 @@ def context():
     """
     from mulch.scripts.install import install_context
     install_context.setup()
+    
 
 from rich.table import Table
 from rich.console import Console

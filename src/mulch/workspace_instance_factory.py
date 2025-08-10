@@ -40,8 +40,7 @@ class WorkspaceInstanceFactory:
                  workspace_name: str,
                  lock_data: dict,
                  *,
-                 here: bool = False,
-                 stealth: bool = False):
+                 here: bool = False):
         """
         WorkspaceInstanceFactory.here is an attribute that references the setting of the --here flag, a flag of the command 'mulch workspace'. 
         When a workspace is generated, the value of self.here determines whether the workspace is generated in the root dir (if here is True, if the --here flag is used) or in root/workspaces/ (the default, if self.here is False, if the --here flag is not used.). 
@@ -55,14 +54,14 @@ class WorkspaceInstanceFactory:
             workspace_name: Name of the workspace
             lock_data: Scaffold and metadata for lockfile
             here: If True, create workspace in root instead of workspaces/
-            stealth: If True, use .mulch/workspaces/ instead of root/workspaces/
+            stealth: If True, use .mulch/workspaces/ instead of root/workspaces/ # deprecated, blocked, no way to use.
         
         """
         self.base_path = Path(base_path).resolve()
         self.workspace_name = workspace_name
         self.lock_data = lock_data
         self.here = here
-        self.stealth = stealth 
+        self.stealth = False  # deprecated, blocked, no way to use. 
         
         # Create PathContext with explicit parameters
         self.context = PathContext(
@@ -145,19 +144,19 @@ class WorkspaceInstanceFactory:
             return False
 
     @classmethod
-    def determine_workspaces_dir(cls, target_dir: Path, here: bool, stealth: bool) -> Path:
+    def determine_workspaces_dir(cls, target_dir: Path, here: bool) -> Path:
         """
         Determine the workspace directory path based on flags.
         
         Args:
             target_dir: Base project directory
             here: If True, create in current directory
-            stealth: If True, use .mulch/workspaces/
+            stealth: If True, use .mulch/workspaces/ # deprecated
         """
         if here:
             return target_dir 
-        if stealth:
-            return target_dir / ".mulch" / "workspaces" 
+        #if stealth:
+        #    return target_dir / ".mulch" / "workspaces" 
         return target_dir / "workspaces" 
     
     def check_and_create_workspace_dirs_from_scaffold(self, workspace_dir: Path) -> None:
