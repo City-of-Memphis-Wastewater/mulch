@@ -78,12 +78,12 @@ mulch workspace --here # This does the same thing, as of 0.2.19.
 
 I am really excited about `mulch src --stealth` for mixed use directories. Business and engineering users can organize projects in a shared drive like SharePoint, while a dev can run custom analysis scripts catered to each type of project. 
 
+---
+
 ## `mulch context` versus `mulch-context`
 These do the same thing. 
 `mulch-context` is an independant CLI tool to register `mulch workspace` behavior to the context menu.
 `mulch context` is a command in the `mulch` CLI, which also calls the `app()` function in `install_context.py`.
-
-Sure! Here's a clear, professional notice you can add to your README explaining the deprecation of `mulch workspace --stealth` along with guidance for users:
 
 ---
 
