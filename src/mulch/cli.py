@@ -244,7 +244,7 @@ def workspace(
         "generated_by": get_username_from_home_directory()
     }
     
-    logger.DEBUG(f"workspace_dirs = {workspaces_dir}")
+    logger.debug(f"workspace_dirs = {workspaces_dir}")
     '''# Check if workspace already exists
     if workspace_dir.exists():
         typer.secho(f"⚠️ Workspace '{name}' already exists at {workspaces_dir}", fg=typer.colors.YELLOW)
