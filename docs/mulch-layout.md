@@ -31,5 +31,3 @@ To maintain clarity and reliable path resolution:
 * If you need multiple workspace sets (e.g., for config vs. user data), consider enhancing `workspace_manager.py` to support multiple roots or use external configuration to declare all workspace locations.
 * Remember that `mulch workspace --stealth` is deprecated — for hidden workspaces, change your working directory into `.mulch/` and run `mulch workspace` instead.
 
-This approach helps keep your project references straightforward and reduces confusion for both developers and end users.
-
