@@ -308,7 +308,7 @@ def order(
 
     unique_order_of_respect = dedupe_paths(ORDER_OF_RESPECT)
 
-    typer.echo(f"DEBUG ORDER_OF_RESPECT list:")
+    typer.echo(f"ORDER_OF_RESPECT list:")
     for idx, p in enumerate(unique_order_of_respect):
         typer.echo(f"  {idx+1}: {p} ({p.resolve() if p.exists() else 'does not exist'})")
 
@@ -378,65 +378,6 @@ def seed(#def dotmulch(
     typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch src'.")
     
     build_dotmulch_standard_contents(target_dir = Path.cwd())
-
-@app.command()
-def show_(
-    filepath: Path = typer.Option(
-        None, "--filepath", "-f", help="Path to an explicit scaffold TOML file."
-    ),
-    use_default: bool = typer.Option(
-        False, "--use-default-filepath", "-d", help=f"Reference the default filepath .\{DEFAULT_SCAFFOLD_FILENAME}."
-    ),
-    use_embedded: bool = typer.Option(
-        False, "--use-embedded-fallback-structure", "-e", help="Reference the embedded structure FALLBACK_SCAFFOLD."
-    ),
-    collapsed: bool = typer.Option(
-        False, "--collapsed-print", "-c", help="Show the hard-to-read but easy-to-copy-paste version."
-    ),
-    ):
-    """
-    Display the fallback scaffold dictionary structure or load and display a scaffold TOML file.
-    """
-    default_path = Path.cwd() / DEFAULT_SCAFFOLD_FILENAME
-
-    if filepath:
-        if not filepath.exists():
-            typer.secho(f"File not found at {filepath}.", fg=typer.colors.RED, bold=True)
-            typer.secho(f"Recommendation: use the default file (show -d) or the fallback scaffold (show -e)", fg=typer.colors.YELLOW)
-            raise typer.Exit(code=1)
-        with open(filepath, "r", encoding="utf-8") as f:
-            scaffold = json.load(f)
-        logger.debug(f"Structure pulled from the provided filepath: {filepath}")
-        typer.secho(f"Loaded scaffold from file: {filepath}", fg=typer.colors.GREEN)
-    elif use_default:
-        if not default_path.exists():
-            typer.secho(f"Default file not found at {default_path}.", fg=typer.colors.RED, bold=True)
-            typer.secho(f"Recommendation: use an explicit file (show -p [FILEPATH]) or the fallback scaffold (show -e)", fg=typer.colors.YELLOW)
-            raise typer.Exit(code=1)
-        with open(default_path, "r", encoding="utf-8") as f:
-            scaffold = json.load(f)
-        logger.debug(f"Structure pulled from the default filepath: {default_path}")
-    elif use_embedded:
-        scaffold = FALLBACK_SCAFFOLD
-        logger.debug(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
-        typer.secho("Loaded scaffold from embedded fallback structure.", fg=typer.colors.GREEN)
-    else:
-        if default_path.exists():
-            with open(default_path, "r", encoding="utf-8") as f:
-                scaffold = json.load(f)
-                logger.debug(f"Structure pulled from the default filepath: {default_path}")
-                typer.secho(f"Loaded scaffold from default file: {default_path}", fg=typer.colors.GREEN)
-        else:
-            scaffold = FALLBACK_SCAFFOLD
-            logger.debug(f"Structure pulled from the FALLBACK_SCAFFOLD embedded in workspace_factory.py.")
-            typer.secho("Loaded scaffold from embedded fallback structure.", fg=typer.colors.GREEN)
-    
-    print("\n")
-    if collapsed:
-        typer.echo(json.dumps(scaffold, separators=(",", ":")))
-    else:
-        typer.echo(json.dumps(scaffold, indent=2))
-
 
 @app.command()
 def show(index: int = typer.Argument(None, help="Index from 'mulch order' to display")):
