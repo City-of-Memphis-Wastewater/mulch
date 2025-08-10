@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - reference.lock and the relevant reference_lock_manager.py and ReferenceLockManager class. Calls added in cli.py for workspace() and src().
 
+### Breaking Changes
+- `--stealth` flag removed from `mulch workspace` command. See README.md and docs/mulch-layout.md for more information.
+
 ---
 
 ## [0.2.30] - 2025-08-09
@@ -64,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.23] - 2025-08-09
 
-### Breaking
+### Breaking Changes
 - `mulch init` -> `mulch src`. 
 
 ### Changed

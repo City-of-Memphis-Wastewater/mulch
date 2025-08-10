@@ -7,4 +7,7 @@ logs/*.log
 
 __pycache__
 mulch.lock
+space.lock
+reference.lock
+manager.lock
 workspace_manager.py
