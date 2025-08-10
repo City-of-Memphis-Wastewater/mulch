@@ -117,7 +117,10 @@ You can choose only one set of workspace references. you can run `mulch src --fo
 - For `mulch src` to make the proper references, if you plan to use `--here` flag, you must run `mulch workspace --here` at least once first, to contribute some truth to the `.mulch/reference.lock` file.
 - If you run `mulch src` without first running `mulch workspace`, the workspace_manager.py references will include to the standard /workspaces/ reference, as if the `--here` flag was not used.
 - If you end up running `mulch workspace` without the `--here` flag, I don't think you'll have any trouble.
-- The `reference.lock` should enfore consistency, not allowing you to mix `--here` workspaces with lackthereof workspaces in the same project. 
+- The `reference.lock` should enforce consistency, not allowing you to mix `--here` workspaces with lackthereof workspaces in the same project. 
+  - This has the added benfit of adjusting the behavior of the context menu `mulch workspace`, which is assumed to be `mulch workspace --here --pattern new`
+  - With enforcement from the `reference.lock` file, the `--here` flag can be ignored, if it was initally not used. Is this what we want?  
+  - No warning will appear for the context menu use case. Choose wisely.
 ---
 
 ## Workspace and Source Directory Layout Complexity
