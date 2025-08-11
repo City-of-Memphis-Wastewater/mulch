@@ -21,7 +21,7 @@ from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_stand
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
 from mulch.scaffold_loader import load_scaffold_file, resolve_scaffold
-from mulch.reference_lock_manager import ReferenceLockManager, build_flags
+from mulch.reference_lock_manager import ReferenceLockManager, build_flags_record
 
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -125,7 +125,7 @@ def src(
     """
     # to set the embedded reference location for workspace_manager
     if expliref is not None:
-        flags = build_flags(here=expliref)
+        flags = build_flags_record(expliref=expliref,force=force,stealth=stealth)
         ReferenceLockManager.update_lock_workspace(pathstr="null", flags=flags) # "null" as a string is acceptable for pathstr, because if no workspace registered yet, expliref provides a basis for the workspace_manager.py references to be generated.
 
     order_of_respect_local = ORDER_OF_RESPECT
@@ -133,8 +133,7 @@ def src(
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
-    #pprint(scaffold_data)
-
+    
     # Create lock data
     lock_data = {
         "scaffold": scaffold_data,
@@ -149,7 +148,7 @@ def src(
     if was_source_generated:
         typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)    
         # create reference lock file contents for src
-        flags = build_flags(stealth=stealth)
+        flags = build_flags_record(expliref=expliref,force=force,stealth=stealth)
         ReferenceLockManager.update_lock_src(pathstr=str(mgf.src_path), flags=flags) # convert Path to str for serialization, at the point of input for clarity. "null" is acceptable as a string.
 class NamingPattern(str,Enum):
     date = "date"
@@ -213,8 +212,7 @@ def workspace(
        make_dot_mulch_folder(target_dir = Path.cwd()) # uses the same logic as the `mulch workspace` command. The `mulch file` command must be run manually, for that behavior to be achieved but otherwise the default is the `.mulch` manifestation. This should contain a query tool to build a `mulch.toml` file is the user is not comfortable doingediting it themselves in a text editor.
 
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
-    pprint(scaffold_data)
-
+    
     # Create lock data
     lock_data = {
         "scaffold": scaffold_data,
@@ -249,7 +247,7 @@ def workspace(
     wif.create_workspace(set_default=set_default)
 
     # create reference lock file contents for workspace 
-    flags = build_flags(here=here)
+    flags = build_flags_record(here=here,name=name,pattern=pattern)
     ReferenceLockManager.update_lock_workspace(pathstr=str(workspaces_dir / name), flags=flags)
     
 @app.command()
