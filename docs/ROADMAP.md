@@ -39,7 +39,7 @@ I am really excited about `mulch src --stealth` for mixed use directories. Busin
 
 These features are currently being developed or actively discussed:
 
-- [ ] Clarity for nested folder paths in `mulch-scaffold.json`
+- [ ] Clarity for nested folder paths in `mulch.toml`   
 - [ ] Consider moving to a `mulch-scaffold.toml` standard, to include helpful comments and instructions.
 - [ ] Basic test suite for CLI and config parsing
 - [ ] Use and test generated introspective WorkspaceManager classes for passing imports, exports, configs, etc, to ensure stability.
@@ -52,8 +52,8 @@ These features are currently being developed or actively discussed:
 These are the milestones we want to hit before releasing `v1.0.0`:
 
 ### ✨ Features
-- [ ] Validate `mulch-scaffold.json` with clear errors
-- [ ] Solidify the `mulch-scaffold.json` nesting structure, backed up with clear documentation.
+- [ ] Validate `mulch.toml` with clear errors
+- [ ] Solidify the `mulch.toml` nesting structure, backed up with clear documentation.
 - [ ] Allow `.yaml` and `.toml` config as an alternative to JSON
 - [ ] Inline documentation for scaffold files
 
@@ -73,7 +73,7 @@ These are the milestones we want to hit before releasing `v1.0.0`:
 
 These are not commitments, but open ideas we’re exploring:
 
-- [ ] Includes standard template choices for `mulch-scaffold.json`, for various expected project types. 
+- [ ] Includes standard template choices for `mulch.toml`, for various expected project types. 
 - [ ] Jinja2-style variable substitution in templates, for distributable files in a `root/.mulch` file.
 - [ ] `mulch add` command for inserting modules into an existing scaffold.
 - [ ] VS Code extension for scaffold previews?

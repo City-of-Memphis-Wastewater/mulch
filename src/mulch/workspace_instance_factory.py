@@ -403,7 +403,7 @@ def load_scaffold__(target_dir: Optional[Path] = None,
         get_global_config_path(appname = "mulch") # 4. Global config
     ]
     
-    filenames = ["mulch-scaffold.toml", "mulch-scaffold.json"]
+    filenames = ["mulch.toml"]
 
     for base in base_dirs:
         for filename in filenames:
@@ -439,7 +439,7 @@ def load_scaffold(
     target_dir = target_dir or Path.cwd()
     base = target_dir / ".mulch"
 
-    filenames = ["mulch-scaffold.toml", "mulch-scaffold.json"]
+    filenames = ["mulch.toml"]
 
     if strict_local_dotmulch:
         # ...existing strict mode code...
