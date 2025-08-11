@@ -81,6 +81,7 @@ I am really excited about `mulch src --stealth` for mixed use directories. Busin
 ---
 
 ## `mulch context` versus `mulch-context`
+
 These do the same thing. 
 `mulch-context` is an independant CLI tool to register `mulch workspace` behavior to the context menu.
 `mulch context` is a command in the `mulch` CLI, which also calls the `app()` function in `install_context.py`.
@@ -112,6 +113,7 @@ You can choose only one set of workspace references. You can run `mulch src --fo
 ---
 
 ## A Rule: Run `mulch workspace` at least once before running `mulch src`, particularly if you want to run `mulch workspace --here`
+
 - For `mulch src` to make the proper references, if you plan to use `--here` flag, you must run `mulch workspace --here` at least once first, to contribute some truth to the `.mulch/reference.lock` file.
 - If you run `mulch src` without first running `mulch workspace`, the workspace_manager.py references will include to the standard /workspaces/ reference, as if the `--here` flag was not used.
 - If you end up running `mulch workspace` without the `--here` flag, I don't think you'll have any trouble.
@@ -119,6 +121,7 @@ You can choose only one set of workspace references. You can run `mulch src --fo
   - This has the added benfit of adjusting the behavior of the context menu `mulch workspace`, which is assumed to be `mulch workspace --here --pattern new`
   - With enforcement from the `reference.lock` file, the `--here` flag can be ignored, if it was initally not used. Is this what we want?  
   - No warning will appear for the context menu use case. Choose wisely.
+  
 ---
 
 ## Workspace and Source Directory Layout Complexity
@@ -130,4 +133,11 @@ For a detailed explanation of this situation, recommended usage patterns, and gu
 **[Workspace and Source Layout Complexity — mulch-layout.md](docs/mulch-layout.md)**
 
 This document provides an in-depth discussion and best practices to help you navigate these nuances.
+
+---
+
+## Demo Video
+
+https://youtu.be/HFK8fRe-E4Y
+
 
