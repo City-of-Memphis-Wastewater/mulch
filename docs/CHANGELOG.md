@@ -4,6 +4,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.40] - 2025-08-11
+
+### Added
+- `mulch src` now hase a `--name` flag, to enable source code folder names that do not have the same name as the base_dir. Non-matching names are successfully recorded in the `.mulch/reference.lock file.`
+
+### Fixed
+- `basepath_manager.py` modularized to accept various `project_name` vars, to accomodate the `--name` flag in `mulch src`
+
+---
+
 ## [0.2.36] - 2025-08-11
 
 ### Added

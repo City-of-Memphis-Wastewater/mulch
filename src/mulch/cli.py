@@ -117,12 +117,18 @@ def src(
     #enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of src/."),
     force: bool = typer.Option(False, "--force", help="Override existing, forced."),
-    expliref: bool = typer.Option(None, "--wrkspc-in-root/--wrkspc-in-wrkspc", "-wr/-ww", help="Allows you to run src command without first running the workspace command and without a prompt for more input. ww correlates here flag, wr correlates with late thereof.")
+    expliref: bool = typer.Option(None, "--wrkspc-in-root/--wrkspc-in-wrkspc", "-wr/-ww", help="Allows you to run src command without first running the workspace command and without a prompt for more input. ww correlates here flag, wr correlates with late thereof."),
+    name: str = typer.Option(None, "--name", "-n", help="Name of the src dir to create, in src/.")
     ):
     """
     Build the workspace_manager.py file in the source code, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
+    
+    if name is None:
+        project_name = target_dir.name
+    else: 
+        project_name = name
     # to set the embedded reference location for workspace_manager
     if expliref is not None:
         flags = build_flags_record(expliref=expliref,force=force,stealth=stealth)
@@ -143,13 +149,18 @@ def src(
     }
     
     #manager_status = wf.evaluate_manager_status() # check the lock file in src/-packagename-/mulch.lock, which correlates with the workspacemanager
-    mgf = WorkspaceManagerGenerator(target_dir, lock_data, stealth=stealth, force=force)
+    
+    #--- TO DO
+    # - generate default name to this level, based on the project folder (CWD) name, and allow for override if --name flag is provided
+    # some of the language here is confusing, because the /src/ folder will be built in the cwd is the stealth  
+    mgf = WorkspaceManagerGenerator(base_path = target_dir, project_name = project_name, lock_data = lock_data, stealth=stealth, force=force)
     was_source_generated = mgf.build_src_components()
     if was_source_generated:
         typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)    
         # create reference lock file contents for src
         flags = build_flags_record(expliref=expliref,force=force,stealth=stealth)
         ReferenceLockManager.update_lock_src(pathstr=str(mgf.src_path), flags=flags) # convert Path to str for serialization, at the point of input for clarity. "null" is acceptable as a string.
+
 class NamingPattern(str,Enum):
     date = "date"
     new = "new"
@@ -284,8 +295,8 @@ def seed(
 ):
     """
     Drop a .mulch folder to disk at the target directory.
-    The scaffold source can be selected by index (from 'mulch order') or by template choice..
-    Otherwise, Edit the .mulch/mulch.toml file manually. Coming soon: interactive prompt file filler.
+    The scaffold source can be selected by index (from 'mulch order') or by template choice.
+    You can edit the .mulch/mulch.toml file manually. Coming soon: interactive prompt file filler.
     """
     sources = get_ordered_sources()
 

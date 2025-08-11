@@ -2,11 +2,13 @@ from pathlib import Path
 class PathContext:
     def __init__(self,
                  base_path: Path,
-                 workspace_name: str,
+                 project_name: str = None,
+                 workspace_name: str = None,
                  *,
                  here: bool = False,
                  stealth: bool = False):
         self.base_path = base_path
+        self.project_name = project_name
         self.workspace_name = workspace_name
         self.here = here
         self.stealth = stealth
@@ -25,7 +27,7 @@ class PathContext:
 
     @property
     def module_dir(self) -> Path:
-        return self.source_dir / self.base_path.name
+        return self.source_dir / self.project_name
 
     @property
     def manager_path(self) -> Path:

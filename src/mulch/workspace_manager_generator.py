@@ -31,7 +31,7 @@ class WorkspaceManagerGenerator:
     FALLBACK_SCAFFOLD = FALLBACK_SCAFFOLD # to make accessible, for pip and interally
     DEFAULT_SCAFFOLD_FILENAME = DEFAULT_SCAFFOLD_FILENAME # to make accessible, for pip and interally
     
-    def __init__(self, base_path: Path, lock_data: dict, stealth: bool = False, force: bool = False):
+    def __init__(self, base_path: Path, project_name: str, lock_data: dict, stealth: bool = False, force: bool = False):
         """
         WorkspaceManagerGenerator.context is a mystery to me.
         """
@@ -39,12 +39,17 @@ class WorkspaceManagerGenerator:
         self.lock_data = lock_data
         self.stealth = stealth 
         self.force = force
-        self.context = PathContext(base_path, workspace_name=None, here=None, stealth=stealth)
+        self.context = PathContext(base_path = base_path, 
+                                   project_name = project_name, 
+                                   workspace_name=None, 
+                                   here=None, 
+                                   stealth=stealth)
         self.flags_lock_path = self.context.flags_lock_path
         self.manager_lock_path = self.context.manager_lock_path
         self.src_path = self.manager_lock_path.parent
         self.manager_path = self.context.manager_path 
-        self.project_name = self.base_path.name # assumption that the target dir is the package name, fair enough
+        #self.project_name = self.base_path.name # assumption that the target dir is the package name, fair enough
+        self.project_name = project_name
 
     def get_path(self, key: str) -> Path:
         """
