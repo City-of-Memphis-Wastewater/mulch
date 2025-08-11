@@ -135,7 +135,7 @@ def src(
     scaffold_data = resolve_scaffold(order_of_respect_local, FILENAMES_OF_RESPECT)
     
     # Create lock data
-    lock_data = {
+    lock_data = {   
         "scaffold": scaffold_data,
         "generated_by": f"mulch {MULCH_VERSION}",
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
