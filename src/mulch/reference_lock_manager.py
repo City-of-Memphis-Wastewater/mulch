@@ -61,8 +61,11 @@ class ReferenceLockManager:
         save_reference_lock(data)
 
     @staticmethod
-    def update_lock_workspace(path: Path, flags: list[str]) -> dict:
-        path = str(path)
+    def update_lock_workspace(pathstr: str, flags: list[str]) -> dict:
+        """ Update or add a workspace entry in the reference lock file. """
+        '''use pathstr instead of path to avoid Path serialization issues, and to allow "null" as a string''' 
+
+        path = str(pathstr) # in case a Path object is passed
         data = load_reference_lock()
         now_iso = datetime.utcnow().isoformat() + "Z"
 
@@ -85,8 +88,10 @@ class ReferenceLockManager:
         return data
 
     @staticmethod
-    def update_lock_src(path: Path, flags: list[str]) -> dict:
-        path = str(path)
+    def update_lock_src(pathstr: str, flags: list[str]) -> dict:
+        """ Update or add a src entry in the reference lock file. """
+        #'''use pathstr instead of path to avoid Path serialization issues, and to allow "null" as a string''' 
+        path = str(pathstr) # in case a Path object is passed
         data = load_reference_lock()
         now_iso = datetime.utcnow().isoformat() + "Z"
 

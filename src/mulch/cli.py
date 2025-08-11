@@ -8,6 +8,8 @@ from enum import Enum
 import datetime
 from importlib.metadata import version, PackageNotFoundError
 from pprint import pprint
+from rich.table import Table
+from rich.console import Console
 
 from mulch.decorators import with_logging
 from mulch.workspace_manager_generator import WorkspaceManagerGenerator
@@ -16,7 +18,7 @@ from mulch.logging_setup import setup_logging, setup_logging_portable
 from mulch.helpers import dedupe_paths, open_editor, calculate_nowtime_foldername, get_local_appdata_path, get_default_untitled_workspace_name_based_on_operating_system, get_global_config_path, index_to_letters, get_username_from_home_directory
 from mulch.commands.dotfolder import create_dot_mulch
 from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
-from mulch.constants import FALLBACK_SCAFFOLD_TOML, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
+from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
 from mulch.scaffold_loader import load_scaffold_file, resolve_scaffold
 from mulch.reference_lock_manager import ReferenceLockManager, build_flags
@@ -115,11 +117,16 @@ def src(
     #enforce_mulch_folder: bool = typer.Option(False,"--enforce-mulch-folder-only-no-fallback", "-e", help = "This is leveraged in the CLI call by the context menu Mulch command PS1 to ultimately mean 'If you run Mulch and there is no .mulch folder, one will be generated. If there is one, it will use the default therein.' "),
     stealth: bool = typer.Option(False, "--stealth", "-s", help="Put source files in .mulch/src/ instead of src/."),
     force: bool = typer.Option(False, "--force", help="Override existing, forced."),
+    expliref: bool = typer.Option(None, "--wrkspc-in-root/--wrkspc-in-wrkspc", "-wr/-ww", help="Allows you to run src command without first running the workspace command and without a prompt for more input. ww correlates here flag, wr correlates with late thereof.")
     ):
     """
     Build the workspace_manager.py file in the source code, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
+    # to set the embedded reference location for workspace_manager
+    if expliref is not None:
+        flags = build_flags(here=expliref)
+        ReferenceLockManager.update_lock_workspace(pathstr="null", flags=flags) # "null" as a string is acceptable for pathstr, because if no workspace registered yet, expliref provides a basis for the workspace_manager.py references to be generated.
 
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
@@ -143,8 +150,7 @@ def src(
         typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)    
         # create reference lock file contents for src
         flags = build_flags(stealth=stealth)
-        ReferenceLockManager.update_lock_src(path=mgf.src_path, flags=flags)
-
+        ReferenceLockManager.update_lock_src(pathstr=str(mgf.src_path), flags=flags) # convert Path to str for serialization, at the point of input for clarity. "null" is acceptable as a string.
 class NamingPattern(str,Enum):
     date = "date"
     new = "new"
@@ -244,7 +250,7 @@ def workspace(
 
     # create reference lock file contents for workspace 
     flags = build_flags(here=here)
-    ReferenceLockManager.update_lock_workspace(path=workspaces_dir / name, flags=flags)
+    ReferenceLockManager.update_lock_workspace(pathstr=str(workspaces_dir / name), flags=flags)
     
 @app.command()
 def context():
@@ -255,40 +261,7 @@ def context():
     install_context.setup()
     
 
-from rich.table import Table
-from rich.console import Console
 
-#@with_logging(use_portable=True)
-@app.command()
-def order(
-    target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
-):
-    """
-    Show the ordered list of mulch scaffold search paths and indicate which exist.
-    """
-    console = Console()
-
-    table = Table(title="Mulch Scaffold Order of Respect")
-
-    table.add_column("Index", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Path", style="magenta")
-    table.add_column("Exists?", justify="center", style="green")
-
-    unique_order_of_respect = dedupe_paths(ORDER_OF_RESPECT)
-
-    typer.echo(f"ORDER_OF_RESPECT list:")
-    for idx, p in enumerate(unique_order_of_respect):
-        typer.echo(f"  {idx+1}: {p} ({p.resolve() if p.exists() else 'does not exist'})")
-
-
-    for i, path in enumerate(unique_order_of_respect, start=1):
-        base_path = (target_dir / path) if not path.is_absolute() else path
-        resolved_path = (base_path / "mulch.toml").resolve()
-        exists = resolved_path.exists()
-        table.add_row(str(i), str(resolved_path), "✅" if exists else "❌")
-
-    console.print(table)
-    
 def load_template_choice_dictionary_from_file():
     """
     Attempts to load a TOML or JSON template choice dictionary from known fallback paths.
@@ -305,80 +278,188 @@ def load_template_choice_dictionary_from_file():
     raise typer.Exit(code=1)
 
 @app.command()
-def seed(#def dotmulch( 
-    target_dir: Path = typer.Option(Path.cwd(),"--target-dir","-t", help="Target project root (defaults to current directory)."),
-    template_choice: bool = typer.Option(None,"--template-choice","-c",help = "Reference a known template for standing up workspace organization."),
-    edit: bool = typer.Option(
-        False, "--edit", "-e", help="Open the scaffold file for editing after it's created.")
-        ):
+def seed(
+    target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
+    index: int = typer.Option(None, "--index", "-i", help="Index from 'mulch order' to choose scaffold source."),
+    template_choice: bool = typer.Option(None, "--template-choice", "-c", help="Reference a known template for workspace organization."),
+    edit: bool = typer.Option(False, "--edit", "-e", help="Open scaffold file for editing after creation."),
+):
     """
+    Drop a .mulch folder to disk at the target directory.
+    The scaffold source can be selected by index (from 'mulch order') or by template choice..
+    Otherwise, Edit the .mulch/mulch.toml file manually. Coming soon: interactive prompt file filler.
+    """
+    sources = get_ordered_sources()
 
-    Drop a .mulch folder to disk, at the target directory.
-    The default scaffold is the next level of fallback in the ORDER_OF_RESPECT list.
-    Edit the .mulch/mulch.toml file manually. Coming soon: interactive prompt file filler.  
-    """
-    scaffold_dict = resolve_scaffold(ORDER_OF_RESPECT, FILENAMES_OF_RESPECT)
-    
-    scaffold_path = target_dir / '.mulch' / DEFAULT_SCAFFOLD_FILENAME
-    if template_choice:
-        typer.secho(f"Choosing scaffold by the template (choose from options)", fg=typer.colors.WHITE)
+    # Determine scaffold_dict depending on index or template_choice
+    if index is not None:
+        if index < 1 or index > len(sources):
+            raise typer.Exit(f"Invalid index {index}. Run 'mulch order' to see valid indices.")
+        selected_source = sources[index - 1]
+
+        if selected_source == "FALLBACK_SCAFFOLD":
+            typer.echo(f"Using scaffold from embedded fallback (order index {index}).")
+            scaffold_dict = FALLBACK_SCAFFOLD
+        else:
+            # Compose path to mulch.toml and load if exists
+            scaffold_path = (target_dir / selected_source) if not Path(selected_source).is_absolute() else Path(selected_source)
+            scaffold_path = (scaffold_path / "mulch.toml").resolve()
+
+            if scaffold_path.exists():
+                typer.echo(f"Using scaffold from file: {scaffold_path} (order index {index})")
+                with open(scaffold_path, "r", encoding="utf-8") as f:
+                    scaffold_dict = toml.load(f)
+            else:
+                raise typer.Exit(f"No scaffold file found at {scaffold_path}")
+
+    elif template_choice:
+        typer.secho(f"Choosing scaffold by template (choose from options)", fg=typer.colors.WHITE)
         template_choice_dict = load_template_choice_dictionary_from_file()
-        scaffold_dict = template_choice_dict[template_choice] # template choice must be a number 1-9
-    if scaffold_path.exists():
-        if not typer.confirm(f"⚠️ {scaffold_path} already exists. Overwrite?"):
-            raise typer.Abort()
-    scaffold_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(scaffold_path, "w", encoding="utf-8") as f:
-        toml.dump(scaffold_dict,f)
-            
-    typer.echo(f"✅ Wrote .mulch to: {scaffold_path}")
+        scaffold_dict = template_choice_dict[template_choice]  # Make sure template_choice is a valid key
+        path = "DEVELOPMENT: template_choice is not implemented yet, but it will be a number 1-9."
+        typer.echo(f"Using template from file: {path}")
+
+    else:
+        # Neither index nor template choice: pick first available scaffold from sources
+        scaffold_dict = None
+        for idx, source in enumerate(sources, start=1):
+            if source == "FALLBACK_SCAFFOLD":
+                typer.echo(f"Using scaffold from embedded fallback (order index {idx}).")
+                scaffold_dict = FALLBACK_SCAFFOLD
+                break
+            path = (target_dir / source) if not Path(source).is_absolute() else Path(source)
+            path = (path / "mulch.toml").resolve()
+            if path.exists():
+                typer.echo(f"Using scaffold from file: {path} (order index {idx})")
+                with open(path, "r", encoding="utf-8") as f:
+                    scaffold_dict = toml.load(f)
+                break
+
+        if scaffold_dict is None:
+            raise typer.Exit("No available scaffold found in any source.")
+
+    # Write scaffold to target_dir/.mulch/mulch.toml
+    output_path = target_dir / ".mulch" / DEFAULT_SCAFFOLD_FILENAME
+    if output_path.exists() and not typer.confirm(f"⚠️ {output_path} already exists. Overwrite?"):
+        raise typer.Abort()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        toml.dump(scaffold_dict, f)
+
+    typer.echo(f"✅ Wrote .mulch to: {output_path}")
 
     if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?"):
-        open_editor(scaffold_path)
+        open_editor(output_path)
 
-    typer.secho("✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",fg=typer.colors.WHITE)
-    typer.echo("⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch src'.")
-    
-    build_dotmulch_standard_contents(target_dir = Path.cwd())
+    typer.secho(
+        "✏️  You can now manually edit the folder contents to customize your workspace layout and other mulch configuration.",
+        fg=typer.colors.WHITE,
+    )
+    typer.echo(
+        "⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch src'."
+    )
+
+    build_dotmulch_standard_contents(target_dir=target_dir)
+
+#@with_logging(use_portable=True)
+@app.command()
+def order(target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t")):
+    """
+    Show the ordered list of mulch scaffold search paths, and also the FALLBACK_SCAFFOLD variable, and indicate which exist.
+    """
+    console = Console()
+    sources = get_ordered_sources()
+
+    typer.echo(f"Mulch Scaffold Order of Respect:")
+    for idx, source in enumerate(sources, start=1):
+        if source == "FALLBACK_SCAFFOLD":
+            display_path = "FALLBACK_SCAFFOLD"
+            exists = True  # Always exists because embedded
+            typer.echo(f"  {idx}: FALLBACK_SCAFFOLD  ({'exists' if exists else 'does not exist'})")
+
+        else:
+            base_path = (target_dir / source) if not Path(source).is_absolute() else Path(source)
+            resolved_path = (base_path / "mulch.toml").resolve()
+            display_path = str(resolved_path)
+            exists = resolved_path.exists()
+            typer.echo(f"  {idx}: {display_path} ({'exists' if exists else 'does not exist'})")
+
+        
+    table = Table(title="Mulch Scaffold Order of Respect")
+    table.add_column("Index", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Path", style="magenta")
+    table.add_column("Exists?", justify="center", style="green")
+
+    for idx, source in enumerate(sources, start=1):
+        if source == "FALLBACK_SCAFFOLD":
+            display_path = "FALLBACK_SCAFFOLD"
+            exists = True  # Always exists because embedded
+        else:
+            base_path = (target_dir / source) if not Path(source).is_absolute() else Path(source)
+            resolved_path = (base_path / "mulch.toml").resolve()
+            display_path = str(resolved_path)
+            exists = resolved_path.exists()
+
+        table.add_row(str(idx), display_path, "✅" if exists else "❌")
+
+    console.print(table)
+
+def get_ordered_sources():
+    return list(dedupe_paths(ORDER_OF_RESPECT)) + ["FALLBACK_SCAFFOLD"]
 
 @app.command()
-def show(index: int = typer.Argument(None, help="Index from 'mulch order' to display")):
+def show(index: int = typer.Argument(None, help="Index from 'mulch order' to display"),
+         target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t")):
     """
     Show the scaffold from the first available source in the order of respect,
     or from the specific index if provided.
     """
-    # Prepare the order of respect unique and resolved paths
-    unique_order_of_respect = dedupe_paths(ORDER_OF_RESPECT)
+    sources = get_ordered_sources()
 
-    # If an index is given, adjust to 0-based and target that path
     if index is not None:
-        if index < 1 or index > len(unique_order_of_respect):
+        if index < 1 or index > len(sources):
             raise typer.Exit(f"Invalid index {index}. Run 'mulch order' to see valid indices.")
-        candidate_dir = unique_order_of_respect[index - 1]
-        paths_to_check = [candidate_dir]
-    else:
-        # Otherwise, check in priority order
-        paths_to_check = unique_order_of_respect
 
-    for candidate in paths_to_check:
-        path = Path(candidate) / "mulch.toml"
-        if path.exists():
-            typer.echo(f"Loaded scaffold from: {path}")
-            if path.suffix.lower() == ".toml":
-                
-                with open(path, "r", encoding="utf-8") as f:
-                    scaffold = toml.load(f)
-            else:
-                raise typer.Exit(f"Unsupported scaffold file format: {path.suffix}")
+        selected = sources[index - 1]
 
+        if selected == "FALLBACK_SCAFFOLD":
+            scaffold = FALLBACK_SCAFFOLD  # your embedded dict
+            print("Loaded scaffold from embedded fallback structure.")
             print(toml.dumps(scaffold))
             return
 
-    # Fallback
-    scaffold = load_scaffold_file()  # Your embedded fallback
-    print("Loaded scaffold from embedded fallback structure.")
-    print(toml.dumps(scaffold))
+        path = (target_dir / selected) if not Path(selected).is_absolute() else Path(selected)
+        path = (path / "mulch.toml").resolve()
 
+        if path.exists():
+            typer.echo(f"Loaded scaffold from: {path}")
+            with open(path, "r", encoding="utf-8") as f:
+                scaffold = toml.load(f)
+            print(toml.dumps(scaffold))
+            return
+        else:
+            raise typer.Exit(f"No scaffold file found at: {path}")
+
+    else:
+        # No index given: check all sources in order until one loads
+        for source in sources:
+            if source == "FALLBACK_SCAFFOLD":
+                scaffold = FALLBACK_SCAFFOLD
+                print("Loaded scaffold from embedded fallback structure.")
+                print(toml.dumps(scaffold))
+                return
+
+            path = (target_dir / source) if not Path(source).is_absolute() else Path(source)
+            path = (path / "mulch.toml").resolve()
+
+            if path.exists():
+                typer.echo(f"Loaded scaffold from: {path}")
+                with open(path, "r", encoding="utf-8") as f:
+                    scaffold = toml.load(f)
+                print(toml.dumps(scaffold))
+                return
+
+        raise typer.Exit("No scaffold found in any source.")
 
 if __name__ == "__main__":
     app()
