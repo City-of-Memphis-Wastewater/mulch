@@ -4,6 +4,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.36] - 2025-08-11
+
+### Added
+- Support for multiple `src` instances in `reference.lock` with `"instances"` list.
+- `list_src()` and `list_workspaces()` methods added to `ReferenceLockManager` for listing registered instances.
+- Improved handling of duplicate `src` and workspace paths with flag overwriting.
+- Optional metadata embedding per workspace and src instance considered for more granular tracking.
+
+### Changed
+- `"paths"` key renamed to `"instances"` in both `"workspaces"` and `"src"` sections of `reference.lock`.
+- Validation and update logic adjusted to match new `instances` schema.
+- `build_flags()` function changed to `build_flags_record()`, with more inclusion of flags from both the `src` and `workspace` CLI commands.
+
+### Fixed
+- Removed legacy singular `"src.path"` and `"src.flags"` from `reference.lock` to avoid structural conflicts.
+- Corrected flag assignment for `src` entries ensuring flags are properly saved and listed.
+
+---
+
 ## [0.2.32] - 2025-08-10
 
 ### Added
