@@ -172,8 +172,7 @@ class WorkspaceInstanceFactory:
         ]
         files = [
             "queries/historical/default-queries.toml",
-            "data/processed/monthly/README.md",
-            "secrets/secrets-example.yaml"
+            "data/processed/monthly/README.md"
         ]
         """
         scaffold_data = self.lock_data.get("scaffold", {})
@@ -259,7 +258,7 @@ class WorkspaceInstanceFactory:
         if set_default and not self.here:
             self.create_default_workspace_toml(self.workspace_dir.parent, self.workspace_name)
         
-        typer.secho(f"✨ Workspace created at: {self.workspace_name}", fg=typer.colors.BRIGHT_GREEN)
+        typer.secho(f"✨ Workspace created at: {self.workspace_dir}", fg=typer.colors.BRIGHT_GREEN)
 
     
     @classmethod
@@ -294,7 +293,7 @@ class WorkspaceInstanceFactory:
         Avoids introducing files/folders not declared in the scaffold.
         """
         seed_map = {
-            Path("secrets") / "secrets-example.yaml": "secrets-example.yaml",
+            #Path("secrets") / "secrets-example.yaml": "secrets-example.yaml",
             Path("queries") / "default-queries.toml": "default-queries.toml",
         }
 

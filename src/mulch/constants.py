@@ -21,8 +21,7 @@ dirs = [
 ]
 files = [
     "queries/historical/default-queries.toml",
-    "data/processed/monthly/README.md",
-    "secrets/secrets-example.yaml"
+    "data/processed/monthly/README.md"
 ]'''
 FALLBACK_SCAFFOLD = toml.loads(FALLBACK_SCAFFOLD_TOML)
 

@@ -126,7 +126,7 @@ def src(
     Establish a logs folder at root, with the logging.json file.
     """
     command_line = ""#.join(sys.argv) # broken currently
-    command_line = "coming soon"
+    command_line = "null"
     typer.echo(f"command_line = {command_line}")
     flags = build_flags_record(expliref=expliref,force=force,stealth=stealth,name=name)
     if name is None:
@@ -215,7 +215,7 @@ def workspace(
     Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
     command_line = ""#.join(sys.argv) # broken currently
-    command_line = "coming soon"
+    command_line = "null"
     typer.echo(f"command_line = {command_line}")
     # Provide instant feedback on the --here setting, if used.
     if here:
