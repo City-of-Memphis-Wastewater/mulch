@@ -140,5 +140,6 @@ This document provides an in-depth discussion and best practices to help you nav
 
 ## Videos
 
-mulch 0.2.39 overview (4:34): https://youtu.be/oUQyg_Uw-ec?feature=shared
-mulch 0.2.32 demo (18:10): https://youtu.be/HFK8fRe-E4Y
+- mulch 0.2.39 overview (4:34): https://youtu.be/oUQyg_Uw-ec
+
+- mulch 0.2.32 demo (18:10): https://youtu.be/HFK8fRe-E4Y
