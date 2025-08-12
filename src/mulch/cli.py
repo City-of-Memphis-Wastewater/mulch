@@ -125,14 +125,24 @@ def src(
     Build the workspace_manager.py file in the source code, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
+    command_line = ""#.join(sys.argv) # broken currently
+    command_line = "coming soon"
+    typer.echo(f"command_line = {command_line}")
     flags = build_flags_record(expliref=expliref,force=force,stealth=stealth,name=name)
     if name is None:
         project_name = target_dir.name
     else: 
         project_name = name
-    # to set the embedded reference location for workspace_manager
-    if expliref is not None:
-        ReferenceLockManager.update_lock_workspace(pathstr="null", flags=flags) # "null" as a string is acceptable for pathstr, because if no workspace registered yet, expliref provides a basis for the workspace_manager.py references to be generated.
+    
+    '''
+    ## A Rule: Run `mulch workspace` at least once before running `mulch src`
+    (particularly if you want to run `mulch workspace --here`)
+    - For `mulch src` to make the proper references, if you plan to use `--here` flag, you must run `mulch workspace --here` at least once first, to contribute some truth to the `.mulch/reference.lock` file.
+    - If you run `mulch src` without first running `mulch workspace`, the workspace_manager.py references will include to the standard /workspaces/ reference, as if the `--here` flag was not used.
+    '''
+    # Set and infer the embedded reference location for workspace_manager, in case you want to successfully run `mulch src` before 
+    if expliref is not None: # Note that this is the src command, not the workspace command.
+        ReferenceLockManager.update_lock_workspace(pathstr="null", command_line = command_line, flags=flags) # "null" as a string is acceptable for pathstr, because if no workspace registered yet, expliref provides a basis for the workspace_manager.py references to be generated.
 
     order_of_respect_local = ORDER_OF_RESPECT
     if _all_order_of_respect_failed(order_of_respect_local):
@@ -159,7 +169,7 @@ def src(
         typer.secho(f"📁 Source code created", fg=typer.colors.BRIGHT_GREEN)    
         # create reference lock file contents for src
         flags = build_flags_record(expliref=expliref,force=force,stealth=stealth)
-        ReferenceLockManager.update_lock_src(pathstr=str(mgf.src_path), flags=flags) # convert Path to str for serialization, at the point of input for clarity. "null" is acceptable as a string.
+        ReferenceLockManager.update_lock_src(pathstr=str(mgf.src_path), command_line = command_line ,flags=flags) # convert Path to str for serialization, at the point of input for clarity. "null" is acceptable as a string.
 
 class NamingPattern(str,Enum):
     date = "date"
@@ -204,7 +214,9 @@ def workspace(
     """
     Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
-    command_line = "".join(sys.argv)
+    command_line = ""#.join(sys.argv) # broken currently
+    command_line = "coming soon"
+    typer.echo(f"command_line = {command_line}")
     # Provide instant feedback on the --here setting, if used.
     if here:
         logger.info(f"`here`: True")
@@ -263,7 +275,7 @@ def workspace(
     wif.create_workspace(set_default=set_default)
 
     # create reference lock file contents for workspace 
-    ReferenceLockManager.update_lock_workspace(pathstr=str(workspaces_dir / name), flags=flags)
+    ReferenceLockManager.update_lock_workspace(pathstr=str(workspaces_dir / name), command_line = command_line, flags=flags)
     
 @app.command()
 def context():

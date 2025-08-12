@@ -26,7 +26,6 @@ def build_flags_record(here: bool = False, stealth: bool = False, force: bool = 
         flags.append("--force")
     if name:
         flags.append("--name")
-        print("\nNAME FLAG ADDED\n")
     if pattern:
         flags.append("--pattern")
     if expliref:
@@ -70,7 +69,7 @@ class ReferenceLockManager:
         save_reference_lock(data)
 
     @staticmethod
-    def update_lock_workspace(pathstr: str, flags: list[str]) -> dict:
+    def update_lock_workspace(pathstr: str, command_line: str, flags: list[str]) -> dict:
         """ Update or add a workspace entry in the reference lock file. """
 
         # use pathstr instead of path to avoid Path serialization issues, and to allow "null" as a string
@@ -85,9 +84,12 @@ class ReferenceLockManager:
         for ws in instances:
             if ws["path"] == path:
                 ws["flags"] = flags
+                ws["command_line"] = command_line
                 break
         else:
-            instances.append({"path": path, "flags": flags})
+            instances.append({"path": path, 
+                              "flags": flags,
+                              "command_line": command_line})
 
         data.setdefault("metadata", {})
         data["metadata"]["workspace_updated"] = now_iso
@@ -97,7 +99,7 @@ class ReferenceLockManager:
         return data
 
     @staticmethod
-    def update_lock_src(pathstr: str, flags: list[str]) -> dict:
+    def update_lock_src(pathstr: str, command_line: str, flags: list[str]) -> dict:
         path = str(pathstr)
         data = load_reference_lock()
         now_iso = datetime.utcnow().isoformat() + "Z"
@@ -109,9 +111,12 @@ class ReferenceLockManager:
         for sourcepath in instances:
             if sourcepath["path"] == path:
                 sourcepath["flags"] = flags
+                sourcepath["command_line"] = command_line
                 break
         else:
-            instances.append({"path": path, "flags": flags})
+            instances.append({"path": path,
+                              "flags": flags,
+                              "command_line": command_line})
 
         data.setdefault("metadata", {})
         data["metadata"]["src_updated"] = now_iso
