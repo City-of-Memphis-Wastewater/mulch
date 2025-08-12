@@ -10,6 +10,7 @@ from importlib.metadata import version, PackageNotFoundError
 from pprint import pprint
 from rich.table import Table
 from rich.console import Console
+import sys
 
 from mulch.decorators import with_logging
 from mulch.workspace_manager_generator import WorkspaceManagerGenerator
@@ -124,14 +125,13 @@ def src(
     Build the workspace_manager.py file in the source code, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     Establish a logs folder at root, with the logging.json file.
     """
-    
+    flags = build_flags_record(expliref=expliref,force=force,stealth=stealth,name=name)
     if name is None:
         project_name = target_dir.name
     else: 
         project_name = name
     # to set the embedded reference location for workspace_manager
     if expliref is not None:
-        flags = build_flags_record(expliref=expliref,force=force,stealth=stealth)
         ReferenceLockManager.update_lock_workspace(pathstr="null", flags=flags) # "null" as a string is acceptable for pathstr, because if no workspace registered yet, expliref provides a basis for the workspace_manager.py references to be generated.
 
     order_of_respect_local = ORDER_OF_RESPECT
@@ -195,7 +195,7 @@ def get_folder_name(pattern: NamingPattern = 'date', base_name: str = "New works
 @with_logging
 def workspace(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-r", help="Target project root (defaults to current directory)."),
-    pattern: NamingPattern = typer.Option(NamingPattern.date, "--pattern", "-p",  help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'new' for os-specific pattern like 'New workspace (n)'"),
+    pattern: NamingPattern = typer.Option(None, "--pattern", "-p",  help = "Choose naming pattern: 'date' for YYY_MMMMM_DD, or 'new' for os-specific pattern like 'New workspace (n)'"),
     name: str = typer.Option(None, "--name", "-n", help="Name of the workspace to create."),
     here: bool = typer.Option(False, "--here", "-h", help="The new named workspace directory should be placed immediately in the current working directory, rather than nested within a `/workspaces/` directory."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Write default-workspace.toml"),
@@ -204,17 +204,22 @@ def workspace(
     """
     Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
-    # Provide instant feedback on the --here setting.
+    command_line = "".join(sys.argv)
+    # Provide instant feedback on the --here setting, if used.
     if here:
-        typer.secho(f"`here`: True.",fg=typer.colors.WHITE)
+        logger.info(f"`here`: True")
     
     # First determine workspaces directory
     workspaces_dir = WorkspaceInstanceFactory.determine_workspaces_dir(
         target_dir=target_dir,
         here=here
     )
-    # Second determine the value of name. If the name flag was used, use the explicitly provided name.
-    # If the name flag was not used, check the value of the pattern flag for which automated name pattern to use.
+    # Second determine the flags used from the command line and record them, before they are changed in steps Three and Four immediately below.
+    flags = build_flags_record(here=here,name=name,pattern=pattern)
+    # Third, use the default pattern, if the pattern flag was not used.
+    if pattern is None:
+        pattern = NamingPattern.date # only necessary if name is None
+    # Fourth, assign the patterned name, if the name flag was not used to supply the name explicitly.
     if name is None:
         name=get_folder_name(pattern = pattern, workspaces_dir=workspaces_dir)
     
@@ -258,7 +263,6 @@ def workspace(
     wif.create_workspace(set_default=set_default)
 
     # create reference lock file contents for workspace 
-    flags = build_flags_record(here=here,name=name,pattern=pattern)
     ReferenceLockManager.update_lock_workspace(pathstr=str(workspaces_dir / name), flags=flags)
     
 @app.command()
@@ -269,8 +273,6 @@ def context():
     from mulch.scripts.install import install_context
     install_context.setup()
     
-
-
 def load_template_choice_dictionary_from_file():
     """
     Attempts to load a TOML or JSON template choice dictionary from known fallback paths.

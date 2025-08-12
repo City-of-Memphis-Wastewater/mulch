@@ -1,6 +1,6 @@
 # mulch — Workspace Factory CLI
 
-`mulch` is a lightweight CLI bootstrapper and right-click context menu tool. Use `mulch` to empower your file system. There with multiple use cases for enhanced directory scaffolding, both as an individual and in a shared drive with a team. Developers will enjoy quickly standing up Python projects, and end-users will enjoy right-clicking in the file browser to set up file organization the same way every time, customizable to each directory.
+`mulch` is a lightweight CLI bootstrapper and right-click context menu tool. Use `mulch` to empower your file system. There are multiple use cases for enhanced directory scaffolding, both as an individual and in a shared drive with a team. Developers will enjoy quickly standing up Python projects, and end-users will enjoy right-clicking in the file browser to set up file organization the same way every time, customizable to each directory.
 
 ---
 
@@ -112,12 +112,14 @@ You can choose only one set of workspace references. You can run `mulch src --fo
 
 ---
 
-## A Rule: Run `mulch workspace` at least once before running `mulch src`, particularly if you want to run `mulch workspace --here`
+## A Rule: Run `mulch workspace` at least once before running `mulch src`
+(particularly if you want to run `mulch workspace --here`)
 
 - For `mulch src` to make the proper references, if you plan to use `--here` flag, you must run `mulch workspace --here` at least once first, to contribute some truth to the `.mulch/reference.lock` file.
 - If you run `mulch src` without first running `mulch workspace`, the workspace_manager.py references will include to the standard /workspaces/ reference, as if the `--here` flag was not used.
 - If you end up running `mulch workspace` without the `--here` flag, I don't think you'll have any trouble.
-- The `reference.lock` should enforce consistency, not allowing you to mix `--here` workspaces with lackthereof workspaces in the same project. 
+- The `reference.lock` could hypthetically enforce consistency, not allowing you to mix `--here` workspaces with lackthereof workspaces in the same project. 
+  - Or, more likely, the `reference.lock` file will record wherever you place workspaces or src directories, to enable you to be inconsistent.
   - This has the added benfit of adjusting the behavior of the context menu `mulch workspace`, which is assumed to be `mulch workspace --here --pattern new`
   - With enforcement from the `reference.lock` file, the `--here` flag can be ignored, if it was initally not used. Is this what we want?  
   - No warning will appear for the context menu use case. Choose wisely.

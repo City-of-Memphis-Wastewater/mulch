@@ -27,6 +27,8 @@ class PathContext:
 
     @property
     def module_dir(self) -> Path:
+        if self.project_name is None:
+            self.project_name = self.base_path.name
         return self.source_dir / self.project_name
 
     @property

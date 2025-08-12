@@ -26,6 +26,7 @@ def build_flags_record(here: bool = False, stealth: bool = False, force: bool = 
         flags.append("--force")
     if name:
         flags.append("--name")
+        print("\nNAME FLAG ADDED\n")
     if pattern:
         flags.append("--pattern")
     if expliref:

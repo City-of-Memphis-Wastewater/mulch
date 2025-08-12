@@ -77,8 +77,7 @@ class WorkspaceInstanceFactory:
         self.workspace_dir = workspaces_dir / workspace_name # relies on WorkspaceInstanceFactory.determine_workspaces_dir() rather than PathContext. 
         self.workspace_lock_path = self.context.workspace_lock_path
         self.flags_lock_path = self.context.flags_lock_path
-        self.manager_lock_path = self.context.manager_lock_path
-        self.manager_path = self.context.manager_path 
+
 
         self.project_name = self.base_path.name
 

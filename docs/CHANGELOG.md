@@ -4,6 +4,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.41] - 2025-08-11
+
+### Fixed
+- Remove calculations for `manager_path` and `manager_lock_path` in `WorkspaceInstanceFactory`; these were a holdover from when deprecated `mulch init` split into `mulch src` and `mulch workspace`.
+- Change the order of code in the CLI `workspace` command, such that build_flags_record() is called before the defaults are assigned.
+---
+
 ## [0.2.40] - 2025-08-11
 
 ### Added
