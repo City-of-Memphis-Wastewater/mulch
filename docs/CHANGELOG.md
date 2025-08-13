@@ -8,12 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Registry command for context menu is broken, either in Regedit, call-mulch-workspace.ps1, or mulch-workspace.ps1
+    - Improve pitfalls in call-mulch-workspace.py
+	- Identify pitfalls in the value of the registry commands.
+	- Generate issues with code snippets for solutions to be implemented given WiFi.
 
 ### Leanings
 - Troubleshooting in run.exe command # cmd.exe /c powershell.exe -NoProfile -NoExit -ExecutionPolicy Bypass -ArgumentList @('mulch', 'workspace', '--here', '--pattern', 'new')
 - Troubleshooting in powershell # & "$env:USERPROFILE\.mulch\call-mulch-workspace.ps1" "C:\Users\george.bennett\dev"
 - Troubleshooting in powershell # powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.mulch\call-mulch-workspace.ps1" "$PWD"
 - Troubleshooting in regedit, extra quotes and slashes # powershell.exe -NoProfile -ExecutionPolicy Bypass -File "\"%USERPROFILE%\.mulch\call-mulch-workspace.ps1\"" "%V" 
+- The truth is we will have to hardcode the registry paths for the context menu installation. Which clarifies that we need an uninstall script. Check issues
 
 ---
 
