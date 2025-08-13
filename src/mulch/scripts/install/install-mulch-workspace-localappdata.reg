@@ -11,13 +11,13 @@ Windows Registry Editor Version 5.00
 "Position"="Top"
 "CommandFlags"=dword:00000000
 [HKEY_CURRENT_USER\Software\Classes\Directory\shell\mulch_workspace\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\mulch\\call-mulch-workspace.ps1\" \"%L\""
+@="powershell.exe -ExecutionPolicy Bypass -NoExit -File \"%LOCALAPPDATA%\\mulch\\call-mulch-workspace.ps1\" \"%V\""
 
 ; Right-click background of a folder
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_workspace]
 @="mulch workspace"
-"Icon"="\"%LOCALAPPDATA%\\mulch\\mulch-icon.ico"
+"Icon"="%LOCALAPPDATA%\\mulch\\mulch-icon.ico"
 "Position"="Top"
 "CommandFlags"=dword:00000000
 [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\mulch_workspace\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%LOCALAPPDATA%\\mulch\\call-mulch-workspace.ps1\" \"%V\""
+@="powershell.exe -ExecutionPolicy Bypass -NoExit -File \"%LOCALAPPDATA%\\mulch\\call-mulch-workspace.ps1\" \"%V\""

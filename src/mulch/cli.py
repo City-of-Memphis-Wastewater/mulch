@@ -216,10 +216,10 @@ def workspace(
     """
     command_line = ""#.join(sys.argv) # broken currently
     command_line = "null"
-    typer.echo(f"command_line = {command_line}")
+    #typer.echo(f"command_line = {command_line}")
     # Provide instant feedback on the --here setting, if used.
     if here:
-        logger.info(f"`here`: True")
+        logger.debug(f"`here`: True")
     
     # First determine workspaces directory
     workspaces_dir = WorkspaceInstanceFactory.determine_workspaces_dir(

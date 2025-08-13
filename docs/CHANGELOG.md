@@ -4,7 +4,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.41] - 2025-08-11
+## [0.2.43] - 2025-08-13
+
+### Fixed
+- Registry command for context menu is broken, either in Regedit, call-mulch-workspace.ps1, or mulch-workspace.ps1
+
+### Leanings
+- Troubleshooting in run.exe command # cmd.exe /c powershell.exe -NoProfile -NoExit -ExecutionPolicy Bypass -ArgumentList @('mulch', 'workspace', '--here', '--pattern', 'new')
+- Troubleshooting in powershell # & "$env:USERPROFILE\.mulch\call-mulch-workspace.ps1" "C:\Users\george.bennett\dev"
+- Troubleshooting in powershell # powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.mulch\call-mulch-workspace.ps1" "$PWD"
+- Troubleshooting in regedit, extra quotes and slashes # powershell.exe -NoProfile -ExecutionPolicy Bypass -File "\"%USERPROFILE%\.mulch\call-mulch-workspace.ps1\"" "%V" 
+
+---
+
+## [0.2.42] - 2025-08-13
 
 ### Fixed
 - Remove calculations for `manager_path` and `manager_lock_path` in `WorkspaceInstanceFactory`; these were a holdover from when deprecated `mulch init` split into `mulch src` and `mulch workspace`.
