@@ -4,10 +4,10 @@ $userProfilePath = "$env:USERPROFILE\.mulch"
 
 if (Test-Path "$localAppDataPath\call-mulch-workspace.ps1") {
 	$regFile    = Join-Path $localAppDataPath "install-mulch-workspace-localappdata.reg"
-	$targetPath = $localAppDataPath
+	#$targetPath = $localAppDataPath
 } elseif (Test-Path "$userProfilePath\call-mulch-workspace.ps1") {
 	$regFile    = Join-Path $userProfilePath "install-mulch-workspace-userprofile.reg"
-	$targetPath = $userProfilePath
+	#$targetPath = $userProfilePath
 } else {
     Write-Error "No mulch installation found in either $localAppDataPath or $userProfilePath. 
 Please run build-local-mulch-dir.ps1 first.

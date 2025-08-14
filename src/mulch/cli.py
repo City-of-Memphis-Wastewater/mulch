@@ -484,5 +484,19 @@ def show(index: int = typer.Argument(None, help="Index from 'mulch order' to dis
 
         raise typer.Exit("No scaffold found in any source.")
 
+@app.command()
+def validate():
+    pass
+
+@app.command()
+def switch():
+    """
+    Switch the current workspace to a different one.
+    This is a placeholder for future implementation.
+    """
+    typer.secho("This command is not yet implemented.", fg=typer.colors.YELLOW)
+    typer.echo("You can switch workspaces by manually changing the workspace directory in your code editor or terminal.")
+    typer.echo("Future versions of Mulch may support this functionality directly.")
+
 if __name__ == "__main__":
     app()

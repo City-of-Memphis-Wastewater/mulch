@@ -2,8 +2,51 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ---
 
+## [0.2.44] - 2025-08-14
+
+### Changes
+- Change user configuration folder to `%LOCALAPPDATA%/mulch`, to deprecate %USERPROFILE%/.mulch for Windows users.
+    - Due to the risk of conflating the meaning of ".mulch": see https://github.com/City-of-Memphis-Wastewater/mulch/issues/34
+- Implement winreg
+    - Implement `reg-winreg.py`, which will hard code references to `call-mulch-workspace.ps1` but made a variable reference to the icon file.
+    - Deprecated strategy: copying an embedded `.reg` like `src\mulch\scripts\install\install-mulch-workspace-localappdata.reg`, which has a variable LocalAppData path to the `call-mulch-workspace.ps1` (this variable path is known to fail)
+    - Ignored partially implemented strategy: generating a `.reg` at installation, using `reg-backup.reg`, which includes a hardcoded path to the `call-mulch-workspace.ps1` script and which can be copied using `build-local-mulch-dir.ps1`
+	
+### Enhancements
+- Added `install_context.py` to orchestrate installation of the Mulch context menu on Windows, Linux (Thunar), and placeholder for macOS.
+- Consolidated Windows context menu installation:
+    - Removed reliance on `.reg` files with environment-variable references.
+    - Fully replaced by `reg-winreg.py`, which programmatically sets/removes registry keys.
+    - Menu item display name corrected to `"mulch workspace"` instead of showing full registry path.
+- `build-local-mulch-dir.ps1` now always creates `%LOCALAPPDATA%\mulch` and copies `call-mulch-workspace.ps1`, `mulch-workspace.ps1`, and `mulch-icon.ico`.
+- Context menu commands:
+    - `%V` used for background right-click (current folder).
+    - `%L` used for right-clicking a folder or file.
+- Introduce src/mulch/deprecated/ folder to house defunct or legacy installation and registry scripts. These files are preserved for reference and troubleshooting. They remain tracked in Git, so they are versioned and available to all clones of the repository, not just locally. Active installation now relies on build-local-mulch-dir.ps1 and reg-winreg.py.
+
+### Fixes
+- Fixed empty `%LOCALAPPDATA%\mulch` issue due to incorrect source paths in `install_context.py`.
+- Ensured deterministic failure: if required PS1/ICO files are missing, installation raises `FileNotFoundError` rather than printing misleading success messages.
+- Prevented misleading display names in registry; previously showed `"Directory\Background\shell\mulch_workspace"`.
+    
+### Notes
+- `USERPROFILE/.mulch` remains technically possible but deprecated; usage prints a warning in scripts but does not block installation.    
+- Uninstall/removal of registry entries is now deterministic via `reg-winreg.py`.
+    
+#### Deprecated / Legacy
+- Moved defunct or partially implemented registry and context menu scripts to `src/mulch/deprecated/`:
+    - `install-mulch-workspace-localappdata.reg`
+    - `install-mulch-context-by-running-reg.ps1`
+    - `reg-backup.py`
+- Reason: these approaches are replaced by `reg-winreg.py`, which hardcodes `call-mulch-workspace.ps1` paths safely and avoids unreliable variable paths in `.reg` files.
+- Legacy files retained for reference, historical purposes, and possible future troubleshooting.
+- Active installation now uses `build-local-mulch-dir.ps1` + `reg-winreg.py`.
+
+---
+	
 ## [0.2.43] - 2025-08-13
 
 ### Fixed

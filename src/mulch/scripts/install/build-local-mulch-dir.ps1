@@ -1,23 +1,13 @@
 # src/mulch/scripts/install/build-local-mulch-dir.ps1
 <#
 # Usage
-## Build for userprofile
-.\build-local-mulch-dir.ps1 -Location userprofile
-
 ## Build for localappdata
-.\build-local-mulch-dir.ps1 -Location localappdata
+.\build-local-mulch-dir.ps1
 #>
-
-param (
-    [ValidateSet("userprofile", "localappdata")]
-    [string]$Location = "userprofile"
-)
-
-# Resolve target path based on parameter
-switch ($Location) {
-    "localappdata" { $targetPath = "$env:LOCALAPPDATA\mulch" }
-    "userprofile" { $targetPath = "$env:USERPROFILE\.mulch" }
-}
+# Set location to the script's own directory
+Set-Location -Path $PSScriptRoot
+# Set the target path for the local mulch directory
+$targetPath = "$env:LOCALAPPDATA\mulch" # hardcoded path for "LocalAppData/mulch", preferred over USERPROFILE so that we do allow the user to conflate the meaning of "%USERPROFILE%/.mulch" as a configuration directory rather than seeded dotmulch directory
 
 # Create folder if missing
 if (-Not (Test-Path $targetPath)) {
@@ -31,9 +21,7 @@ if (-Not (Test-Path $targetPath)) {
 $filesToCopy = @(
     "call-mulch-workspace.ps1",
     "mulch-workspace.ps1",
-    "mulch-icon.ico",
-    "install-mulch-workspace-userprofile.reg",
-    "install-mulch-workspace-localappdata.reg"
+    "mulch-icon.ico"
 )
 
 foreach ($file in $filesToCopy) {
