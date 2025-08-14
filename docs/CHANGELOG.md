@@ -2,7 +2,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
+## [0.2.46] - 2025-08-14
+### Changes
+- Updated Python version specification in pyproject.toml:
+    - Previously: python = ">=3.11"
+    - Now: python = "^3.11"
+    - This ensures dependency resolution and requirements.txt exports correctly reflect the intended 3.11+ version range while remaining compatible with future 3.x releases.
 ---
 
 ## [0.2.44] - 2025-08-14

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mulch"
-version = "0.2.45"
+version = "0.2.46"
 description = "Pythonic Typer CLI for bootstrapping standard and templated workspaces and projects. Generate introspective sourcecode workspace_manager.py Path quarterback. Controlled per-directory scaffolds using the mulch.toml file. Stealth options available for directories shared between dev and non-dev team members."
 authors = ["George Clayton Bennett <george.bennett@memphistn.gov>"]
 packages = [{ include = "mulch", from = "src" }]
@@ -23,7 +23,7 @@ include = [
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = "^3.11"
 toml = "^0.10.2"
 typer = "^0.12.3"
 click = "<8.1.7"
