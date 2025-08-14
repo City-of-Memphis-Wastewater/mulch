@@ -127,7 +127,7 @@ def src(
     """
     command_line = ""#.join(sys.argv) # broken currently
     command_line = "null"
-    typer.echo(f"command_line = {command_line}")
+    #typer.echo(f"command_line = {command_line}")
     flags = build_flags_record(expliref=expliref,force=force,stealth=stealth,name=name)
     if name is None:
         project_name = target_dir.name
