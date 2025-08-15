@@ -2,6 +2,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
+## [0.2.47] - 2025-08-14
+### Fixes
+- Move `import winreg` into platform check logic, using `platform.system() == "Windows"`, so it doesn't fail on another system incompatible with the `winreg` package.
+
+---
+
 ## [0.2.46] - 2025-08-14
 ### Changes
 - Updated Python version specification in pyproject.toml:

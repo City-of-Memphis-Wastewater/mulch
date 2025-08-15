@@ -1,7 +1,9 @@
 # mulch/reg_winreg.py
 import os
-import winreg
 from pathlib import Path
+import platform
+if platform.system() == "Windows":
+    import winreg
 
 local_app_data = Path(os.environ['LOCALAPPDATA'])
 mulch_dir = local_app_data / 'mulch'
