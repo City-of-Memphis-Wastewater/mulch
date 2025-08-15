@@ -6,13 +6,12 @@ import sys
 import os
 import shutil
 
-from mulch import reg_winreg
-
 app = typer.Typer(help="Manage mulch context menu installation")
 
 def setup():
     platform = sys.platform
     if platform.startswith("win"):
+        from mulch import reg_winreg
         # Always build LocalAppData mulch folder first
 
         # Copy files
