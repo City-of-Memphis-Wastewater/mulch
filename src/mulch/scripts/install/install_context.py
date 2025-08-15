@@ -19,7 +19,7 @@ def setup():
         target_dir = Path(os.environ['LOCALAPPDATA']) / "mulch"
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        copy_mulch_files(source_dir, target_dir)
+        copy_mulch_installation_files(source_dir, target_dir)
 
         # Registry
         reg_winreg.call()
@@ -61,11 +61,12 @@ def setup():
     else:
         raise RuntimeError(f"Unsupported platform for setup: {platform}")
 
-def copy_mulch_files(source_dir, target_dir):
+def copy_mulch_installation_files(source_dir, target_dir):
     required_files = [
         "call-mulch-workspace.ps1",
         "mulch-workspace.ps1",
-        "mulch-icon.ico"
+        "mulch-icon.ico",
+        ".mulchvision"
     ]
     missing_files = []
     for f in required_files:
