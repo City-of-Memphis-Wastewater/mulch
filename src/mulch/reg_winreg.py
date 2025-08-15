@@ -8,7 +8,8 @@ if platform.system() == "Windows":
 local_app_data = Path(os.environ['LOCALAPPDATA'])
 mulch_dir = local_app_data / 'mulch'
 mulch_dir.mkdir(parents=True, exist_ok=True)
-call_script = mulch_dir / "call-mulch-workspace.ps1"
+call_script_mulch_workspace = mulch_dir / "call-mulch-workspace.ps1"
+call_script_mulch_seed = mulch_dir / "call-mulch-seed.ps1"
 icon_path = r"%LOCALAPPDATA%\mulch\mulch-icon.ico"
 
 # Helper to delete a key tree safely
@@ -48,7 +49,9 @@ def verify_registry():
 
     required_keys = [
         r"Directory\Background\shell\mulch_workspace\command",
-        r"Directory\shell\mulch_workspace\command"
+        r"Directory\shell\mulch_workspace\command",
+        r"Directory\Background\shell\mulch_seed\command",
+        r"Directory\shell\mulch_seed\command"
     ]
 
     missing = []
@@ -72,14 +75,16 @@ def call():
     keys_to_remove = [
         r"Directory\Background\shell\mulch_workspace",
         r"Directory\shell\mulch_workspace",
+        r"Directory\Background\shell\mulch_seed",
+        r"Directory\shell\mulch_seed",
     ]
 
     # Remove existing entries
     for k in keys_to_remove:
         delete_key_tree(winreg.OpenKey(base, classes_key, 0, winreg.KEY_WRITE), k)
 
-    # Background right-click
-    background_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{call_script}" "%V"'
+    # Background right-click, mulch workspace
+    background_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{call_script_mulch_workspace}" "%V"'
     create_shell_entry(
                     base_key=winreg.OpenKey(base, classes_key, 0, winreg.KEY_WRITE),
                     menu_key_path=r"Directory\Background\shell\mulch_workspace",
@@ -87,12 +92,30 @@ def call():
                     command = background_command,
                     icon=icon_path)
 
-    # Folder right-click
-    folder_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{call_script}" "%L"'
+    # Folder right-click, mulch workspace
+    folder_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{call_script_mulch_workspace}" "%L"'
     create_shell_entry(
                     base_key = winreg.OpenKey(base, classes_key, 0, winreg.KEY_WRITE),
                     menu_key_path=r"Directory\shell\mulch_workspace",
                     display_name='mulch workspace',
+                    command=folder_command,
+                    icon=icon_path)
+    
+    # Background right-click, mulch seed
+    background_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{call_script_mulch_seed}" "%V"'
+    create_shell_entry(
+                    base_key=winreg.OpenKey(base, classes_key, 0, winreg.KEY_WRITE),
+                    menu_key_path=r"Directory\Background\shell\mulch_seed",
+                    display_name='mulch seed',
+                    command = background_command,
+                    icon=icon_path)
+
+    # Folder right-click, mulch seed
+    folder_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{call_script_mulch_seed}" "%L"'
+    create_shell_entry(
+                    base_key = winreg.OpenKey(base, classes_key, 0, winreg.KEY_WRITE),
+                    menu_key_path=r"Directory\shell\mulch_seed",
+                    display_name='mulch seed',
                     command=folder_command,
                     icon=icon_path)
 

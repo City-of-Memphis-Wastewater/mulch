@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Action
+Name=Mulch Seed
+Profiles=profile-zero;
+
+[X-Action-Profile profile-zero]
+Exec=mulch seed --edit
+MimeTypes=inode/directory;

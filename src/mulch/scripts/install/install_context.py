@@ -1,6 +1,5 @@
 # install_context.py
 import typer
-import subprocess
 from pathlib import Path
 import sys
 import os
@@ -26,35 +25,27 @@ def setup():
         reg_winreg.verify_registry()  # deterministic check
 
         print("Mulch context menu installed successfully.")
-        """
-        #ps1_path = Path(__file__).parent / "setup.ps1"
-        ps1_path = Path(__file__).parent / "build-local-mulch-dir.ps1"
-        if ps1_path.exists():
-            subprocess.run([
-                "powershell.exe",
-                "-ExecutionPolicy", "Bypass",
-                "-File",
-                str(ps1_path)
-            ], check=True)
-        else:
-            print("Skipping mulch context menu installation (setup.ps1 file not  found).")
 
-        # Create/update registry context menu
-        reg_winreg.call()
-        print("Mulch context menu installed successfully.")
-        """
     elif platform.startswith("linux"):
-        thunar_action_dir = Path.home() / ".local/share/file-   manager/actions"
+        thunar_action_dir = Path.home() / ".local/share/file-manager/actions"
         thunar_action_dir.mkdir(parents=True, exist_ok=True)
-        desktop_file_src = Path(__file__).parent / "mulch-workspace.desktop"
-        if desktop_file_src.exists():
-            desktop_file_dest = thunar_action_dir / "mulch-workspace.desktop"
-            # Use copy2 to preserve metadata
-            shutil.copy2(desktop_file_src, desktop_file_dest)
-            os.chmod(desktop_file_dest, 0o755)
-            print(f"Installed mulch context menu to {desktop_file_dest}")
-        else:
-            print("Skipping mulch context menu installation (no .desktop file found).")
+
+        menu_items = [
+            ("mulch-workspace.desktop", "mulch workspace"),
+            ("mulch-seed.desktop", "mulch seed"),
+        ]
+
+        for filename, label in menu_items:
+            src = Path(__file__).parent / filename
+            dest = thunar_action_dir / filename
+            if src.exists():
+                # Use copy2 to preserve metadata
+                shutil.copy2(src, dest)
+                os.chmod(dest, 0o755)
+                print(f"Installed `{label}` context menu item to {dest}")
+            else:
+                print(f"Skipping `{label}` context menu installation (no .desktop file found).")
+
     elif platform == "darwin":
         print("macOS detected: please implement context menu setup via Automator or Finder Service")
         # You can extend this with AppleScript or Automator commands here
@@ -65,6 +56,8 @@ def copy_mulch_installation_files(source_dir, target_dir):
     required_files = [
         "call-mulch-workspace.ps1",
         "mulch-workspace.ps1",
+        "call-mulch-seed.ps1",
+        "mulch-seed.ps1",
         "mulch-icon.ico",
         ".mulchvision"
     ]
@@ -84,7 +77,7 @@ def copy_mulch_installation_files(source_dir, target_dir):
     
 @app.command()
 def context():
-    """Install the mulch workspace right-click context menu."""
+    """Install the mulch workspace and mulch seed right-click context menu items."""
     setup()
 
 if __name__ == "__main__":

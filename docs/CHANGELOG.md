@@ -4,15 +4,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.51] - 2025-08-15
+
+### Enhancements
+- Add `mulch seed` to the context menu.
+
+---
+
 ## [0.2.49] - 2025-08-14
 
 ### Changes
 - Add `.mulchvision` to the context menu install files to be copied to LocalAppData, etc, and to install_context.copy_mulch_installation_files().
 - `install_context.copy_mulch_installation_files()` changed from old name: `install_context.copy_mulch_files()`
-
-### To do
-- Add `mulch seed` to the context menu.
-
 
 ---
 
