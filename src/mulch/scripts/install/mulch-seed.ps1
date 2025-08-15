@@ -15,6 +15,6 @@ Set-Location -Path $path
 $env:PATH += ";$env:USERPROFILE\.local\bin"
 
 ## call mulch seed, to build new .mulch folder, to generate .mulch/mulch.toml using the most available fallback, and to open mulch.toml for editing.
-mulch seed --edit 
+mulch seed 	
 
 Read-Host -Prompt "Press Enter to exit"

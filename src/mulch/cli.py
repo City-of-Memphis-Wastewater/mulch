@@ -371,7 +371,7 @@ def seed(
 
     typer.echo(f"✅ Wrote .mulch to: {output_path}")
 
-    if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?"):
+    if edit or typer.confirm("📝 Would you like to open the scaffold file for editing now?", default=True):
         open_editor(output_path)
 
     typer.secho(

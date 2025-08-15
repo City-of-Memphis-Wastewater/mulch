@@ -4,6 +4,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.52] - 2025-08-15
+
+### Changes
+- `mulch-seed.ps1` altered to use only `mulch seed` (rather than `mulch seed --edit`), as an ideal using facing experience of only one PowerShell popup window, requesting editing, rather than two confusing pop ups at once, one of the PowerShell window and then boom, the text editor pops up as well, which is disorienting.
+- Use typer.confirm() default to True for editing the scaffold file when running `mulch seed`. This means just pressing enter will be the same as selecting yes.
+
+---
+
 ## [0.2.51] - 2025-08-15
 
 ### Enhancements
