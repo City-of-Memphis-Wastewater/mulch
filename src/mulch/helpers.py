@@ -175,15 +175,24 @@ def dedupe_paths(paths):
             seen.add(resolved)
     return unique
 
-def seed(target_dir,scaffold_dict): 
+def seed(target_dir, scaffold_dict):
     """Write scaffold to target_dir/.mulch/mulch.toml"""
-    #scaffold_dict
-    output_path = target_dir / '.mulch' / 'mulch.toml'
-    if output_path.exists() and typer.confirm(f"⚠️ {output_path} already exists. Overwrite?"):
+    output_path = target_dir / ".mulch" / "mulch.toml"
+    should_write = True
+
+    if output_path.exists():
+        should_write = typer.confirm(f"⚠️ {output_path} already exists. Overwrite?")
+
+    if should_write:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        toml.dump(scaffold_dict, f)
-    typer.echo(f"✅ Wrote .mulch to: {output_path}")
+        with open(output_path, "w", encoding="utf-8") as f:
+            toml.dump(scaffold_dict, f)
+        typer.echo(f"✅ Wrote .mulch to: {output_path}")
+        return True
+
+    typer.echo("❌ Skipped writing scaffold.")
+    return False
+
 
 def workspace(base_path, scaffold_filepath, workspace_path):
     """
