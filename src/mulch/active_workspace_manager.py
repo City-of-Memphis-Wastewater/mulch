@@ -2,7 +2,7 @@
 
 import toml
 from pathlib import Path
-from datetime import datetime
+import datetime
 
 ACTIVE_WORKSPACE_PATH = Path(".mulch/active_workspace.toml")
 
@@ -15,7 +15,7 @@ def save_active_workspace(path: str):
     ACTIVE_WORKSPACE_PATH.parent.mkdir(parents=True, exist_ok=True)
     data = {
         "path": path,
-        "activated_at": datetime.utcnow().isoformat() + "Z",
+        "activated_at": datetime.datetime.utcnow().isoformat() + "Z",
     }
     with open(ACTIVE_WORKSPACE_PATH, "w", encoding="utf-8") as f:
         toml.dump(data, f)

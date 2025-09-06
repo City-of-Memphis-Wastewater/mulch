@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from datetime import datetime
+import datetime
 
 REFERENCE_LOCK_PATH = Path(".mulch/reference.lock")
 
@@ -75,7 +75,7 @@ class ReferenceLockManager:
         # use pathstr instead of path to avoid Path serialization issues, and to allow "null" as a string
         path = str(pathstr) # in case a Path object is passed, but can also be "null"
         data = load_reference_lock()
-        now_iso = datetime.utcnow().isoformat() + "Z"
+        now_iso = datetime.datetime.utcnow().isoformat() + "Z"
 
         workspaces = data.setdefault("workspaces", {})
         instances = workspaces.setdefault("instances", [])
@@ -102,7 +102,7 @@ class ReferenceLockManager:
     def update_lock_src(pathstr: str, command_line: str, flags: list[str]) -> dict:
         path = str(pathstr)
         data = load_reference_lock()
-        now_iso = datetime.utcnow().isoformat() + "Z"
+        now_iso = datetime.datetime.utcnow().isoformat() + "Z"
 
         src = data.setdefault("src", {})
         instances = src.setdefault("instances", [])

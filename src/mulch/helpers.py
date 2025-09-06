@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from pathlib import Path
 import platform
 import os
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def calculate_nowtime_foldername() -> str:
-    now = datetime.now()
+    now = datetime.datetime.now()
     # use an Obsidian-template-friendly hyphen between the month number and the month name.
     return now.strftime("%Y_%m-%B_%d")
 
@@ -190,14 +190,14 @@ def workspace(base_path, scaffold_filepath, workspace_path):
     """
     Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
     """
-    import mulch
+    from mulch.cli import MULCH_VERSION 
     from mulch.workspace_instance_factory import WorkspaceInstanceFactory
     
     with open(scaffold_filepath, "r", encoding="utf-8") as f:
         scaffold_data = toml.load(f)
     lock_data = {
         "scaffold": scaffold_data,
-        "generated_by": f"mulch {mulch.__version__}",
+        "generated_by": f"mulch {MULCH_VERSION}",
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "generated_by": get_username_from_home_directory()
     }
