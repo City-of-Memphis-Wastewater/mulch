@@ -17,8 +17,8 @@ from mulch.workspace_manager_generator import WorkspaceManagerGenerator
 from mulch.workspace_instance_factory import WorkspaceInstanceFactory
 from mulch.logging_setup import setup_logging, setup_logging_portable
 from mulch.helpers import dedupe_paths, open_editor, calculate_nowtime_foldername, get_local_appdata_path, get_default_untitled_workspace_name_based_on_operating_system, get_global_config_path, index_to_letters, get_username_from_home_directory
-from mulch.commands.dotfolder import create_dot_mulch
-from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
+#from mulch.commands.dotfolder import create_dot_mulch
+#from mulch.commands.build_dotmulch_standard_contents import build_dotmulch_standard_contents
 from mulch.constants import FALLBACK_SCAFFOLD, LOCK_FILE_NAME, DEFAULT_SCAFFOLD_FILENAME
 from mulch.workspace_status import WorkspaceStatus
 from mulch.scaffold_loader import load_scaffold_file, resolve_scaffold
@@ -304,7 +304,7 @@ def load_template_choice_dictionary_from_file():
 def seed(
     target_dir: Path = typer.Option(Path.cwd(), "--target-dir", "-t", help="Target project root (defaults to current directory)."),
     index: int = typer.Option(None, "--index", "-i", help="Index from 'mulch order' to choose scaffold source."),
-    template_choice: bool = typer.Option(None, "--template-choice", "-c", help="Reference a known template for workspace organization."),
+    template_choice: int = typer.Option(None, "--template-choice", "-c", help="Reference a known template for workspace organization."),
     edit: bool = typer.Option(False, "--edit", "-e", help="Open scaffold file for editing after creation."),
 ):
     """
@@ -382,7 +382,8 @@ def seed(
         "⚙️  Changes to the scaffold file will directly affect the workspace layout and the generated workspace_manager.py when you run 'mulch src'."
     )
 
-    build_dotmulch_standard_contents(target_dir=target_dir)
+    # this does not do anything, but it could be useful to format it this way
+    #build_dotmulch_standard_contents(target_dir=target_dir, scaffold_dict = scaffold_dict)
 
 #@with_logging(use_portable=True)
 @app.command()

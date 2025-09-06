@@ -174,3 +174,40 @@ def dedupe_paths(paths):
             unique.append(p)
             seen.add(resolved)
     return unique
+
+def seed(target_dir,scaffold_dict): 
+    """Write scaffold to target_dir/.mulch/mulch.toml"""
+    #scaffold_dict
+    output_path = target_dir / '.mulch' / 'mulch.toml'
+    if output_path.exists() and not typer.confirm(f"⚠️ {output_path} already exists. Overwrite?"):
+        raise typer.Abort()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        toml.dump(scaffold_dict, f)
+    typer.echo(f"✅ Wrote .mulch to: {output_path}")
+
+def workspace(base_path, scaffold_filepath, workspace_path):
+    """
+    Initialize a new workspace folder, using the mulch.toml structure or the fallback structure embedded in WorkspaceManagerGenerator.
+    """
+    import mulch
+    from mulch.workspace_instance_factory import WorkspaceInstanceFactory
+    with open(scaffold_filepath, "w", encoding="utf-8") as f:
+        scaffold_data =toml.load(f)
+    lock_data = {
+        "scaffold": scaffold_data,
+        "generated_by": f"mulch {mulch.__version__}",
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "generated_by": get_username_from_home_directory()
+    }
+
+    name = workspace_path.name
+    workspaces_dir = workspace_path.parent
+    # I don't think basepath actually matters for what I am doing here, it apparently is only used in context, 
+    # which in turn is only used in : 
+    #   self.workspace_lock_path = self.context.workspace_lock_path
+    #   self.flags_lock_path = self.context.flags_lock_path
+    wif = WorkspaceInstanceFactory(base_path, workspaces_dir, name, lock_data)    
+    # Proceed to generate, and set most recently generated file as the default
+    wif.create_workspace(set_default=True)
+    
