@@ -192,8 +192,9 @@ def workspace(base_path, scaffold_filepath, workspace_path):
     """
     import mulch
     from mulch.workspace_instance_factory import WorkspaceInstanceFactory
-    with open(scaffold_filepath, "w", encoding="utf-8") as f:
-        scaffold_data =toml.load(f)
+    
+    with open(scaffold_filepath, "r", encoding="utf-8") as f:
+        scaffold_data = toml.load(f)
     lock_data = {
         "scaffold": scaffold_data,
         "generated_by": f"mulch {mulch.__version__}",
