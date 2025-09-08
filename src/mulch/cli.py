@@ -250,7 +250,8 @@ def workspace(
     }
     
     logger.debug(f"workspace_dirs = {workspaces_dir}")
-    wif = WorkspaceInstanceFactory(target_dir, workspaces_dir, name, lock_data, here=here)
+    wif = WorkspaceInstanceFactory(workspaces_dir, name, here=here)
+    wif.establish_lock_filepaths(target_dir,lock_data)
     
     workspace_status = wif.evaluate_workspace_status()
     

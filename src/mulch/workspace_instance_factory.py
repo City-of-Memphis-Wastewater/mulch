@@ -35,7 +35,6 @@ class WorkspaceInstanceFactory:
     
 
     def __init__(self, 
-                 base_path: Path,
                  workspaces_dir: Path,
                  workspace_name: str,
                  lock_data: dict,
@@ -49,20 +48,19 @@ class WorkspaceInstanceFactory:
         Initialize a new workspace instance factory.
         
         Args:
-            base_path: Root directory of the project
+            # base_path: Root directory of the project # migrated to establish_lock_filepaths() 
             workspace_dir: Directory where workspace will be created
             workspace_name: Name of the workspace
-            lock_data: Scaffold and metadata for lockfile
+            # lock_data: Scaffold and metadata for lockfile # migrated to establish_lock_filepaths()
             here: If True, create workspace in root instead of workspaces/
-            stealth: If True, use .mulch/workspaces/ instead of root/workspaces/ # deprecated, blocked, no way to use.
+            # stealth: If True, use .mulch/workspaces/ instead of root/workspaces/ # deprecated, blocked, no way to use.
         
         """
-        self.base_path = Path(base_path).resolve()
+        #self.base_path = Path(base_path).resolve() # migrated to establish_lock_filepaths()
         self.workspace_name = workspace_name
-        self.lock_data = lock_data
         self.here = here
         self.stealth = False  # deprecated, blocked, no way to use. 
-        
+        """
         # Create PathContext with explicit parameters
         self.context = PathContext(
             base_path=self.base_path,
@@ -71,15 +69,22 @@ class WorkspaceInstanceFactory:
             here=self.here,
             stealth=self.stealth
         )
-
+        """
         # Get paths from context
         #self.workspace_dir = self.context.workspace_dir 
-        self.workspace_dir = workspaces_dir / workspace_name # relies on WorkspaceInstanceFactory.determine_workspaces_dir() rather than PathContext. 
-        self.workspace_lock_path = self.context.workspace_lock_path
-        self.flags_lock_path = self.context.flags_lock_path
+        self.workspace_dir = workspaces_dir / workspace_name # relies on WorkspaceInstanceFactory.determine_workspaces_dir() rather than PathContext.
+        # PathContext and WorkspaceInstanceFactory.determine_workspaces_dir() are redundant, but the latter requires fewer inputs
+        # Decision: Let's get rid of WorkspaceInstanceFactory's reliance on PathContext and worry about WorkspaceManagerGenerator later.
+        # self.workspace_lock_path = self.context.workspace_lock_path
 
-
-        self.project_name = self.base_path.name
+    def establish_lock_filepaths(self,base_path,lock_data):
+        self.base_path = Path(base_path).resolve() # migrated to establish_lock_filepaths()
+        self.lock_data = lock_data
+        self.workspace_lock_path = self.workspace_dir / "space.lock"
+        #self.flags_lock_path = self.context.flags_lock_path
+        self.flags_lock_path = base_path / ".mulch" / "flags.lock"
+        # wif.context is never referenced outside of this file. Don't start now.  
+        # self.project_name = self.base_path.name # unusued, apparently
 
     def get_path(self, key: str) -> Path:
         """
@@ -158,7 +163,7 @@ class WorkspaceInstanceFactory:
         #    return target_dir / ".mulch" / "workspaces" 
         return target_dir / "workspaces" 
     
-    def check_and_create_workspace_dirs_from_scaffold(self, workspace_dir: Path) -> None:
+    def check_lock_and_create_workspace_dirs_from_scaffold(self, workspace_dir: Path, scaffold_data=None) -> None:
         """
         Create workspace directory structure from arbitrarily nested scaffold definition.
         
@@ -175,7 +180,10 @@ class WorkspaceInstanceFactory:
             "data/processed/monthly/README.md"
         ]
         """
-        scaffold_data = self.lock_data.get("scaffold", {})
+
+        # this is safe because it checks the lock file to write the scaffold but it is non ideal for library usage
+        if scaffold_data is None:
+            scaffold_data = self.lock_data.get("scaffold", {})
         if "scaffold" in scaffold_data:  # Handle double-nested case from your TOML
             scaffold_data = scaffold_data["scaffold"]
 
@@ -236,6 +244,8 @@ class WorkspaceInstanceFactory:
 
         logger.info(f"Completed workspace scaffold creation in {workspace_dir}")
 
+    def create_workspace_dirs_from_scaffold_sans_lock(self,workspace_dir, scaffold_dict):
+        pass 
     def create_workspace(self, *, set_default: bool = True) -> None:
         """
         Create a new workspace with scaffold structure and configuration.
@@ -251,7 +261,8 @@ class WorkspaceInstanceFactory:
 
         # Create the workspace structure
         self.write_workspace_lockfile()
-        self.check_and_create_workspace_dirs_from_scaffold(self.workspace_dir)
+        self.check_lock_and_create_workspace_dirs_from_scaffold(self.workspace_dir) # create alternative that does not require a lock (get filthy and dangerous)
+        # alternative self.create_workspace_dirs_from_scaffold_sans_lock(self.workspace_dir, scaffold_dict)
         self.build_scaffolded_workspace_files()
 
         # Handle default workspace setting

@@ -175,12 +175,12 @@ def dedupe_paths(paths):
             seen.add(resolved)
     return unique
 
-def seed(target_dir, scaffold_dict):
+def seed(target_dir, scaffold_dict, skip_if_exists = False):
     """Write scaffold to target_dir/.mulch/mulch.toml"""
     output_path = target_dir / ".mulch" / "mulch.toml"
     should_write = True
 
-    if output_path.exists():
+    if output_path.exists and skip_if_exists is False:
         should_write = typer.confirm(f"⚠️ {output_path} already exists. Overwrite?")
 
     if should_write:
@@ -216,7 +216,8 @@ def workspace(base_path, scaffold_filepath, workspace_path):
     # which in turn is only used in : 
     #   self.workspace_lock_path = self.context.workspace_lock_path
     #   self.flags_lock_path = self.context.flags_lock_path
-    wif = WorkspaceInstanceFactory(base_path, workspaces_dir, name, lock_data)    
+    wif = WorkspaceInstanceFactory(workspaces_dir, name)
+    wif.establish_lock_filepaths(base_path,lock_data) 
     # Proceed to generate, and set most recently generated file as the default
     wif.create_workspace(set_default=True)
     

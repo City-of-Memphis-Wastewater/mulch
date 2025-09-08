@@ -41,6 +41,7 @@ class PathContext:
     
     @property
     def workspace_lock_path(self) -> Path:
+        """Migrated to WorkspaceInstanceFactory to reduce spaghetti"""
         return self.workspace_dir / "space.lock"
     
     @property
