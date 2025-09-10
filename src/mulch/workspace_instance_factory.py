@@ -37,7 +37,6 @@ class WorkspaceInstanceFactory:
     def __init__(self, 
                  workspaces_dir: Path,
                  workspace_name: str,
-                 lock_data: dict,
                  *,
                  here: bool = False):
         """

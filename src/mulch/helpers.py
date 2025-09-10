@@ -178,9 +178,9 @@ def dedupe_paths(paths):
 def seed(target_dir, scaffold_dict, skip_if_exists = False):
     """Write scaffold to target_dir/.mulch/mulch.toml"""
     output_path = target_dir / ".mulch" / "mulch.toml"
-    should_write = True
+    should_write = False
 
-    if output_path.exists and skip_if_exists is False:
+    if output_path.exists and not(skip_if_exists):
         should_write = typer.confirm(f"⚠️ {output_path} already exists. Overwrite?")
 
     if should_write:
