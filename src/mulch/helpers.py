@@ -190,7 +190,7 @@ def seed(target_dir, scaffold_dict, skip_if_exists = False):
         typer.echo(f"✅ Wrote .mulch to: {output_path}")
         return True
 
-    typer.echo("❌ Skipped writing scaffold.")
+    #typer.echo("❌ Skipped writing scaffold.")
     return False
 
 
