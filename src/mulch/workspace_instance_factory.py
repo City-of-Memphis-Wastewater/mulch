@@ -243,8 +243,7 @@ class WorkspaceInstanceFactory:
 
         logger.info(f"Completed workspace scaffold creation in {workspace_dir}")
 
-    def create_workspace_dirs_from_scaffold_sans_lock(self,workspace_dir, scaffold_dict):
-        pass 
+    
     def create_workspace(self, *, set_default: bool = True) -> None:
         """
         Create a new workspace with scaffold structure and configuration.
@@ -423,6 +422,46 @@ def load_scaffold__(target_dir: Optional[Path] = None,
             
     logger.warning("No valid scaffold file found. Falling back to internal scaffold.")
     return FALLBACK_SCAFFOLD
+
+def create_workspace_dirs_from_scaffold_sans_lock(workspace_dir_path, scaffold_dict):
+        """
+        
+        Expected TOML structure:
+        scaffold_dict = {
+            "scaffold": {
+                "dirs": [
+                    "data",
+                    "data/raw",
+                    "data/processed/monthly",
+                    "queries/historical/archive",
+                ],
+                "files": [
+                    "queries/historical/default-queries.toml",
+                    "data/processed/monthly/README.md"
+                ]
+            }
+        }
+        """
+        if "scaffold" in scaffold_dict:  # Handle double-nested case from your TOML
+            scaffold_dict = scaffold_dict["scaffold"]
+
+        # Handle directory creation first
+        if "dirs" in scaffold_dict:
+            for dir_path in scaffold_dict["dirs"]:
+                full_path = workspace_dir_path / dir_path
+                if not full_path.exists():
+                    full_path.mkdir(parents=True, exist_ok=True)
+                    logger.debug(f"Created directory: {full_path}")
+        
+        # Handle file creation second (ensures parent dirs exist)
+        if "files" in scaffold_dict:
+            for file_path in scaffold_dict["files"]:
+                full_path = workspace_dir_path / file_path
+                if not full_path.exists():
+                    full_path.parent.mkdir(parents=True, exist_ok=True)
+                    full_path.touch()
+                    logger.debug(f"Created file: {full_path}")
+
 
 # Move outside class
 def load_scaffold(

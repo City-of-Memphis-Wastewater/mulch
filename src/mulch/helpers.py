@@ -201,8 +201,11 @@ def workspace(base_path, scaffold_filepath, workspace_path):
     from mulch.cli import MULCH_VERSION 
     from mulch.workspace_instance_factory import WorkspaceInstanceFactory
     
+    #if not scaffold_filepath.exists():
+
     with open(scaffold_filepath, "r", encoding="utf-8") as f:
         scaffold_data = toml.load(f)
+
     lock_data = {
         "scaffold": scaffold_data,
         "generated_by": f"mulch {MULCH_VERSION}",
@@ -221,3 +224,6 @@ def workspace(base_path, scaffold_filepath, workspace_path):
     # Proceed to generate, and set most recently generated file as the default
     wif.create_workspace(set_default=True)
     
+def worspace_from_scaffold(workspace_dir, scaffold_dict):
+    from mulch.workspace_instance_factory import create_workspace_dirs_from_scaffold_sans_lock
+    create_workspace_dirs_from_scaffold_sans_lock(workspace_dir, scaffold_dict)
